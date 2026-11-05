@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nadzeya Huts — Senior UX/UI Designer (Web3 & Fintech)</title>
+<meta name="description" content="Nadzeya Huts — Senior UX/UI Designer for Web3 & Fintech. 16 years in design, 6 in UX/UI product. Making complex financial products people trust." />
+<meta name="author" content="Nadzeya Huts" />
+<meta property="og:type" content="profile" />
+<meta property="og:title" content="Nadzeya Huts — Senior UX/UI Designer (Web3 & Fintech)" />
+<meta property="og:description" content="16 years in design, 6 in UX/UI. Making complex financial products people trust." />
+<link rel="stylesheet" href="portfolio.css" />
+<script src="image-slot.js"></script>
+<style>
+  body { background: #121115; overflow-x: hidden; }
+
+  /* starfield */
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  #stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; }
+
+  .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* top bar */
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 26px 0; }
+  .topbar .label { font-size: 14px; color: var(--muted); }
+
+  /* main grid */
+  .home { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(20px,4vw,40px) 0 60px; }
+  @media (max-width: 940px) { .home { grid-template-columns: 1fr; gap: 48px; align-items: start; } }
+
+  /* left intro */
+  h1.name { font-size: clamp(58px, 11vw, 132px); line-height: 0.92; letter-spacing: -0.03em; font-weight: 500; }
+  .role { margin-top: clamp(28px,4vw,46px); color: var(--muted); font-size: clamp(16px,1.8vw,19px); }
+  .tagline { margin-top: 12px; font-size: clamp(18px,2.1vw,23px); color: var(--ink); font-weight: 400; letter-spacing: -0.005em; }
+
+  .stats { margin-top: clamp(36px,5vw,56px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 560px; }
+  @media (max-width: 480px) { .stats { grid-template-columns: 1fr; gap: 26px; } }
+  .stat .big { font-family: var(--body); font-weight: 400; font-size: 20px; line-height: 1.5; letter-spacing: -0.005em; color: #fff; }
+  .stat .cap { font-family: var(--body); font-weight: 500; font-size: 12px; line-height: 1.5; letter-spacing: 0.015em; color: rgba(255,255,255,.6); margin-top: 2px; }
+  .stat .desc { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; line-height: 1.5; }
+
+  /* right work list */
+  .work-head { color: var(--faint); font-size: 14px; margin-bottom: 18px; }
+  .work-list { display: flex; flex-direction: column; gap: 16px; }
+  .work {
+    position: relative; display: grid; grid-template-columns: 84px 1fr auto; gap: 22px; align-items: center;
+    padding: 22px 26px; border-radius: 20px; border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.008));
+    transition: border-color .25s ease, transform .25s ease, background .25s ease;
+  }
+  .work:hover { border-color: var(--line-2); transform: translateY(-3px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); }
+  .work .ic { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; }
+  .work .ic img { width: 64px; height: 64px; border-radius: 15px; display: block; object-fit: cover; }
+  .work h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.015em; }
+  .work p { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); letter-spacing: -0.005em; }
+  .work .yr { font-size: 13px; color: var(--faint); align-self: start; white-space: nowrap; }
+  @media (max-width: 560px) {
+    .work { grid-template-columns: 56px 1fr; grid-template-rows: auto auto; padding: 18px; gap: 8px 16px; }
+    .work .ic, .work .ic img { width: 56px; height: 56px; }
+    .work .yr { grid-column: 2; grid-row: 2; }
+  }
+
+  /* footer social */
+  .social { display: flex; justify-content: center; gap: 28px; padding: 14px 0 44px; }
+  .social a { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); transition: color .2s ease; font-size: 13px; }
+  .social a:hover { color: var(--ink); }
+  .social .glyph { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); color: #fff; display: flex; align-items: center; justify-content: center; transition: background .2s ease; }
+  .social a:hover .glyph { background: rgba(255,255,255,.2); }
+  .social .glyph svg { width: 20px; height: 20px; display: block; }
+</style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+
+<div class="page wrap" itemscope itemtype="https://schema.org/Person">
+  <meta itemprop="name" content="Nadzeya Huts" />
+  <meta itemprop="jobTitle" content="Senior UX/UI Designer" />
+
+  <header class="topbar">
+    <span class="label">UX/UI Portfolio: 2026</span>
+    <span class="label">Remote</span>
+  </header>
+
+  <main class="home">
+    <!-- LEFT -->
+    <section>
+      <h1 class="name reveal">Nadzeya<br />Huts.</h1>
+      <p class="role reveal">Senior UX/UI Designer — Web3 &amp; Fintech</p>
+      <p class="tagline reveal">Making complex financial products people trust.</p>
+
+      <div class="stats reveal">
+        <div class="stat">
+          <div class="big">16 years</div>
+          <div class="cap">in design</div>
+          <div class="desc">Figma/Framer, Figma AI, Claude, Adobe AI, PS, ID, Google Spreadsheets</div>
+        </div>
+        <div class="stat">
+          <div class="big">6 yrs</div>
+          <div class="cap">UX/UI Product</div>
+          <div class="desc">UX Research · UI Design · Design Systems · Collaboration</div>
+        </div>
+        <div class="stat">
+          <div class="big">30+</div>
+          <div class="cap">Shipped</div>
+          <div class="desc">Web3 Defi, Crypto games, Neobank, Banking, Low-Code Platforms</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section>
+      <div class="work-head">Recent work</div>
+      <div class="work-list">
+        <a class="work reveal" href="together-fun.html">
+          <div class="ic"><img src="assets/icon-together.webp" alt="Together.fun" /></div>
+          <div>
+            <h3>Together.fun — Play-Earn Game</h3>
+            <p>Game UX · Web3 · Fintech</p>
+          </div>
+          <span class="yr">2025-2026</span>
+        </a>
+
+        <a class="work reveal" href="4ire.html">
+          <div class="ic"><img src="assets/icon-4ire.webp" alt="4IRE RWA Platform" /></div>
+          <div>
+            <h3>4IRE RWA Platform</h3>
+            <p>DAO Governance · RWA Tokenization · Reputation System ·</p>
+          </div>
+          <span class="yr">2026</span>
+        </a>
+
+        <a class="work reveal" href="tons.html">
+          <div class="ic"><img src="assets/icon-tons.webp" alt="TONS MONEY Capital" /></div>
+          <div>
+            <h3>TONS MONEY Capital</h3>
+            <p>RWA Tokenization Investment · Design System</p>
+          </div>
+          <span class="yr">2025</span>
+        </a>
+
+        <a class="work reveal" href="neobank.html">
+          <div class="ic"><img src="assets/icon-neobank.webp" alt="NeoBank" /></div>
+          <div>
+            <h3>NeoBank — Crypto-Fiat Banking</h3>
+            <p>Neobank · Crypto-Fiat · Design System · Material Design 3 · Web Portal · Admin Portal</p>
+          </div>
+          <span class="yr">2024-2025</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="social">
+    <a href="#" aria-label="Download CV"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M10.2 1L10.3053 1.0063C10.5062 1.02999 10.6933 1.12067 10.8363 1.26371C10.9793 1.40675 11.07 1.5938 11.0937 1.7947L11.1 1.9V5.5L11.1045 5.635C11.1367 6.06355 11.3212 6.46644 11.6246 6.77083C11.928 7.07521 12.3303 7.261 12.7587 7.2946L12.9 7.3H16.5L16.6053 7.3063C16.8062 7.32999 16.9933 7.42067 17.1363 7.56371C17.2793 7.70675 17.37 7.89381 17.3937 8.0947L17.4 8.2V16.3C17.4 16.9887 17.1369 17.6514 16.6644 18.1524C16.192 18.6535 15.5459 18.9551 14.8584 18.9955L14.7 19H5.7C5.01131 19 4.34864 18.7369 3.84757 18.2644C3.34649 17.792 3.0449 17.1459 3.0045 16.4584L3 16.3V3.7C2.99996 3.01131 3.26309 2.34864 3.73556 1.84757C4.20802 1.34649 4.8541 1.0449 5.5416 1.0045L5.7 1H10.2ZM12.9 13.6H7.5C7.26131 13.6 7.03239 13.6948 6.8636 13.8636C6.69482 14.0324 6.6 14.2613 6.6 14.5C6.6 14.7387 6.69482 14.9676 6.8636 15.1364C7.03239 15.3052 7.26131 15.4 7.5 15.4H12.9C13.1387 15.4 13.3676 15.3052 13.5364 15.1364C13.7052 14.9676 13.8 14.7387 13.8 14.5C13.8 14.2613 13.7052 14.0324 13.5364 13.8636C13.3676 13.6948 13.1387 13.6 12.9 13.6ZM12.9 10H7.5C7.26131 10 7.03239 10.0948 6.8636 10.2636C6.69482 10.4324 6.6 10.6613 6.6 10.9C6.6 11.1387 6.69482 11.3676 6.8636 11.5364C7.03239 11.7052 7.26131 11.8 7.5 11.8H12.9C13.1387 11.8 13.3676 11.7052 13.5364 11.5364C13.7052 11.3676 13.8 11.1387 13.8 10.9C13.8 10.6613 13.7052 10.4324 13.5364 10.2636C13.3676 10.0948 13.1387 10 12.9 10ZM8.4 6.4H7.5C7.26131 6.4 7.03239 6.49482 6.8636 6.6636C6.69482 6.83239 6.6 7.06131 6.6 7.3C6.6 7.53869 6.69482 7.76761 6.8636 7.9364C7.03239 8.10518 7.26131 8.2 7.5 8.2H8.4C8.6387 8.2 8.86761 8.10518 9.0364 7.9364C9.20518 7.76761 9.3 7.53869 9.3 7.3C9.3 7.06131 9.20518 6.83239 9.0364 6.6636C8.86761 6.49482 8.6387 6.4 8.4 6.4Z"/><path d="M16.4998 5.49934H12.8998L12.8989 1.89844L16.4998 5.49934Z"/></svg></span>CV</a>
+    <a href="mailto:hello@nadzeyahuts.design" aria-label="Email"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.3334 6.2793V14.1668C18.3335 14.8045 18.0898 15.4181 17.6523 15.882C17.2149 16.346 16.6167 16.6252 15.9801 16.6626L15.8334 16.6668H4.16675C3.52907 16.6668 2.91549 16.4232 2.45153 15.9857C1.98758 15.5483 1.70833 14.95 1.67091 14.3135L1.66675 14.1668V6.2793L9.53758 11.5268L9.63425 11.5818C9.74817 11.6375 9.87329 11.6664 10.0001 11.6664C10.1269 11.6664 10.252 11.6375 10.3659 11.5818L10.4626 11.5268L18.3334 6.2793Z"/><path d="M15.8334 3.33301C16.7334 3.33301 17.5226 3.80801 17.9626 4.52217L10.0001 9.83051L2.0376 4.52217C2.24659 4.18286 2.53367 3.89842 2.87491 3.69258C3.21614 3.48674 3.60164 3.36546 3.99926 3.33884L4.16676 3.33301H15.8334Z"/></svg></span>mail</a>
+    <a href="#" aria-label="Telegram"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.1355 1.1052C17.3568 1.01205 17.5991 0.979925 17.837 1.01216C18.0749 1.0444 18.2999 1.13983 18.4884 1.28851C18.677 1.43719 18.8222 1.63369 18.9091 1.85756C18.9959 2.08142 19.0212 2.32447 18.9822 2.56141L16.951 14.8819C16.754 16.0703 15.45 16.7518 14.3601 16.1598C13.4484 15.6646 12.0943 14.9016 10.8763 14.1054C10.2673 13.7069 8.40184 12.4307 8.63111 11.5225C8.82814 10.7461 11.9627 7.82829 13.7538 6.09356C14.4568 5.41203 14.1362 5.01887 13.306 5.64577C11.2444 7.20229 7.93435 9.5693 6.83996 10.2356C5.87452 10.8231 5.37121 10.9234 4.76938 10.8231C3.6714 10.6404 2.65313 10.3574 1.82204 10.0126C0.698986 9.54691 0.753616 8.00293 1.82114 7.55335L17.1355 1.1052Z"/></svg></span>telegram</a>
+    <a href="#" aria-label="LinkedIn"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.9432 7.5752H10.9144V9.0552C11.3424 8.204 12.44 7.4392 14.0888 7.4392C17.2496 7.4392 18 9.1336 18 12.2424V18H14.8V12.9504C14.8 11.18 14.372 10.1816 13.2824 10.1816C11.7712 10.1816 11.1432 11.2576 11.1432 12.9496V18H7.9432V7.5752ZM2.456 17.864H5.656V7.4392H2.456V17.864ZM6.1144 4.04C6.11452 4.30822 6.06132 4.57379 5.95791 4.82127C5.85449 5.06875 5.70292 5.29321 5.512 5.4816C5.32051 5.67209 5.09336 5.82299 4.84354 5.92567C4.59371 6.02834 4.3261 6.08079 4.056 6.08C3.51168 6.07878 2.98953 5.86423 2.6016 5.4824C2.41144 5.29332 2.26043 5.0686 2.1572 4.8211C2.05397 4.57359 2.00055 4.30817 2 4.04C2 3.4984 2.216 2.98 2.6024 2.5976C2.98936 2.21431 3.51214 1.9995 4.0568 2C4.6024 2 5.1256 2.2152 5.512 2.5976C5.8984 2.98 6.1144 3.4984 6.1144 4.04Z"/></svg></span>LinkedIn</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // starfield
+  const sky = document.getElementById('stars');
+  const n = window.innerWidth < 700 ? 70 : 130;
+  let html = '';
+  for (let i=0;i<n;i++){
+    const x = Math.random()*100, y = Math.random()*100;
+    const o = (Math.random()*0.6 + 0.15).toFixed(2);
+    const s = Math.random() < 0.15 ? 3 : (Math.random()<0.5?1:2);
+    html += `<i style="left:${x}%;top:${y}%;opacity:${o};width:${s}px;height:${s}px"></i>`;
+  }
+  sky.innerHTML = html;
+
+  // reveal
+  const els = Array.from(document.querySelectorAll('.reveal'));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced && 'IntersectionObserver' in window){
+    document.documentElement.classList.add('anim');
+    els.forEach((el,i)=> el.style.transitionDelay = Math.min(i*55,300)+'ms');
+    const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.06});
+    els.forEach(el=>io.observe(el));
+    const inview=()=>els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');});
+    addEventListener('load',inview); inview();
+    setTimeout(()=>els.forEach(el=>{const m=new DOMMatrixReadOnly(getComputedStyle(el).transform);if(Math.abs(m.m42)>.5){el.style.transition='none';el.style.transform='none';}}),1100);
+  }
+})();
+</script>
+</body>
+</html>
