@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts</title>
+<meta name="description" content="NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts." />
+<link rel="canonical" href="https://nadzeyahuts-spec.github.io/neobank.html" />
+<meta name="robots" content="index,follow" />
+<meta name="author" content="Nadzeya Huts" />
+<meta name="keywords" content="Nadzeya Huts, product designer, UX/UI designer, fintech designer, Web3 designer, crypto UX, design systems, AI product builder, portfolio" />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Nadzeya Huts — Portfolio" />
+<meta property="og:url" content="https://nadzeyahuts-spec.github.io/neobank.html" />
+<meta property="og:title" content="NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts" />
+<meta property="og:description" content="NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts." />
+<meta property="og:image" content="https://nadzeyahuts-spec.github.io/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts" />
+<meta name="twitter:description" content="NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts." />
+<meta name="twitter:image" content="https://nadzeyahuts-spec.github.io/assets/og.png" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CreativeWork","name":"NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts","description":"NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts.","url":"https://nadzeyahuts-spec.github.io/neobank.html","image":"https://nadzeyahuts-spec.github.io/assets/neobank-cards.png","author":{"@type":"Person","name":"Nadzeya Huts","url":"https://nadzeyahuts-spec.github.io/"}}</script>
+<link rel="stylesheet" href="portfolio.css" />
+<script src="image-slot.js"></script>
+<style>
+  body { background: #121115; }
+
+  /* top nav back */
+  .nav { position: fixed; top: 0; left:0; right:0; z-index: 40; background: transparent; transition: background .3s ease; }
+  .nav.scrolled { background: #121115; }
+  .nav .back { color: #fff; }
+  .nav.scrolled .back { color: var(--muted); }
+  .nav .proj { color: rgba(255,255,255,.75); }
+  .nav.scrolled .proj { color: var(--faint); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .back { display: inline-flex; align-items: center; gap: 9px; color: #fff; font-size: 14px; font-weight: 500; transition: color .2s; }
+  .back:hover { color: var(--ink); }
+  .nav .proj { font-size: 13px; }
+
+  section.s { padding: clamp(56px, 9vw, 120px) 0; }
+  section.s.tight { padding: clamp(40px, 6vw, 80px) 0; }
+
+  h2.sec { font-size: clamp(28px, 4.4vw, 46px); letter-spacing: -0.02em; line-height: 1.05; }
+  .kicker { display:inline-block; font-size:12px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--green); margin-bottom:18px; }
+  .lead-p { color: var(--muted-2); font-size: clamp(16px,1.8vw,19px); line-height: 1.65; max-width: 70ch; }
+
+  /* ---- HERO (full-bleed X-brand background) ---- */
+  .nb-hero { position:relative; display:grid; min-height:100dvh; }
+  .nb-hero-bg { grid-area:1 / 1; width:100%; height:100%; object-fit:cover; display:block; }
+  .nb-hero::after { content:""; grid-area:1 / 1; z-index:1; background:linear-gradient(180deg, rgba(18,17,21,.55) 0%, rgba(18,17,21,.35) 42%, rgba(18,17,21,.78) 78%, #121115 100%); }
+  .nb-hero-inner { grid-area:1 / 1; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:flex-start; padding-top:clamp(88px,12vh,140px); padding-bottom:clamp(28px,4vh,56px); }
+  .nb-device { width:100%; max-width:960px; height:auto; display:block; margin:0 auto; border-radius:16px; border:1px solid rgba(255,255,255,.12); box-shadow:0 50px 120px -50px rgba(0,0,0,.9); cursor:zoom-in; }
+  .nb-eyebrow { font-size:clamp(12px,1.3vw,14.5px); letter-spacing:0.12em; color:var(--muted-2); margin:clamp(22px,3vh,34px) 0 16px; }
+  .nb-title { font-size:clamp(38px,6vw,74px); letter-spacing:-0.03em; line-height:1; margin:0; }
+  .nb-sub { font-size:clamp(16px,2vw,22px); color:var(--muted-2); margin:16px 0 0; max-width:28ch; line-height:1.35; }
+  .nb-hero .hero-cta { margin-top:clamp(22px,3vh,32px); display:flex; gap:13px; justify-content:center; }
+  .nb-statcard { margin-top:clamp(28px,4.5vh,52px); display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:18px; background:rgba(20,20,23,.72); backdrop-filter:blur(8px); overflow:hidden; max-width:720px; width:100%; }
+  .nb-statcard .st { padding:24px 18px; text-align:center; }
+  .nb-statcard .st + .st { border-left:1px solid var(--line); }
+  .nb-statcard .n { font-family:var(--head); font-weight:500; font-size:clamp(18px,2.2vw,26px); letter-spacing:-0.02em; }
+  .nb-statcard .l { color:var(--muted); font-size:13.5px; margin-top:6px; }
+  @media (max-width:560px){ .nb-statcard{ grid-template-columns:1fr } .nb-statcard .st+.st{ border-left:none; border-top:1px solid var(--line) } }
+
+  /* ---- META + BACKGROUND ---- */
+  .meta-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(36px,6vw,80px); }
+  @media (max-width:880px){ .meta-grid{grid-template-columns:1fr;gap:44px} }
+  .meta-grid dl { display: flex; flex-direction: column; gap: 24px; margin:0; }
+  .meta-row { display: grid; grid-template-columns: 110px 1fr; gap: 16px; }
+  .meta-row dt { color: var(--faint); font-size: 14px; }
+  .meta-row dd { margin: 0; color: var(--muted-2); font-size: 15px; line-height: 1.55; }
+  .prose h3 { font-size: 14px; letter-spacing: 0.04em; color: var(--faint); font-weight: 500; margin: 30px 0 12px; }
+  .prose h3:first-child { margin-top: 0; }
+  .prose p { color: var(--muted-2); font-size: clamp(16px,1.7vw,18px); line-height: 1.7; margin: 0 0 16px; }
+  .prose p strong { color: var(--ink); font-weight: 600; }
+
+  /* ---- CRYPTO / FIAT two-column concept ---- */
+  .cf-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:34px; }
+  @media (max-width:820px){ .cf-grid{ grid-template-columns:1fr } }
+  .cf-card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:clamp(24px,2.8vw,36px); position:relative; overflow:hidden; }
+  .cf-card .cf-h { display:flex; align-items:center; gap:12px; margin:0 0 20px; }
+  .cf-card .cf-h h3 { font-size:clamp(22px,2.6vw,30px); letter-spacing:-0.02em; margin:0; }
+  .cf-card ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px; }
+  .cf-card li { display:flex; gap:12px; color:var(--muted-2); font-size:15.5px; line-height:1.55; }
+  .cf-card li::before { content:"✳"; color:var(--green); flex:0 0 auto; }
+  .cf-card li b { color:var(--ink); font-weight:600; }
+
+  /* ---- shots + captions ---- */
+  .shot { display:block; width:100%; height:auto; border-radius:16px; border:1px solid var(--line); box-shadow:0 30px 70px -45px rgba(0,0,0,.8); cursor:zoom-in; }
+  figure { margin:0; }
+  figcaption { margin-top:14px; color:var(--muted); font-size:14.5px; line-height:1.6; }
+
+  /* ---- PRODUCT FEATURES (tabs) ---- */
+  .feat { margin-top: clamp(40px,6vw,72px); }
+  .feat:first-of-type { margin-top: 0; }
+  .feat .lab { font-size:13px; letter-spacing:0.02em; color:var(--faint); margin-bottom:12px; }
+  .feat > h3 { font-size:clamp(24px,3.4vw,38px); letter-spacing:-0.02em; margin:0 0 26px; line-height:1.08; }
+  .feat > h3 strong { font-weight:600; }
+  .ftabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
+  .ftab { font-family:var(--body); font-size:14px; font-weight:500; color:var(--muted); background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:30px; padding:9px 18px; cursor:pointer; transition:color .2s, background .2s, border-color .2s; }
+  .ftab:hover { color:#fff; border-color:var(--line-2); }
+  .ftab[aria-selected="true"] { color:#0f0f12; background:#f5f5f6; border-color:#f5f5f6; }
+  .fpanels { position:relative; }
+  .fpanel { display:none; grid-template-columns:1.55fr 1fr; gap:clamp(20px,3vw,40px); align-items:center; }
+  .fpanel.active { display:grid; }
+  @media (max-width:860px){ .fpanel.active { grid-template-columns:1fr; } }
+  .fpanel .fshot { display:block; width:100%; height:auto; border-radius:12px; border:1px solid var(--line); cursor:zoom-in; }
+  .fpanel .fshot-wrap { min-width:0; }
+  .fpanel image-slot { display:block; width:100%; aspect-ratio:16/10; border-radius:12px; }
+  .fpanel image-slot.tall { aspect-ratio:4/5; }
+  .finfo { background:rgba(255,255,255,.015); border:1px solid var(--line); border-radius:20px; padding:clamp(24px,2.6vw,34px); align-self:start; }
+  .finfo .fk { font-size:14px; color:var(--muted); margin:0 0 18px; }
+  .finfo p { margin:0 0 16px; color:var(--muted-2); font-size:clamp(15px,1.6vw,17px); line-height:1.65; }
+  .finfo p:last-child { margin-bottom:0; }
+  .finfo p .hi { color:#fff; font-weight:600; }
+  .finfo ul.qlist { list-style:none; margin:0 0 4px; padding:0; display:flex; flex-direction:column; gap:11px; }
+  .finfo ul.qlist li { display:flex; gap:12px; color:var(--muted-2); font-size:15px; line-height:1.5; }
+  .finfo ul.qlist li::before { content:"✳"; color:var(--green); flex:0 0 auto; }
+  html.anim .fpanel.active .finfo { opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+  html.anim .fpanel.active.info-in .finfo { opacity:1; transform:none; }
+
+  /* ---- customizable-modules band ---- */
+  .nb-band { position:relative; border:1px solid var(--line); border-radius:24px; padding:clamp(34px,5vw,64px); text-align:center; overflow:hidden; background:var(--card); }
+  .nb-band h2 { font-size:clamp(26px,3.6vw,42px); letter-spacing:-0.025em; line-height:1.12; margin:0 auto; max-width:22ch; }
+  .nb-band h2 em { font-style:normal; color:var(--green); }
+  .nb-band p { color:var(--muted-2); font-size:clamp(16px,1.8vw,19px); line-height:1.6; margin:18px auto 0; max-width:56ch; }
+  .nb-pays { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:28px; }
+  .nb-chip { font-size:13.5px; color:var(--ink); background:rgba(255,255,255,.04); border:1px solid var(--line-2); border-radius:30px; padding:9px 16px; }
+
+  /* image lightbox popup */
+  #lightbox { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.88); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:4vw; cursor:zoom-out; }
+  #lightbox.open { display:flex; }
+  #lightbox img { max-width:100%; max-height:92vh; border-radius:12px; box-shadow:0 40px 100px rgba(0,0,0,.7); }
+
+  /* ---- CTA ---- */
+  .end { text-align:center; }
+  .end .ty { color:var(--faint); font-size:15px; }
+  .end h2 { font-size:clamp(34px,6vw,64px); margin:14px 0 34px; letter-spacing:-0.03em; }
+  .end-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  footer.f { border-top:1px solid var(--line); padding:36px 0 60px; }
+  footer.f .wrap { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:center; }
+  footer.f .label a { display:inline-flex; align-items:center; gap:9px; color:var(--muted); font-weight:500; transition:color .2s; }
+  footer.f .label a:hover { color:var(--ink); }
+
+  /* floating buttons */
+  #toTop, #toHome { position:fixed; right:clamp(18px,3vw,34px); z-index:60; width:52px; height:52px; border-radius:50%; border:1px solid var(--line-2); background:#1b1b20; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 14px 34px -12px rgba(0,0,0,.8); transition:background .2s, border-color .2s; }
+  #toTop { bottom:clamp(18px,3vw,34px); opacity:0; visibility:hidden; transform:translateY(12px); transition:opacity .25s ease, transform .25s ease, visibility .25s, background .2s, border-color .2s; }
+  #toTop.show { opacity:1; visibility:visible; transform:none; }
+  #toHome { bottom:calc(clamp(18px,3vw,34px) + 52px + 12px); }
+  #toTop:hover, #toHome:hover { background:#24242b; border-color:var(--green); }
+  #toTop svg, #toHome svg { width:22px; height:22px; }
+
+  /* right-side section rail */
+  #rail { position:fixed; right:clamp(12px,1.6vw,22px); top:50%; transform:translateY(-50%); z-index:55; display:flex; flex-direction:column; gap:2px; padding:10px 8px; }
+  #rail a { position:relative; display:flex; align-items:center; justify-content:flex-end; gap:12px; height:26px; text-decoration:none; cursor:pointer; }
+  #rail .rd { width:8px; height:8px; border-radius:50%; background:var(--line-2); transition:background .25s ease, transform .25s ease; flex:0 0 auto; }
+  #rail a:hover .rd { background:var(--muted-2); }
+  #rail a.active .rd { background:#ffffff; transform:scale(1.4); }
+  #rail .rl { font-family:var(--body); font-size:12.5px; color:var(--muted-2); white-space:nowrap; opacity:0; transform:translateX(8px); pointer-events:none; transition:opacity .25s ease, transform .25s ease; background:#1b1b20; border:1px solid var(--line); padding:5px 11px; border-radius:9px; box-shadow:0 10px 26px -14px rgba(0,0,0,.8); }
+  #rail:hover .rl, #rail a.active .rl { opacity:1; transform:none; }
+  #rail a.active .rl { color:#fff; }
+  @media (max-width:1180px){ #rail { display:none; } }
+
+  .reveal { will-change:transform,opacity; }
+  html.anim .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  html.anim .reveal.in { opacity:1; transform:none; }
+  @media print { #rail, #toTop, #toHome { display:none; } }
+  @media (prefers-reduced-motion: reduce){ html.anim .reveal { opacity:1; transform:none; transition:none; } }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="index.html" class="back"><span>←</span> Nadzeya Huts</a>
+    <span class="proj">Case study · NeoBankX</span>
+  </div>
+</nav>
+
+<main>
+
+  <!-- 1 · HERO -->
+  <section class="nb-hero" data-screen-label="01 Hero">
+    <img class="nb-hero-bg" src="assets/neobank-xbg.png" alt="" aria-hidden="true" />
+    <div class="nb-hero-inner wrap">
+      <figure class="reveal" style="margin:0;width:100%"><img class="nb-device" src="assets/neobank-cards.png" alt="NeoBankX Cards dashboard — multicurrency cards, saved contacts and transaction history" /></figure>
+      <p class="nb-eyebrow reveal">Neobank ⋆ Crypto-Fiat ⋆ Design System ⋆ Material Design 3 ⋆ Web Portal ⋆ Admin Portal</p>
+      <h1 class="nb-title reveal">NeoBankX</h1>
+      <p class="nb-sub reveal">The enterprise-grade crypto-fiat bridge.</p>
+      <div class="hero-cta reveal">
+        <a class="btn solid" href="index.html#contact">Contact me</a>
+        <a class="btn" href="https://docs.google.com/presentation/d/1l_i3PAwLFjA9eb9tA8o_R__0BDHXsmI-_Pz-qwIc1s4/edit?slide=id.g1ee9438b6d2_0_140#slide=id.g1ee9438b6d2_0_140" target="_blank" rel="noopener">CV</a>
+      </div>
+      <div class="nb-statcard reveal">
+        <div class="st"><div class="n">3 portals</div><div class="l">Mobile · Web · Admin</div></div>
+        <div class="st"><div class="n">Material Design 3</div><div class="l">Design system</div></div>
+        <div class="st"><div class="n">2024 — 2025</div><div class="l">Design development</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · META + BACKGROUND -->
+  <section class="s tight" data-screen-label="02 Background">
+    <div class="wrap meta-grid">
+      <dl class="reveal">
+        <div class="meta-row"><dt>Timeline:</dt><dd>2024 — 2025</dd></div>
+        <div class="meta-row"><dt>Tools:</dt><dd>Figma, Material Design 3, Figma Variables</dd></div>
+        <div class="meta-row"><dt>Scope:</dt><dd>End-to-end product design — mobile app, web portal and admin portal, plus a modular design system.</dd></div>
+        <div class="meta-row"><dt>Role:</dt><dd>Product Designer (UX / UI, design system)</dd></div>
+        <div class="meta-row"><dt>Platform:</dt><dd>Crypto-fiat neobank · white-label / customizable modules</dd></div>
+      </dl>
+      <div class="prose reveal">
+        <h3>Background</h3>
+        <p><strong>NeoBankX is an enterprise-grade crypto-fiat bridge</strong> for seamless, secure and compliant financial operations. It brings crypto and fiat under one account: multicurrency balances, cards, swaps, transfers and compliance monitoring — across a mobile app, a web portal and an admin portal.</p>
+        <h3>The challenge</h3>
+        <p>Bridge two worlds that usually feel separate — the speed and openness of crypto and the trust and compliance rails of banking — inside a single, coherent product. The system had to stay <strong>modular</strong>: every institution should be able to switch modules on or off to match its own financial needs.</p>
+        <h3>Approach</h3>
+        <p>A component-driven design system built on <strong>Material Design 3</strong> and Figma Variables, so the mobile, web and admin surfaces share one language. Flows were designed around real financial logic — KYC/AML, SWIFT/SEPA, multicurrency accounting and on-chain operations — not just screens.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · CONCEPT: Crypto + Fiat -->
+  <section class="s tight" data-screen-label="03 Crypto + Fiat">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker">One account · two worlds</span>
+        <h2 class="sec">Crypto and fiat, unified.</h2>
+        <p class="lead-p" style="margin-top:18px">NeoBankX handles both native crypto operations and full fiat banking in the same interface — with compliance and multicurrency accounting built in from the start.</p>
+      </div>
+      <div class="cf-grid reveal">
+        <div class="cf-card cf-crypto">
+          <div class="cf-h"><h3>Crypto</h3></div>
+          <ul>
+            <li><b>Crypto operations</b> — deposit, withdraw, purchase.</li>
+            <li><b>CEX operations</b> — swaps, cross-currency swaps and token listing.</li>
+            <li><b>Analytics view</b> — balance dashboard, 24h change and candlestick charts per token.</li>
+          </ul>
+        </div>
+        <div class="cf-card cf-fiat">
+          <div class="cf-h"><h3>Fiat</h3></div>
+          <ul>
+            <li><b>Transaction management &amp; monitoring</b> — KYC and AML.</li>
+            <li><b>Fiat operations</b> — deposit, withdraw, exchange and crypto purchase.</li>
+            <li><b>Transfers</b> — P2P, account-to-account, card-to-card and international SWIFT / SEPA.</li>
+            <li><b>Multicurrency accounts</b> — set-up and management.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · PRODUCT FEATURES -->
+  <section class="s" data-screen-label="04 Product Features">
+    <div class="wrap">
+      <h2 class="sec reveal" style="margin-bottom:18px">Product Features</h2>
+      <p class="lead-p reveal" style="margin-bottom:48px">A dark, focused interface with a violet primary for actions and values. Built as a component system so screens stay consistent from the admin web portal down to the mobile app.</p>
+
+      <!-- Cards & Accounts (real dashboard) -->
+      <div class="feat reveal">
+        <div class="lab">Web portal</div>
+        <h3>Cards &amp; <strong>Accounts</strong></h3>
+        <div class="fpanels">
+          <div class="fpanel active" data-panel="nb-cards">
+            <div class="fshot-wrap"><img class="fshot" src="assets/neobank-cards.png" alt="Cards dashboard — multicurrency virtual and standard cards, saved payments and contacts, filterable transaction table" loading="lazy" /></div>
+            <div class="finfo">
+              <p class="fk">Cards dashboard</p>
+              <p>A single surface for <span class="hi">multicurrency virtual and standard cards</span> — MULTI, EUR and USDT balances shown side by side, each with its own controls.</p>
+              <p>Saved payments and contacts sit above a <span class="hi">filterable transaction table</span> (type, status, period) so users can audit activity without leaving the page.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crypto (mobile) -->
+      <div class="feat reveal">
+        <div class="lab">Mobile app</div>
+        <h3>Crypto <strong>operations</strong></h3>
+        <div class="ftabs" role="tablist">
+          <button class="ftab" role="tab" aria-selected="true" data-fpanel="nb-crypto-dash">Portfolio</button>
+          <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-send">Send &amp; Receive</button>
+          <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-swap">Swap</button>
+        </div>
+        <div class="fpanels">
+          <div class="fpanel active" data-panel="nb-crypto-dash">
+            <div class="fshot-wrap"><image-slot id="nb-crypto-dash-img" class="tall" shape="rounded" radius="12" placeholder="Crypto portfolio (mobile) — balance, 24h change, candlestick chart"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Portfolio &amp; analytics</p>
+              <p>Balance dashboard with <span class="hi">24-hour change</span> and a candlestick chart for the selected token.</p>
+              <p>Buy, sell and track holdings from one screen, with per-token detail a tap away.</p>
+            </div>
+          </div>
+          <div class="fpanel" data-panel="nb-send">
+            <div class="fshot-wrap"><image-slot id="nb-send-img" class="tall" shape="rounded" radius="12" placeholder="Send / Receive crypto modal"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Send &amp; Receive</p>
+              <p>Address, network and amount with a clear <span class="hi">fee and commission breakdown before signing</span> — no post-action surprises.</p>
+              <p>Receive via QR or copyable address.</p>
+            </div>
+          </div>
+          <div class="fpanel" data-panel="nb-swap">
+            <div class="fshot-wrap"><image-slot id="nb-swap-img" class="tall" shape="rounded" radius="12" placeholder="Swap crypto — slippage tolerance & route"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Swap &amp; cross-currency</p>
+              <p>CEX-style swaps with <span class="hi">slippage tolerance</span> and a transparent route across providers.</p>
+              <p>Cross-currency conversions handled in the same flow.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create -->
+      <div class="feat reveal">
+        <div class="lab">Create</div>
+        <h3>New card, contact <strong>&amp; account</strong></h3>
+        <div class="ftabs" role="tablist">
+          <button class="ftab" role="tab" aria-selected="true" data-fpanel="nb-card">Add card</button>
+          <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-contact">Add contact</button>
+          <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-account">Add account</button>
+        </div>
+        <div class="fpanels">
+          <div class="fpanel active" data-panel="nb-card">
+            <div class="fshot-wrap"><image-slot id="nb-card-img" shape="rounded" radius="12" placeholder="Add New Card modal"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Add a new card</p>
+              <p>Choose card type and currency, set <span class="hi">spending limits</span> (per transaction and per period), and confirm — all in one guided modal.</p>
+            </div>
+          </div>
+          <div class="fpanel" data-panel="nb-contact">
+            <div class="fshot-wrap"><image-slot id="nb-contact-img" shape="rounded" radius="12" placeholder="Add a New Contact modal"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Add a new contact</p>
+              <p>Save recipients by transfer type — <span class="hi">platform friend, bank recipient, card recipient, crypto wallet</span> or international transfer (SWIFT / SEPA).</p>
+            </div>
+          </div>
+          <div class="fpanel" data-panel="nb-account">
+            <div class="fshot-wrap"><image-slot id="nb-account-img" shape="rounded" radius="12" placeholder="Add Account / accounts overview"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Add an account</p>
+              <p>Open additional <span class="hi">multicurrency accounts</span> and manage them from a single overview.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compliance / admin -->
+      <div class="feat reveal">
+        <div class="lab">Admin portal</div>
+        <h3>Compliance <strong>&amp; monitoring</strong></h3>
+        <div class="fpanels">
+          <div class="fpanel active" data-panel="nb-admin">
+            <div class="fshot-wrap"><image-slot id="nb-admin-img" shape="rounded" radius="12" placeholder="Admin — analytics / KYC-AML monitoring views"></image-slot></div>
+            <div class="finfo">
+              <p class="fk">Transaction monitoring · KYC / AML</p>
+              <p>Analytics dashboards and monitoring tools for the operations team — <span class="hi">flag, review and resolve</span> transactions with a full audit trail.</p>
+              <p>User verification states (including <span class="hi">PEP / HIO</span> status) are surfaced directly in the review flow.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · CUSTOMIZABLE MODULES -->
+  <section class="s tight" data-screen-label="05 Customizable modules">
+    <div class="wrap">
+      <div class="nb-band reveal">
+        <h2>Add <em>customizable modules</em> for your specific financial needs.</h2>
+        <p>The platform is modular by design. For instance, you can add Apple&nbsp;Pay and Google&nbsp;Pay to process fiat, crypto and stablecoins — or switch whole capabilities on and off per institution.</p>
+        <div class="nb-pays">
+          <span class="nb-chip">Apple Pay</span>
+          <span class="nb-chip">Google Pay</span>
+          <span class="nb-chip">Fiat</span>
+          <span class="nb-chip">Crypto</span>
+          <span class="nb-chip">Stablecoins</span>
+          <span class="nb-chip">SWIFT / SEPA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · CTA -->
+  <section class="s end" data-screen-label="06 Want to learn more">
+    <div class="wrap reveal">
+      <div class="ty">Thanks for reading</div>
+      <h2>Want to learn more?</h2>
+      <div class="end-btns">
+        <a class="btn" href="tons.html">TONS MONEY Capital</a>
+        <a class="btn" href="4ire.html">4IRE Case study</a>
+        <a class="btn solid" href="together-fun.html">Together.fun Case study</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav id="rail" aria-label="Section navigation"></nav>
+
+<button id="toTop" type="button" aria-label="Back to top" title="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+</button>
+<a id="toHome" href="index.html" aria-label="Go to portfolio home" title="Portfolio home">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>
+</a>
+
+<footer class="f">
+  <div class="wrap">
+    <span class="label">© 2026 Nadzeya Huts</span>
+    <span class="label"><a href="index.html"><span>←</span> Back to portfolio</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), {passive:true});
+
+  const toTop = document.getElementById('toTop');
+  if (toTop){
+    addEventListener('scroll', () => toTop.classList.toggle('show', scrollY > 600), {passive:true});
+    toTop.addEventListener('click', () => window.scrollTo({ top:0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+  }
+
+  // right-side section rail (scroll-spy)
+  const rail = document.getElementById('rail');
+  const secs = [...document.querySelectorAll('main section[data-screen-label]')];
+  if (rail && secs.length){
+    const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const nice = s => s.replace(/^\d+\s*/,'');
+    const links = secs.map(sec=>{
+      const a = document.createElement('a'); a.href = '#';
+      const lbl = document.createElement('span'); lbl.className='rl'; lbl.textContent = nice(sec.getAttribute('data-screen-label'));
+      const dot = document.createElement('span'); dot.className='rd';
+      a.appendChild(lbl); a.appendChild(dot); a.title = lbl.textContent;
+      a.addEventListener('click', e=>{ e.preventDefault(); const y = sec.getBoundingClientRect().top + scrollY - 72; window.scrollTo({ top:y, behavior: smooth ? 'smooth' : 'auto' }); });
+      rail.appendChild(a); return { sec, a };
+    });
+    let rTick = false;
+    const setActive = () => {
+      if (rTick) return; rTick = true;
+      requestAnimationFrame(()=>{ rTick = false; let cur = links[0]; for (const l of links){ if (l.sec.getBoundingClientRect().top <= 140) cur = l; } links.forEach(l=> l.a.classList.toggle('active', l === cur)); });
+    };
+    addEventListener('scroll', setActive, {passive:true});
+    addEventListener('resize', setActive, {passive:true});
+    setActive();
+  }
+
+  // reveal on scroll
+  const els = Array.from(document.querySelectorAll('.reveal'));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced && 'IntersectionObserver' in window){
+    document.documentElement.classList.add('anim');
+    const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.05});
+    els.forEach(el=>io.observe(el));
+    const inview=()=>els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');});
+    addEventListener('load',inview); inview();
+  }
+
+  // image lightbox
+  const lb=document.createElement('div'); lb.id='lightbox';
+  const lbimg=document.createElement('img'); lbimg.alt=''; lb.appendChild(lbimg);
+  document.body.appendChild(lb);
+  const bindLB = img => img.addEventListener('click',()=>{ lbimg.src=img.currentSrc||img.src; lb.classList.add('open'); });
+  document.querySelectorAll('.shot, .fpanel .fshot, .nb-device').forEach(bindLB);
+  lb.addEventListener('click',()=>lb.classList.remove('open'));
+  addEventListener('keydown',e=>{ if(e.key==='Escape') lb.classList.remove('open'); });
+
+  // tab-less feature reveal
+  document.querySelectorAll('.feat').forEach(feat=>{
+    if(feat.querySelector('.ftabs')) return;
+    const panel = feat.querySelector('.fpanel.active');
+    if(panel) setTimeout(()=> requestAnimationFrame(()=> panel.classList.add('info-in')), 240);
+  });
+
+  // Product Features tab switcher
+  document.querySelectorAll('.feat .ftabs').forEach(tablist=>{
+    const tabs = [...tablist.querySelectorAll('.ftab')];
+    const panels = [...tablist.parentElement.querySelectorAll('.fpanel')];
+    const byName = n => panels.find(p => p.dataset.panel === n);
+    const revealInfo = panel => { const go=()=>requestAnimationFrame(()=>panel.classList.add('info-in')); setTimeout(go,120); };
+    const init = panels.find(p => p.classList.contains('active'));
+    if (init) revealInfo(init);
+    tabs.forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        if(tab.getAttribute('aria-selected') === 'true') return;
+        tabs.forEach(t=>t.setAttribute('aria-selected', String(t===tab)));
+        panels.forEach(p=> p.classList.remove('active','info-in'));
+        const next = byName(tab.dataset.fpanel);
+        void next.offsetWidth; next.classList.add('active'); revealInfo(next);
+      });
+    });
+  });
+})();
+</script>
+<script src="contact.js"></script>
+</body>
+</html>

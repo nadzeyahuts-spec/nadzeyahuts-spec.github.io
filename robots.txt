@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nadzeyahuts-spec.github.io/sitemap.xml

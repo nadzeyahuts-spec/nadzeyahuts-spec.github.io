@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<!--
+  4IRE LABS — Interactive prototypes index
+  Open this file, then click through to either prototype.
+  Everything runs offline from file:// — no server, no build step.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4IRE Labs — Crypto Gaming Prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-900:#06060D; --bg-800:#0B0B16; --bg-700:#111124; --bg-600:#191933;
+  --stroke:rgba(255,255,255,.07); --stroke-hi:rgba(255,255,255,.14);
+  --violet:#8B5CF6; --violet-hi:#A78BFA; --cyan:#22D3EE; --lime:#A3E635;
+  --green:#22C55E; --red:#FF3B5C; --amber:#FBBF24; --gold:#FFC53D;
+  --text:#F2F2FA; --muted:#8A8AA8;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --f-display:'Chakra Petch',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-body:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  background:var(--bg-900); color:var(--text); font-family:var(--f-body);
+  font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden; position:relative;
+}
+/* ambient */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(900px 600px at 18% 8%, rgba(139,92,246,.16), transparent 62%),
+    radial-gradient(800px 560px at 84% 92%, rgba(34,211,238,.12), transparent 60%),
+    radial-gradient(600px 400px at 60% 40%, rgba(255,197,61,.05), transparent 70%);
+}
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(circle at 50% 40%, #000 20%, transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 20%, transparent 78%);
+}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:56px 32px 72px}
+
+/* ---------- header ---------- */
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:64px}
+.brand .mark{
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--violet),var(--cyan));
+  box-shadow:0 0 22px rgba(139,92,246,.45);
+  font-family:var(--f-display);font-weight:700;font-size:15px;color:#08080F;
+}
+.brand .name{font-family:var(--f-display);font-weight:600;letter-spacing:.16em;font-size:13px}
+.brand .sep{flex:1;height:1px;background:linear-gradient(90deg,var(--stroke),transparent)}
+.brand .stamp{font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+/* ---------- hero ---------- */
+.hero{margin-bottom:58px;max-width:840px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--cyan);border:1px solid rgba(34,211,238,.28);
+  background:rgba(34,211,238,.07);padding:6px 13px;border-radius:100px;margin-bottom:22px;
+}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:blip 2s infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.25}}
+h1{
+  font-family:var(--f-display);font-weight:700;font-size:clamp(34px,5.2vw,58px);
+  line-height:1.07;letter-spacing:-.02em;margin-bottom:20px;
+}
+h1 .glow{
+  background:linear-gradient(96deg,var(--violet-hi) 0%,var(--cyan) 52%,var(--lime) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.lede{font-size:17px;color:#B9B9CE;max-width:640px}
+.lede b{color:var(--text);font-weight:600}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:52px}
+.card{
+  position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  background:rgba(255,255,255,.03);border:1px solid var(--stroke);border-radius:18px;
+  overflow:hidden;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:transform .45s var(--ease),border-color .3s,box-shadow .45s var(--ease);
+}
+.card:hover{transform:translateY(-5px);border-color:var(--stroke-hi)}
+.card:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.card.c1:hover{box-shadow:0 22px 60px -18px rgba(139,92,246,.55)}
+.card.c2:hover{box-shadow:0 22px 60px -18px rgba(34,211,238,.5)}
+
+.viz{position:relative;height:186px;border-bottom:1px solid var(--stroke);overflow:hidden}
+.viz canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.c1 .viz{background:radial-gradient(120% 100% at 20% 100%,rgba(139,92,246,.3),transparent 62%),linear-gradient(180deg,#0A0A18,#0E0E20)}
+.c2 .viz{background:radial-gradient(120% 100% at 80% 20%,rgba(34,211,238,.22),transparent 62%),linear-gradient(180deg,#0A0A18,#0E0E20)}
+
+.tag{
+  position:absolute;top:14px;left:14px;z-index:2;font-family:var(--f-display);
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  padding:5px 10px;border-radius:100px;backdrop-filter:blur(8px);
+}
+.c1 .tag{color:var(--violet-hi);border:1px solid rgba(167,139,250,.35);background:rgba(139,92,246,.14)}
+.c2 .tag{color:var(--cyan);border:1px solid rgba(34,211,238,.35);background:rgba(34,211,238,.12)}
+
+.body{padding:24px 24px 26px;display:flex;flex-direction:column;flex:1}
+.body h2{font-family:var(--f-display);font-weight:600;font-size:23px;letter-spacing:.01em;margin-bottom:5px}
+.sub{font-size:12px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:14px}
+.desc{font-size:14px;color:#ADADC4;margin-bottom:18px;flex:1}
+.feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.feats li{font-size:13px;color:#C3C3D6;display:flex;gap:9px;align-items:flex-start}
+.feats li::before{content:'';flex:none;width:5px;height:5px;border-radius:50%;margin-top:7px}
+.c1 .feats li::before{background:var(--violet-hi);box-shadow:0 0 8px rgba(167,139,250,.9)}
+.c2 .feats li::before{background:var(--cyan);box-shadow:0 0 8px rgba(34,211,238,.9)}
+
+.go{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-family:var(--f-display);font-size:13px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;padding:13px 17px;border-radius:11px;
+  border:1px solid var(--stroke-hi);background:rgba(255,255,255,.04);
+  transition:background .3s,border-color .3s,transform .3s var(--ease);
+}
+.card:hover .go{transform:translateX(2px)}
+.c1:hover .go{background:linear-gradient(96deg,rgba(139,92,246,.3),rgba(139,92,246,.1));border-color:rgba(167,139,250,.5)}
+.c2:hover .go{background:linear-gradient(96deg,rgba(34,211,238,.26),rgba(34,211,238,.08));border-color:rgba(34,211,238,.5)}
+.go span.arrow{transition:transform .35s var(--ease)}
+.card:hover .go span.arrow{transform:translateX(4px)}
+
+.meta{display:flex;gap:16px;margin-top:14px;font-size:11px;color:var(--muted);letter-spacing:.05em}
+.meta b{color:#CFCFE2;font-weight:600;font-family:var(--f-display)}
+
+/* ---------- strip ---------- */
+.strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--stroke);
+  border:1px solid var(--stroke);border-radius:16px;overflow:hidden;margin-bottom:46px;
+}
+.cell{background:var(--bg-800);padding:20px 22px}
+.cell .k{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+.cell .v{font-family:var(--f-display);font-size:20px;font-weight:600}
+.cell:nth-child(1) .v{color:var(--lime)}
+.cell:nth-child(2) .v{color:var(--cyan)}
+.cell:nth-child(3) .v{color:var(--violet-hi)}
+.cell:nth-child(4) .v{color:var(--gold)}
+
+/* ---------- stack ---------- */
+.sec-h{font-family:var(--f-display);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:46px}
+.pill{
+  font-family:var(--f-display);font-size:12px;letter-spacing:.05em;color:#C7C7DA;
+  border:1px solid var(--stroke);background:rgba(255,255,255,.03);
+  padding:7px 13px;border-radius:100px;transition:border-color .25s,color .25s,transform .25s var(--ease);
+}
+.pill:hover{border-color:var(--stroke-hi);color:var(--text);transform:translateY(-2px)}
+
+/* ---------- how ---------- */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:48px}
+.step{border:1px solid var(--stroke);border-radius:14px;padding:20px;background:rgba(255,255,255,.02)}
+.step .n{
+  font-family:var(--f-display);font-size:11px;letter-spacing:.14em;color:var(--muted);
+  display:flex;align-items:center;gap:9px;margin-bottom:10px;
+}
+.step .n i{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
+  background:rgba(255,255,255,.06);border:1px solid var(--stroke);color:var(--text);font-style:normal;font-size:10px}
+.step p{font-size:13px;color:#ADADC4}
+.step kbd{
+  font-family:var(--f-display);font-size:11px;background:rgba(255,255,255,.07);
+  border:1px solid var(--stroke-hi);border-bottom-width:2px;border-radius:5px;
+  padding:1px 6px;color:var(--text);
+}
+
+/* ---------- note ---------- */
+.note{
+  border:1px solid rgba(255,197,61,.22);background:rgba(255,197,61,.05);
+  border-radius:12px;padding:15px 18px;font-size:13px;color:#D8CFB4;margin-bottom:44px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.note i{flex:none;color:var(--gold);font-style:normal;font-size:14px;line-height:1.5}
+
+footer{
+  border-top:1px solid var(--stroke);padding-top:22px;display:flex;
+  justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:12px;color:var(--muted);
+}
+footer b{color:#C7C7DA;font-family:var(--f-display);font-weight:600;letter-spacing:.06em}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(16px);animation:up .8s var(--ease) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.d1{animation-delay:.05s}.d2{animation-delay:.14s}.d3{animation-delay:.24s}
+.d4{animation-delay:.34s}.d5{animation-delay:.44s}.d6{animation-delay:.54s}
+.d7{animation-delay:.64s}.d8{animation-delay:.72s}
+
+@media (max-width:900px){
+  .cards,.how{grid-template-columns:1fr}
+  .strip{grid-template-columns:1fr 1fr}
+  .wrap{padding:40px 20px 56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+
+  <div class="brand rv d1">
+    <div class="mark">4i</div>
+    <div class="name">4IRE&nbsp;LABS</div>
+    <div class="sep"></div>
+    <div class="stamp">Interactive prototypes · v1.0</div>
+  </div>
+
+  <section class="hero">
+    <div class="eyebrow rv d1"><i></i> Two playable concepts · built in-house</div>
+    <h1 class="rv d2">Crypto gaming products,<br><span class="glow">shipped in weeks, not quarters.</span></h1>
+    <p class="lede rv d3">
+      Two working prototypes of provably-fair, oracle-settled crypto games. Not mockups —
+      <b>real game loops, real cryptography, real settlement math</b>, running entirely in your browser.
+      Open either one and play it.
+    </p>
+  </section>
+
+  <div class="cards">
+
+    <a class="card c1 rv d4" href="01-crash-rocket.html">
+      <div class="viz"><span class="tag">Rocket-style crash</span><canvas id="v1"></canvas></div>
+      <div class="body">
+        <h2>NOVA CRASH</h2>
+        <div class="sub">Provably-fair multiplier game</div>
+        <p class="desc">A multiplier curve climbs from 1.00×. Cash out before the rocket explodes — or lose the stake. The most copied mechanic in crypto gaming, rebuilt properly.</p>
+        <ul class="feats">
+          <li>Five-stage rocket tension model — vibration, flame-out, explosion</li>
+          <li>Live payout button, auto-cashout, boosts &amp; shields economy</li>
+          <li>Real SHA-256 provably-fair verification, Chainlink VRF option</li>
+          <li>Live bet feed, crash history, instant on-chain settlement</li>
+        </ul>
+        <div class="go"><span>Launch prototype</span><span class="arrow">→</span></div>
+        <div class="meta"><span>Build estimate <b>6 weeks</b></span><span>Reg. risk <b>Medium-High</b></span></div>
+      </div>
+    </a>
+
+    <a class="card c2 rv d5" href="02-price-prediction.html">
+      <div class="viz"><span class="tag">30-second rounds</span><canvas id="v2"></canvas></div>
+      <div class="body">
+        <h2>NOVA PULSE</h2>
+        <div class="sub">Live crypto price prediction</div>
+        <p class="desc">Thirty-second UP/DOWN rounds on BTC, ETH and SOL. Oracle-signed lock price, pari-mutuel pools, sub-second on-chain settlement. 120 betting opportunities per hour.</p>
+        <ul class="feats">
+          <li>Rolling three-round pipeline — NEXT / LIVE / EXPIRED</li>
+          <li>Live P&amp;L ticker and lock-line crossover drama</li>
+          <li>Pyth &amp; Chainlink attestation panel with settlement proofs</li>
+          <li>Accuracy tournaments, streak multipliers, leaderboards</li>
+        </ul>
+        <div class="go"><span>Launch prototype</span><span class="arrow">→</span></div>
+        <div class="meta"><span>Build estimate <b>5 weeks</b></span><span>Reg. risk <b>Lower-Medium</b></span></div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="strip rv d6">
+    <div class="cell"><div class="k">Round cadence</div><div class="v">30 s</div></div>
+    <div class="cell"><div class="k">Settlement</div><div class="v">&lt; 1 s</div></div>
+    <div class="cell"><div class="k">Concurrent players</div><div class="v">50 k</div></div>
+    <div class="cell"><div class="k">House edge</div><div class="v">1–3 %</div></div>
+  </div>
+
+  <div class="sec-h rv d6">Stack behind both prototypes</div>
+  <div class="pills rv d7">
+    <span class="pill">TypeScript</span><span class="pill">Node.js</span><span class="pill">WebSocket</span>
+    <span class="pill">Redis</span><span class="pill">PostgreSQL</span><span class="pill">PixiJS / Canvas</span>
+    <span class="pill">Solidity</span><span class="pill">Chainlink VRF</span><span class="pill">Chainlink Data Streams</span>
+    <span class="pill">Pyth Network</span><span class="pill">Base</span><span class="pill">Multi-token swap router</span>
+    <span class="pill">RTP &amp; risk dashboards</span>
+  </div>
+
+  <div class="sec-h rv d7">How to run the demo</div>
+  <div class="how rv d7">
+    <div class="step">
+      <div class="n"><i>1</i> Auto mode</div>
+      <p>Both prototypes play themselves in a scripted, deterministic loop. Same outcome every run — safe to rehearse against.</p>
+    </div>
+    <div class="step">
+      <div class="n"><i>2</i> Take over</div>
+      <p>Click any control to seize manual play mid-round. <kbd>Space</kbd> cashes out in Crash; <kbd>↑</kbd> <kbd>↓</kbd> place bets in Pulse.</p>
+    </div>
+    <div class="step">
+      <div class="n"><i>3</i> Guided tour</div>
+      <p>Press <kbd>G</kbd> for a six-stop walkthrough framed around business outcomes, or <kbd>T</kbd> to open the technical panel.</p>
+    </div>
+  </div>
+
+  <div class="note rv d8">
+    <i>◆</i>
+    <div>Interactive prototypes, not production builds. The cryptography, crash distribution and pari-mutuel payout math are genuine and independently verifiable in-browser. Transaction hashes, oracle latencies, block explorer links and player identities are simulated for demonstration.</div>
+  </div>
+
+  <footer class="rv d8">
+    <div>Built by <b>4IRE LABS</b> · Blockchain &amp; fintech engineering</div>
+    <div>Runs offline · no server, no build step</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- starfield ---------- */
+  var sc = document.getElementById('stars'), sx = sc.getContext('2d'), stars = [], SW, SH;
+  function initStars(){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    SW = sc.clientWidth = window.innerWidth; SH = sc.clientHeight = window.innerHeight;
+    sc.width = SW*dpr; sc.height = SH*dpr; sx.setTransform(dpr,0,0,dpr,0,0);
+    stars = [];
+    var n = Math.round(SW*SH/13000);
+    for(var i=0;i<n;i++) stars.push({
+      x:Math.random()*SW, y:Math.random()*SH, r:Math.random()*1.25+.25,
+      a:Math.random()*.5+.12, s:Math.random()*.5+.12, p:Math.random()*Math.PI*2
+    });
+  }
+  function drawStars(t){
+    sx.clearRect(0,0,SW,SH);
+    for(var i=0;i<stars.length;i++){
+      var s = stars[i];
+      s.y -= s.s*.28; if(s.y < -3){ s.y = SH+3; s.x = Math.random()*SW; }
+      var tw = reduce ? 1 : (.62 + .38*Math.sin(t*.0013 + s.p));
+      sx.globalAlpha = s.a*tw;
+      sx.fillStyle = i%9===0 ? '#22D3EE' : (i%13===0 ? '#A78BFA' : '#FFFFFF');
+      sx.beginPath(); sx.arc(s.x, s.y, s.r, 0, 6.2832); sx.fill();
+    }
+    sx.globalAlpha = 1;
+  }
+
+  /* ---------- card viz 1: rocket + curve ---------- */
+  var c1 = document.getElementById('v1'), x1 = c1.getContext('2d');
+  /* ---------- card viz 2: price line ---------- */
+  var c2 = document.getElementById('v2'), x2 = c2.getContext('2d');
+  var W1,H1,W2,H2, ticks = [], lockY = 0;
+
+  function sizeCard(cv, ctx){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var w = cv.clientWidth || cv.parentNode.clientWidth, h = cv.clientHeight || 186;
+    cv.width = w*dpr; cv.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    return [w,h];
+  }
+  function initCards(){
+    var a = sizeCard(c1,x1); W1=a[0]; H1=a[1];
+    var b = sizeCard(c2,x2); W2=b[0]; H2=b[1];
+    ticks = []; var v = H2*.55;
+    for(var i=0;i<160;i++){ v += (Math.random()-.5)*5 + (H2*.55 - v)*.045; ticks.push(v); }
+    lockY = H2*.55;
+  }
+
+  function drawRocket(t){
+    if(!W1) return;
+    x1.clearRect(0,0,W1,H1);
+    var T = (t*.00034) % 1;                     // 0..1 loop
+    var prog = T < .82 ? T/.82 : 1;             // climb then hold
+    var boom = T >= .82;
+
+    // curve
+    var pts = [], N = 90;
+    for(var i=0;i<=N;i++){
+      var u = (i/N)*prog;
+      var px = 14 + u*(W1-46);
+      var py = H1-16 - Math.pow(u,1.75)*(H1-52);
+      pts.push([px,py]);
+    }
+    var head = pts[pts.length-1];
+
+    // fill
+    var g = x1.createLinearGradient(0,0,0,H1);
+    g.addColorStop(0,'rgba(139,92,246,.42)'); g.addColorStop(1,'rgba(139,92,246,0)');
+    x1.beginPath(); x1.moveTo(14,H1-16);
+    for(var j=0;j<pts.length;j++) x1.lineTo(pts[j][0],pts[j][1]);
+    x1.lineTo(head[0],H1-16); x1.closePath(); x1.fillStyle=g; x1.fill();
+
+    // stroke
+    x1.beginPath(); x1.moveTo(pts[0][0],pts[0][1]);
+    for(var k=1;k<pts.length;k++) x1.lineTo(pts[k][0],pts[k][1]);
+    x1.strokeStyle = boom ? '#FF3B5C' : '#A78BFA';
+    x1.lineWidth = 2.4; x1.lineJoin='round'; x1.lineCap='round';
+    x1.shadowColor = boom ? 'rgba(255,59,92,.8)' : 'rgba(167,139,250,.75)'; x1.shadowBlur = 12;
+    x1.stroke(); x1.shadowBlur = 0;
+
+    var mult = 1 + prog*prog*7.4;
+
+    if(!boom){
+      // exhaust
+      var ex = x1.createRadialGradient(head[0]-5,head[1]+5,0,head[0]-5,head[1]+5,20);
+      ex.addColorStop(0,'rgba(255,255,255,.75)'); ex.addColorStop(.4,'rgba(34,211,238,.4)'); ex.addColorStop(1,'rgba(34,211,238,0)');
+      x1.fillStyle=ex; x1.beginPath(); x1.arc(head[0]-5,head[1]+5,20,0,6.2832); x1.fill();
+      // rocket body
+      var sh = prog>.55 && !reduce ? (Math.random()-.5)*1.6*((prog-.55)/.45) : 0;
+      x1.save(); x1.translate(head[0]+sh, head[1]+sh); x1.rotate(-Math.PI/4);
+      x1.fillStyle='#F2F2FA';
+      x1.beginPath(); x1.moveTo(0,-11); x1.quadraticCurveTo(5.5,-3,5,7); x1.lineTo(-5,7); x1.quadraticCurveTo(-5.5,-3,0,-11); x1.closePath(); x1.fill();
+      x1.fillStyle='#FF3B5C';
+      x1.beginPath(); x1.moveTo(-5,4); x1.lineTo(-9,10); x1.lineTo(-5,8); x1.closePath(); x1.fill();
+      x1.beginPath(); x1.moveTo(5,4); x1.lineTo(9,10); x1.lineTo(5,8); x1.closePath(); x1.fill();
+      x1.fillStyle='#22D3EE'; x1.beginPath(); x1.arc(0,-2,2.4,0,6.2832); x1.fill();
+      x1.restore();
+    } else {
+      // explosion
+      var e = (T-.82)/.18;
+      x1.strokeStyle='rgba(255,59,92,'+(1-e)+')'; x1.lineWidth=2.5;
+      x1.beginPath(); x1.arc(head[0],head[1],6+e*44,0,6.2832); x1.stroke();
+      x1.fillStyle='rgba(255,197,61,'+(1-e)*.85+')';
+      for(var d=0;d<11;d++){
+        var ang=(d/11)*6.2832, dd=e*40;
+        x1.beginPath(); x1.arc(head[0]+Math.cos(ang)*dd, head[1]+Math.sin(ang)*dd + e*e*22, 2.2*(1-e), 0, 6.2832); x1.fill();
+      }
+    }
+
+    // multiplier label
+    x1.font = '600 26px "Chakra Petch", system-ui, sans-serif';
+    x1.textAlign='right'; x1.textBaseline='top';
+    x1.fillStyle = boom ? '#FF3B5C' : (mult>5 ? '#FFC53D' : '#F2F2FA');
+    x1.shadowColor = boom ? 'rgba(255,59,92,.7)' : 'rgba(255,255,255,.3)'; x1.shadowBlur = 10;
+    x1.fillText((boom ? 8.40 : mult).toFixed(2)+'×', W1-16, 44);
+    x1.shadowBlur = 0;
+    if(boom){
+      x1.font='600 10px "Chakra Petch", system-ui, sans-serif';
+      x1.fillStyle='rgba(255,59,92,.85)'; x1.fillText('CRASHED', W1-16, 76);
+    }
+  }
+
+  function drawPrice(t){
+    if(!W2) return;
+    x2.clearRect(0,0,W2,H2);
+    ticks.push(ticks[ticks.length-1] + (Math.random()-.5)*4.6 + (H2*.55 - ticks[ticks.length-1])*.05);
+    if(ticks.length > 170) ticks.shift();
+
+    var n = ticks.length, step = (W2-24)/(n-1), lockI = Math.floor(n*.42);
+    var last = ticks[n-1], up = last < lockY;   // canvas y inverted → lower y = higher price
+
+    // grid
+    x2.strokeStyle='rgba(255,255,255,.045)'; x2.lineWidth=1;
+    for(var gy=1;gy<4;gy++){ var yy=(H2/4)*gy; x2.beginPath(); x2.moveTo(0,yy); x2.lineTo(W2,yy); x2.stroke(); }
+
+    // shaded area after lock
+    var col = up ? '34,197,94' : '255,59,92';
+    var gg = x2.createLinearGradient(0, up?0:H2, 0, lockY);
+    gg.addColorStop(0,'rgba('+col+',.34)'); gg.addColorStop(1,'rgba('+col+',0)');
+    x2.beginPath(); x2.moveTo(12+lockI*step, lockY);
+    for(var i=lockI;i<n;i++) x2.lineTo(12+i*step, ticks[i]);
+    x2.lineTo(12+(n-1)*step, lockY); x2.closePath();
+    x2.fillStyle=gg; x2.fill();
+
+    // line
+    x2.beginPath(); x2.moveTo(12, ticks[0]);
+    for(var p=1;p<n;p++) x2.lineTo(12+p*step, ticks[p]);
+    x2.strokeStyle = up ? '#22C55E' : '#FF3B5C'; x2.lineWidth=2.2; x2.lineJoin='round';
+    x2.shadowColor = up ? 'rgba(34,197,94,.7)' : 'rgba(255,59,92,.7)'; x2.shadowBlur=10;
+    x2.stroke(); x2.shadowBlur=0;
+
+    // lock line
+    x2.setLineDash([4,4]); x2.strokeStyle='rgba(255,255,255,.32)'; x2.lineWidth=1;
+    x2.beginPath(); x2.moveTo(0,lockY); x2.lineTo(W2,lockY); x2.stroke();
+    x2.beginPath(); x2.moveTo(12+lockI*step,0); x2.lineTo(12+lockI*step,H2); x2.stroke();
+    x2.setLineDash([]);
+
+    // head dot
+    var hx = 12+(n-1)*step, hy = ticks[n-1];
+    x2.fillStyle = up ? '#22C55E' : '#FF3B5C';
+    x2.shadowColor = up ? 'rgba(34,197,94,.95)' : 'rgba(255,59,92,.95)'; x2.shadowBlur=14;
+    x2.beginPath(); x2.arc(hx,hy,3.6,0,6.2832); x2.fill(); x2.shadowBlur=0;
+
+    // labels
+    var delta = (lockY - last) * 1.85;
+    x2.font='600 10px "Chakra Petch", system-ui, sans-serif'; x2.textAlign='left'; x2.textBaseline='top';
+    x2.fillStyle='rgba(255,255,255,.42)'; x2.fillText('LOCK  $67,412.88', 14, lockY+6);
+    x2.font='600 22px "Chakra Petch", system-ui, sans-serif'; x2.textAlign='right';
+    x2.fillStyle = up ? '#22C55E' : '#FF3B5C';
+    x2.shadowColor = up ? 'rgba(34,197,94,.5)' : 'rgba(255,59,92,.5)'; x2.shadowBlur=9;
+    x2.fillText((delta>=0?'+':'−')+'$'+Math.abs(delta).toFixed(2), W2-16, 44);
+    x2.shadowBlur=0;
+    x2.font='600 10px "Chakra Petch", system-ui, sans-serif';
+    x2.fillStyle='rgba(255,255,255,.42)'; x2.fillText(up?'▲ UP  1.84×':'▼ DOWN  2.31×', W2-16, 72);
+  }
+
+  var last2 = 0;
+  function loop(t){
+    drawStars(t);
+    drawRocket(t);
+    if(t - last2 > 55){ drawPrice(t); last2 = t; }
+    requestAnimationFrame(loop);
+  }
+
+  function boot(){ initStars(); initCards(); }
+  boot();
+  window.addEventListener('resize', boot);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

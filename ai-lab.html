@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Lab — AI-native Product Designer: prototypes, websites, analytics &amp; SEO · Nadzeya Huts</title>
+<meta name="description" content="AI Lab by Nadzeya Huts: clickable prototypes in hours, not&nbsp;weeks. I design, build and grow products with AI — prototypes, website rescue &amp; rebrand, WordPress / HubSpot, GA4, SEO and AI-agent workflows.">
+<meta name="keywords" content="AI-native product designer, AI prototyping, design engineer, Claude Design, Figma AI, Figma Make, vibe coding, website redesign, rebranding, WordPress, HubSpot, GA4, SEO, AI agents">
+<meta name="author" content="Nadzeya Huts">
+<link rel="canonical" href="https://nadzeyahuts-spec.github.io/ai-lab.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nadzeya Huts — Portfolio">
+<meta property="og:url" content="https://nadzeyahuts-spec.github.io/ai-lab.html">
+<meta property="og:title" content="AI Lab — Design, build &amp; grow with AI · Nadzeya Huts">
+<meta property="og:description" content="Clickable prototypes in hours, not&nbsp;weeks. 4 AI-built products: Sentinel, EarthByt, NOVA, 4IRE Labs.">
+<meta property="og:image" content="https://nadzeyahuts-spec.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://nadzeyahuts-spec.github.io/assets/og.png">
+<link rel="stylesheet" href="portfolio.css">
+<style>
+body { background: #121115; overflow-x: hidden; }
+#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; }
+.page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 26px 0; }
+.topbar .label { font-size: 14px; color: var(--muted); }
+.home { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(20px,4vw,40px) 0 60px; }
+@media (max-width: 940px) { .home { grid-template-columns: 1fr; gap: 48px; align-items: start; } }
+h1.name { font-size: clamp(58px, 11vw, 132px); line-height: 0.92; letter-spacing: -0.03em; font-weight: 500; }
+.role { margin-top: clamp(28px,4vw,46px); color: var(--muted); font-size: clamp(16px,1.8vw,19px); }
+.tagline { margin-top: 12px; font-size: clamp(18px,2.1vw,23px); color: var(--ink); font-weight: 400; letter-spacing: -0.005em; }
+.stats { margin-top: clamp(36px,5vw,56px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 560px; }
+@media (max-width: 480px) { .stats { grid-template-columns: 1fr; gap: 26px; } }
+.stat .big { font-family: var(--body); font-weight: 400; font-size: 20px; line-height: 1.5; letter-spacing: -0.005em; color: #fff; }
+.stat .cap { font-family: var(--body); font-weight: 500; font-size: 12px; line-height: 1.5; letter-spacing: 0.015em; color: rgba(255,255,255,.6); margin-top: 2px; }
+.stat .desc { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; line-height: 1.5; }
+.work-head { color: var(--faint); font-size: 14px; margin-bottom: 18px; }
+.work-list { display: flex; flex-direction: column; gap: 16px; }
+.work {
+position: relative; display: grid; grid-template-columns: 84px 1fr auto; gap: 22px; align-items: center;
+padding: 22px 26px; border-radius: 20px; border: 1px solid var(--line);
+background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.008));
+transition: border-color .25s ease, transform .25s ease, background .25s ease;
+}
+.work:hover { border-color: var(--line-2); transform: translateY(-3px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); }
+.work .ic { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; }
+.work .ic img { width: 64px; height: 64px; border-radius: 15px; display: block; object-fit: cover; }
+.work h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.015em; }
+.work p { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); letter-spacing: -0.005em; }
+.work .yr { font-size: 13px; color: var(--faint); align-self: start; white-space: nowrap; }
+@media (max-width: 560px) {
+.work { grid-template-columns: 56px 1fr; grid-template-rows: auto auto; padding: 18px; gap: 8px 16px; }
+.work .ic, .work .ic img { width: 56px; height: 56px; }
+.work .yr { grid-column: 2; grid-row: 2; }
+}
+.social { display: flex; justify-content: center; gap: 28px; padding: 14px 0 44px; }
+.social a { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); transition: color .2s ease; font-size: 13px; }
+.social a:hover { color: var(--ink); }
+.social .glyph { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); color: #fff; display: flex; align-items: center; justify-content: center; transition: background .2s ease; }
+.social a:hover .glyph { background: rgba(255,255,255,.2); }
+.social .glyph svg { width: 20px; height: 20px; display: block; }
+a:hover{color:var(--ink)}
+.topbar a{color:var(--muted);font-size:14px;display:inline-flex;gap:9px}.topbar a:hover{color:var(--ink)}
+.work .yr.ai{color:var(--faint)}
+.saved{margin-top:clamp(30px,4vw,46px);max-width:560px;border:1px solid var(--line);border-radius:20px;padding:22px 24px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008))}
+.saved-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px}
+.saved-h b{font-family:var(--head);font-weight:500;font-size:26px;letter-spacing:-.02em}.saved-h b em{font-style:normal;color:var(--ink)}
+.saved-h span{font-size:12px;color:var(--muted)}
+.sv{display:grid;grid-template-columns:88px minmax(0,1fr) 64px;gap:12px;align-items:center;font-size:12.5px;color:var(--muted-2);padding:5px 0}
+.sv .tr{position:relative;height:8px;border-radius:5px;background:rgba(255,255,255,.07)}
+.sv .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--green)}
+.sv .v{text-align:right;color:var(--muted)}
+.legend{display:flex;gap:16px;margin-top:12px;font-size:11.5px;color:var(--faint)}.legend i{display:inline-block;width:10px;height:6px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.sec2{position:relative;z-index:1;padding:clamp(56px,8vw,110px) 0}
+.sec2 h2{font-size:clamp(28px,4.4vw,46px);letter-spacing:-.02em;line-height:1.08;max-width:22ch}
+.sec2 .lead{color:var(--muted-2);font-size:clamp(16px,1.8vw,19px);line-height:1.65;max-width:70ch;margin:18px 0 0}
+.kick{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:18px}
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:40px}
+.svc article{border:1px solid var(--line);border-radius:20px;padding:26px;background:var(--card);display:flex;flex-direction:column;gap:12px}
+.svc .n{font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:600}
+.svc h3{font-size:21px;letter-spacing:-.015em;line-height:1.2}
+.svc p{margin:0;color:var(--muted-2);font-size:15px;line-height:1.65}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chips span{font-size:12.5px;color:var(--ink);background:rgba(255,255,255,.04);border:1px solid var(--line-2);border-radius:30px;padding:6px 12px}
+.flow{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;align-items:center}
+.flow span{font-size:14px;border:1px solid var(--line-2);border-radius:30px;padding:10px 16px;background:rgba(255,255,255,.03)}
+.flow em{font-style:normal;color:var(--faint)}
+.end2{text-align:center;padding:clamp(40px,6vw,80px) 0 clamp(60px,8vw,100px);position:relative;z-index:1}
+.end2 h2{font-size:clamp(32px,5.5vw,58px);letter-spacing:-.03em;margin:12px auto 30px;max-width:20ch;line-height:1.05}
+.end2 .b{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.svc .hire{position:relative;overflow:hidden;border-color:rgba(20,241,149,.35);background:radial-gradient(90% 120% at 100% 0%,rgba(20,241,149,.13),transparent 60%),var(--card)}
+.hire-btns{display:flex;flex-direction:column;gap:9px;margin-top:auto;padding-top:6px}
+.hb{display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:12px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:#fff;font-size:14.5px;font-weight:500;transition:background .2s,border-color .2s,transform .2s}
+.hb:hover{background:rgba(255,255,255,.08);transform:translateY(-1px)}
+.hb.tg{background:var(--green);border-color:var(--green);color:#0b0b0e}.hb.tg:hover{background:#3df5a8}
+.hb svg{width:18px;height:18px;flex:none}
+</style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+<div class="page wrap">
+<header class="topbar"><a href="index.html"><span>←</span> Nadzeya Huts</a><span class="label">AI Lab · 2026</span></header>
+<main class="home">
+<section>
+<h1 class="name reveal">AI&nbsp;Lab.</h1>
+<p class="role reveal">Design → Build → Grow, with AI</p>
+<p class="tagline reveal">Clickable, working prototypes in hours — not&nbsp;weeks.</p>
+<div class="saved reveal">
+<div class="saved-h"><b><em>44 h</em> instead of ~284 h</b><span>≈ 6× faster across 3 builds</span></div>
+<div class="sv"><span>Sentinel</span><div class="tr"><i style="width:100%;background:rgba(255,255,255,.14)"></i><i style="width:13%"></i></div><span class="v">16 / 120 h</span></div>
+<div class="sv"><span>EarthByt</span><div class="tr"><i style="width:83%;background:rgba(255,255,255,.14)"></i><i style="width:17%"></i></div><span class="v">20 / 100 h</span></div>
+<div class="sv"><span>NOVA</span><div class="tr"><i style="width:53%;background:rgba(255,255,255,.14)"></i><i style="width:7%"></i></div><span class="v">8 / 64 h</span></div>
+<div class="sv"><span>4IRE web</span><div class="tr"><i style="width:40%;background:rgba(255,255,255,.14)"></i><i style="width:10%"></i></div><span class="v">4× faster</span></div>
+<div class="legend"><span><i style="background:var(--green)"></i>With AI</span><span><i style="background:rgba(255,255,255,.14)"></i>Manual estimate</span></div>
+</div>
+</section>
+<section>
+<div class="work-head">AI-built projects</div>
+<div class="work-list">
+<a class="work reveal" href="sentinel.html"><div class="ic"><img src="assets/ai/icon-sentinel.webp" alt="Sentinel — Retirement Planning"></div><div><h3>Sentinel — Retirement Planning</h3><p>Fintech · Advisor portal · Report generation</p></div><span class="yr ai">16 h</span></a>
+<a class="work reveal" href="earthbyt.html"><div class="ic"><img src="assets/ai/icon-earthbyt.webp" alt="EarthByt — Carbon Marketplace"></div><div><h3>EarthByt — Carbon Marketplace</h3><p>Green finance · KYB / AML · Admin portal</p></div><span class="yr ai">20 h</span></a>
+<a class="work reveal" href="nova.html"><div class="ic"><img src="assets/ai/icon-nova.webp" alt="NOVA — Crypto Mini-Games"></div><div><h3>NOVA — Crypto Mini-Games</h3><p>iGaming · Web3 · Playable demos</p></div><span class="yr ai">8 h</span></a>
+<a class="work reveal" href="4ire-web.html"><div class="ic"><img src="https://4irelabs.com/hero/sphere/hero-bg.webp" alt="4IRE Labs — Website Redesign" style="object-fit:cover;object-position:50% 50%"></div><div><h3>4IRE Labs — Website Redesign</h3><p>Glass UI · Responsive · Figma AI</p></div><span class="yr ai">4× faster</span></a>
+</div>
+</section>
+</main>
+</div>
+<section class="sec2"><div class="wrap">
+<span class="kick reveal">What I can do for you</span>
+<h2 class="reveal">One designer. A team of AI agents. Products that ship.</h2>
+<p class="lead reveal">AI does the heavy lifting — code, variants, repetitive layouts. I bring 16 years of design taste, product thinking and the judgment to know what’s good enough to ship. You get a working result fast, and it still looks and feels designed.</p>
+<div class="svc">
+<article class="reveal"><span class="n">01</span><h3>Working prototypes in hours</h3><p>From wireframes or a brief to a clickable, data-driven prototype your stakeholders can test. I write detailed product prompts — flows, states, data, edge cases — then refine by hand wherever taste matters.</p></article>
+<article class="reveal"><span class="n">02</span><h3>Rescue, modernize &amp; rebrand old websites</h3><p>A site that looks dated and doesn’t bring revenue? I audit it, fix and clean up the code and content with AI, restructure the information architecture and rebrand it with a designer’s eye — and keep it editable in your CMS.</p><div class="chips"><span>WordPress</span><span>HubSpot</span><span>SiteGround</span><span>Figma Make</span></div></article>
+<article class="reveal"><span class="n">03</span><h3>Analytics &amp; SEO that pays back</h3><p>Technical SEO audits, metadata and structured data, page speed, conversion tracking and clear dashboards — so you see what works and grow organic traffic.</p><div class="chips"><span>Google Analytics 4</span><span>Search Console</span><span>Tag Manager</span><span>Microsoft Clarity</span><span>Bing Webmaster</span></div></article>
+<article class="reveal"><span class="n">04</span><h3>An AI-agent team, managed</h3><p>I set up and run a team of AI agents for research, copy, design, code and QA — with clear briefs, review gates and version control — so development and rebranding stay predictable and on-brand.</p><div class="chips"><span>Claude</span><span>Claude Design</span><span>Figma AI</span><span>Adobe AI</span><span>Microsoft 365 Copilot</span></div></article>
+<article class="reveal"><span class="n">05</span><h3>Support after launch — digital &amp; print</h3><p>Once the product is live, I keep the brand consistent everywhere: social creatives, banners, presentations, email — and print: brochures, catalogues and event materials.</p></article>
+<article class="reveal hire"><span class="n">06 · Let’s talk</span><h3>Have a product to build, fix or grow?</h3><p>Send a brief or a link — I’ll reply within a day with ideas and a realistic timeline.</p><div class="hire-btns"><a class="hb tg" href="https://t.me/NadzeyaHu" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M17.14 1.1a1.4 1.4 0 0 1 1.84 1.46l-2.03 12.32c-.2 1.19-1.5 1.87-2.59 1.28-.91-.5-2.27-1.26-3.48-2.06-.61-.4-2.48-1.67-2.25-2.58.2-.78 3.33-3.7 5.12-5.43.7-.68.38-1.07-.45-.45-2.06 1.56-5.37 3.92-6.47 4.59-.97.59-1.47.69-2.07.59-1.1-.18-2.12-.47-2.95-.81-1.12-.47-1.07-2.01 0-2.46L17.14 1.1z"/></svg>Message me on Telegram</a><a class="hb" href="mailto:nadzeyahuts@gmail.com"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M18.33 6.28v7.89a2.5 2.5 0 0 1-2.35 2.5H4.17a2.5 2.5 0 0 1-2.5-2.36V6.28l7.87 5.25.1.05a.83.83 0 0 0 .72 0l.1-.05 7.87-5.25z"/><path d="M15.83 3.33c.9 0 1.69.48 2.13 1.19L10 9.83 2.04 4.52a2.5 2.5 0 0 1 2.13-1.19h11.66z"/></svg>Email me</a><a class="hb" href="https://www.linkedin.com/in/nadzeya-huts/" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.94 7.58h2.97v1.48c.43-.85 1.53-1.62 3.18-1.62 3.16 0 3.91 1.7 3.91 4.8V18h-3.2v-5.05c0-1.77-.43-2.77-1.52-2.77-1.51 0-2.14 1.08-2.14 2.77V18h-3.2V7.58zM2.46 17.86h3.2V7.44h-3.2v10.42zM6.11 4.04a2.05 2.05 0 1 1-4.1 0 2.05 2.05 0 0 1 4.1 0z"/></svg>Connect on LinkedIn</a></div></article>
+</div>
+<div class="flow reveal"><span>Audit</span><em>→</em><span>Brief &amp; prompts</span><em>→</em><span>AI-agent build</span><em>→</em><span>Designer review</span><em>→</em><span>Launch &amp; SEO</span><em>→</em><span>Digital &amp; print support</span></div>
+</div></section>
+<section class="end2"><div class="wrap reveal"><div class="label">Have an idea, an old site or a stuck MVP?</div><h2>Let’s turn it into a working product.</h2><div class="b"><a class="btn solid" href="mailto:nadzeyahuts@gmail.com">Let’s talk</a><a class="btn" href="https://t.me/NadzeyaHu" target="_blank" rel="noopener">Telegram</a><a class="btn" href="index.html">All case studies</a></div></div></section>
+<script>
+(function(){
+  // starfield
+  const sky = document.getElementById('stars');
+  const n = window.innerWidth < 700 ? 70 : 130;
+  let html = '';
+  for (let i=0;i<n;i++){
+    const x = Math.random()*100, y = Math.random()*100;
+    const o = (Math.random()*0.6 + 0.15).toFixed(2);
+    const s = Math.random() < 0.15 ? 3 : (Math.random()<0.5?1:2);
+    html += `<i style="left:${x}%;top:${y}%;opacity:${o};width:${s}px;height:${s}px"></i>`;
+  }
+  sky.innerHTML = html;
+
+  // reveal
+  const els = Array.from(document.querySelectorAll('.reveal'));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced && 'IntersectionObserver' in window){
+    document.documentElement.classList.add('anim');
+    els.forEach((el,i)=> el.style.transitionDelay = Math.min(i*55,300)+'ms');
+    const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.06});
+    els.forEach(el=>io.observe(el));
+    const inview=()=>els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');});
+    addEventListener('load',inview); inview();
+    setTimeout(()=>els.forEach(el=>{const m=new DOMMatrixReadOnly(getComputedStyle(el).transform);if(Math.abs(m.m42)>.5){el.style.transition='none';el.style.transform='none';}}),1100);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Nadzeya Huts — Senior Product Designer · UX/UI · AI Product Builder</title>
+<meta name="description" content="About Nadzeya Huts: Senior Product Designer with 16 years in design and 6 in UX/UI for fintech, banking and Web3. Designs, builds and grows products with AI.">
+<meta name="author" content="Nadzeya Huts">
+<link rel="canonical" href="https://nadzeyahuts-spec.github.io/about.html">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="About Nadzeya Huts — Senior Product Designer">
+<meta property="og:description" content="16 years in design, 6 in UX/UI for fintech, banking and Web3. Designing, building and growing products with AI.">
+<meta property="og:url" content="https://nadzeyahuts-spec.github.io/about.html">
+<meta property="og:image" content="https://nadzeyahuts-spec.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="portfolio.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+body { background: #121115; overflow-x: hidden; }
+#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; }
+.page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 26px 0; }
+.topbar .label { font-size: 14px; color: var(--muted); }
+.home { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(20px,4vw,40px) 0 60px; }
+@media (max-width: 940px) { .home { grid-template-columns: 1fr; gap: 48px; align-items: start; } }
+h1.name { font-size: clamp(58px, 11vw, 132px); line-height: 0.92; letter-spacing: -0.03em; font-weight: 500; }
+.role { margin-top: clamp(28px,4vw,46px); color: var(--muted); font-size: clamp(16px,1.8vw,19px); }
+.tagline { margin-top: 12px; font-size: clamp(18px,2.1vw,23px); color: var(--ink); font-weight: 400; letter-spacing: -0.005em; }
+.stats { margin-top: clamp(36px,5vw,56px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 560px; }
+@media (max-width: 480px) { .stats { grid-template-columns: 1fr; gap: 26px; } }
+.stat .big { font-family: var(--body); font-weight: 400; font-size: 20px; line-height: 1.5; letter-spacing: -0.005em; color: #fff; }
+.stat .cap { font-family: var(--body); font-weight: 500; font-size: 12px; line-height: 1.5; letter-spacing: 0.015em; color: rgba(255,255,255,.6); margin-top: 2px; }
+.stat .desc { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; line-height: 1.5; }
+.work-head { color: var(--faint); font-size: 14px; margin-bottom: 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+.ai-pill { display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:500; color:var(--ink); border:1px solid rgba(20,241,149,.4); background:rgba(20,241,149,.07); border-radius:30px; padding:8px 14px 8px 12px; transition:background .2s, border-color .2s, transform .2s; }
+.ai-pill:hover { background:rgba(20,241,149,.14); border-color:var(--green); transform:translateY(-2px); }
+.ai-pill .sp { color:var(--green); }
+.ai-pill .ct { color:var(--muted); font-weight:400; font-size:12.5px; }
+.ai-pill .ar { color:var(--green); }
+@media (max-width:480px){ .ai-pill .ct { display:none; } }
+.work-list { display: flex; flex-direction: column; gap: 16px; }
+.work {
+position: relative; display: grid; grid-template-columns: 84px 1fr auto; gap: 22px; align-items: center;
+padding: 22px 26px; border-radius: 20px; border: 1px solid var(--line);
+background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.008));
+transition: border-color .25s ease, transform .25s ease, background .25s ease;
+}
+.work:hover { border-color: var(--line-2); transform: translateY(-3px); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); }
+.work .ic { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; }
+.work .ic img { width: 64px; height: 64px; border-radius: 15px; display: block; object-fit: cover; }
+.work h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.015em; }
+.work p { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); letter-spacing: -0.005em; }
+.work .yr { font-size: 13px; color: var(--faint); align-self: start; white-space: nowrap; }
+@media (max-width: 560px) {
+.work { grid-template-columns: 56px 1fr; grid-template-rows: auto auto; padding: 18px; gap: 8px 16px; }
+.work .ic, .work .ic img { width: 56px; height: 56px; }
+.work .yr { grid-column: 2; grid-row: 2; }
+}
+.social { display: flex; justify-content: center; gap: 28px; padding: 14px 0 44px; }
+.social a { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); transition: color .2s ease; font-size: 13px; }
+.social a:hover { color: var(--ink); }
+.social .glyph { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); color: #fff; display: flex; align-items: center; justify-content: center; transition: background .2s ease; }
+.social a:hover .glyph { background: rgba(255,255,255,.2); }
+.social .glyph svg { width: 20px; height: 20px; display: block; }
+a:hover{color:var(--ink)}
+.topbar a{color:var(--muted);font-size:14px;display:inline-flex;gap:9px}.topbar a:hover{color:var(--ink)}
+.bio{margin-top:clamp(24px,3.4vw,40px);display:flex;flex-direction:column;gap:14px;max-width:56ch}
+.bio p{margin:0;color:var(--muted-2);font-size:clamp(15px,1.5vw,17px);line-height:1.7;text-wrap:pretty}
+.bio p b{color:var(--ink);font-weight:500}
+.home>*{min-width:0}#globe{width:100%;height:100%}.globe-wrap{position:relative;width:100%;aspect-ratio:1/1;max-width:640px;margin:0 auto}
+#globe{position:absolute;inset:0;cursor:grab}
+#globe:active{cursor:grabbing}
+.ghint{position:absolute;left:0;right:0;bottom:-6px;text-align:center;font-size:12.5px;color:var(--faint)}
+#tip{position:fixed;z-index:50;pointer-events:none;width:360px;max-height:calc(100vh - 24px);display:flex;flex-direction:column;gap:8px;opacity:0;transform:translateY(6px);transition:opacity .18s,transform .18s}
+#tip.on{opacity:1;transform:none;pointer-events:auto}#tip .stack{display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 70px);scrollbar-width:thin;padding-right:2px}
+#tip .cty{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);padding-left:4px}
+a.mini{color:inherit}a.mini:hover{border-color:rgba(20,241,149,.45)}.mini .ph{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 45% 30%),hsl(var(--h) 40% 16%));border:1px solid rgba(255,255,255,.1)}.mini{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;width:auto;padding:12px 14px;border-radius:14px;border:1px solid var(--line-2);background:rgba(22,22,27,.94);backdrop-filter:blur(8px);box-shadow:0 20px 50px -20px rgba(0,0,0,.9)}
+.mini img{width:44px;height:44px;border-radius:11px;object-fit:cover;display:block}
+.mini h4{font-size:15px;font-weight:500;letter-spacing:-.01em;line-height:1.25}
+.mini p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.4}
+.mini span{font-size:11.5px;color:var(--faint);align-self:start;white-space:nowrap}
+.me{display:flex;align-items:center;gap:18px;margin-top:clamp(28px,4vw,46px)}.me img{width:96px;height:96px;border-radius:22px;object-fit:cover;flex:none;display:block}.me .role{margin:0!important;display:flex;flex-direction:column;gap:2px}</style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+<div class="page wrap">
+<header class="topbar"><a href="index.html"><span>←</span> Nadzeya Huts</a><span class="label">About · Remote</span></header>
+<main class="home">
+<section>
+<h1 class="name reveal">About.</h1>
+<div class="me reveal"><img src="assets/me.webp" alt="Nadzeya Huts" width="96" height="96"><p class="role"><span>Senior Product Designer · UX/UI</span><span>AI Product Builder</span></p></div>
+<div class="bio reveal">
+<p>I’m Nadzeya — a product designer with <b>16 years in design and 6 in UX/UI</b> for fintech, banking and Web3. I make complex financial products feel simple and trustworthy: neobanks, RWA tokenization and DAO platforms, crypto games, carbon marketplaces and low-code tools.</p>
+<p>I work end to end — research, flows, UI and design systems — and I build too. With Claude, Figma AI and a team of AI agents I turn ideas into <b>working prototypes, websites and apps in hours</b>, then grow them with analytics and SEO.</p>
+<p>I work remotely with product teams, founders and engineers across the US, Europe and beyond.</p>
+</div>
+<div class="stats reveal">
+<div class="stat"><div class="big">16 years</div><div class="cap">in design</div></div>
+<div class="stat"><div class="big">43</div><div class="cap">products shipped</div></div>
+<div class="stat"><div class="big" id="ctyCount">5</div><div class="cap">countries on the map</div></div>
+</div>
+</section>
+<section>
+<div class="globe-wrap reveal"><canvas id="globe" aria-label="Interactive globe with countries of my projects"></canvas><div class="ghint">Drag to rotate · hover a glowing point</div></div>
+</section>
+</main>
+<footer class="social">
+    <a href="about.html" aria-label="About me"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="6" r="3.6"></circle><path d="M3 17.2C3 13.9 6.1 11.5 10 11.5s7 2.4 7 5.7c0 .5-.4.8-.9.8H3.9c-.5 0-.9-.3-.9-.8z"></path></svg></span>about</a>
+    <a href="Nadzeya-Huts-CV.pdf" download="Nadzeya-Huts-CV.pdf" aria-label="Download CV"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M10.2 1L10.3053 1.0063C10.5062 1.02999 10.6933 1.12067 10.8363 1.26371C10.9793 1.40675 11.07 1.5938 11.0937 1.7947L11.1 1.9V5.5L11.1045 5.635C11.1367 6.06355 11.3212 6.46644 11.6246 6.77083C11.928 7.07521 12.3303 7.261 12.7587 7.2946L12.9 7.3H16.5L16.6053 7.3063C16.8062 7.32999 16.9933 7.42067 17.1363 7.56371C17.2793 7.70675 17.37 7.89381 17.3937 8.0947L17.4 8.2V16.3C17.4 16.9887 17.1369 17.6514 16.6644 18.1524C16.192 18.6535 15.5459 18.9551 14.8584 18.9955L14.7 19H5.7C5.01131 19 4.34864 18.7369 3.84757 18.2644C3.34649 17.792 3.0449 17.1459 3.0045 16.4584L3 16.3V3.7C2.99996 3.01131 3.26309 2.34864 3.73556 1.84757C4.20802 1.34649 4.8541 1.0449 5.5416 1.0045L5.7 1H10.2ZM12.9 13.6H7.5C7.26131 13.6 7.03239 13.6948 6.8636 13.8636C6.69482 14.0324 6.6 14.2613 6.6 14.5C6.6 14.7387 6.69482 14.9676 6.8636 15.1364C7.03239 15.3052 7.26131 15.4 7.5 15.4H12.9C13.1387 15.4 13.3676 15.3052 13.5364 15.1364C13.7052 14.9676 13.8 14.7387 13.8 14.5C13.8 14.2613 13.7052 14.0324 13.5364 13.8636C13.3676 13.6948 13.1387 13.6 12.9 13.6ZM12.9 10H7.5C7.26131 10 7.03239 10.0948 6.8636 10.2636C6.69482 10.4324 6.6 10.6613 6.6 10.9C6.6 11.1387 6.69482 11.3676 6.8636 11.5364C7.03239 11.7052 7.26131 11.8 7.5 11.8H12.9C13.1387 11.8 13.3676 11.7052 13.5364 11.5364C13.7052 11.3676 13.8 11.1387 13.8 10.9C13.8 10.6613 13.7052 10.4324 13.5364 10.2636C13.3676 10.0948 13.1387 10 12.9 10ZM8.4 6.4H7.5C7.26131 6.4 7.03239 6.49482 6.8636 6.6636C6.69482 6.83239 6.6 7.06131 6.6 7.3C6.6 7.53869 6.69482 7.76761 6.8636 7.9364C7.03239 8.10518 7.26131 8.2 7.5 8.2H8.4C8.6387 8.2 8.86761 8.10518 9.0364 7.9364C9.20518 7.76761 9.3 7.53869 9.3 7.3C9.3 7.06131 9.20518 6.83239 9.0364 6.6636C8.86761 6.49482 8.6387 6.4 8.4 6.4Z"/><path d="M16.4998 5.49934H12.8998L12.8989 1.89844L16.4998 5.49934Z"/></svg></span>CV</a>
+    <a href="mailto:nadzeyahuts@gmail.com" aria-label="Email"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.3334 6.2793V14.1668C18.3335 14.8045 18.0898 15.4181 17.6523 15.882C17.2149 16.346 16.6167 16.6252 15.9801 16.6626L15.8334 16.6668H4.16675C3.52907 16.6668 2.91549 16.4232 2.45153 15.9857C1.98758 15.5483 1.70833 14.95 1.67091 14.3135L1.66675 14.1668V6.2793L9.53758 11.5268L9.63425 11.5818C9.74817 11.6375 9.87329 11.6664 10.0001 11.6664C10.1269 11.6664 10.252 11.6375 10.3659 11.5818L10.4626 11.5268L18.3334 6.2793Z"/><path d="M15.8334 3.33301C16.7334 3.33301 17.5226 3.80801 17.9626 4.52217L10.0001 9.83051L2.0376 4.52217C2.24659 4.18286 2.53367 3.89842 2.87491 3.69258C3.21614 3.48674 3.60164 3.36546 3.99926 3.33884L4.16676 3.33301H15.8334Z"/></svg></span>mail</a>
+    <a href="https://t.me/NadzeyaHu" target="_blank" rel="noopener" aria-label="Telegram"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.1355 1.1052C17.3568 1.01205 17.5991 0.979925 17.837 1.01216C18.0749 1.0444 18.2999 1.13983 18.4884 1.28851C18.677 1.43719 18.8222 1.63369 18.9091 1.85756C18.9959 2.08142 19.0212 2.32447 18.9822 2.56141L16.951 14.8819C16.754 16.0703 15.45 16.7518 14.3601 16.1598C13.4484 15.6646 12.0943 14.9016 10.8763 14.1054C10.2673 13.7069 8.40184 12.4307 8.63111 11.5225C8.82814 10.7461 11.9627 7.82829 13.7538 6.09356C14.4568 5.41203 14.1362 5.01887 13.306 5.64577C11.2444 7.20229 7.93435 9.5693 6.83996 10.2356C5.87452 10.8231 5.37121 10.9234 4.76938 10.8231C3.6714 10.6404 2.65313 10.3574 1.82204 10.0126C0.698986 9.54691 0.753616 8.00293 1.82114 7.55335L17.1355 1.1052Z"/></svg></span>telegram</a>
+    <a href="https://www.linkedin.com/in/nadzeya-huts/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="glyph"><svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.9432 7.5752H10.9144V9.0552C11.3424 8.204 12.44 7.4392 14.0888 7.4392C17.2496 7.4392 18 9.1336 18 12.2424V18H14.8V12.9504C14.8 11.18 14.372 10.1816 13.2824 10.1816C11.7712 10.1816 11.1432 11.2576 11.1432 12.9496V18H7.9432V7.5752ZM2.456 17.864H5.656V7.4392H2.456V17.864ZM6.1144 4.04C6.11452 4.30822 6.06132 4.57379 5.95791 4.82127C5.85449 5.06875 5.70292 5.29321 5.512 5.4816C5.32051 5.67209 5.09336 5.82299 4.84354 5.92567C4.59371 6.02834 4.3261 6.08079 4.056 6.08C3.51168 6.07878 2.98953 5.86423 2.6016 5.4824C2.41144 5.29332 2.26043 5.0686 2.1572 4.8211C2.05397 4.57359 2.00055 4.30817 2 4.04C2 3.4984 2.216 2.98 2.6024 2.5976C2.98936 2.21431 3.51214 1.9995 4.0568 2C4.6024 2 5.1256 2.2152 5.512 2.5976C5.8984 2.98 6.1144 3.4984 6.1144 4.04Z"/></svg></span>LinkedIn</a>
+  </footer>
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  // starfield
+  const sky = document.getElementById('stars');
+  const n = window.innerWidth < 700 ? 70 : 130;
+  let html = '';
+  for (let i=0;i<n;i++){
+    const x = Math.random()*100, y = Math.random()*100;
+    const o = (Math.random()*0.6 + 0.15).toFixed(2);
+    const s = Math.random() < 0.15 ? 3 : (Math.random()<0.5?1:2);
+    html += `<i style="left:${x}%;top:${y}%;opacity:${o};width:${s}px;height:${s}px"></i>`;
+  }
+  sky.innerHTML = html;
+
+  // reveal
+  const els = Array.from(document.querySelectorAll('.reveal'));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced && 'IntersectionObserver' in window){
+    document.documentElement.classList.add('anim');
+    els.forEach((el,i)=> el.style.transitionDelay = Math.min(i*55,300)+'ms');
+    const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.06});
+    els.forEach(el=>io.observe(el));
+    const inview=()=>els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');});
+    addEventListener('load',inview); inview();
+    setTimeout(()=>els.forEach(el=>{const m=new DOMMatrixReadOnly(getComputedStyle(el).transform);if(Math.abs(m.m42)>.5){el.style.transition='none';el.style.transform='none';}}),1100);
+  }
+})();
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { feature } from 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm';
+// Projects by country — edit freely: [country, lat, lon, [icon, name, tags, year, link]]
+const I={tg:'assets/icon-together.webp',ire:'assets/icon-4ire.webp',rwa:'assets/icon-4ire-rwa.webp',tons:'assets/icon-tons.webp',nb:'assets/icon-neobank.webp',sn:'assets/ai/icon-sentinel.webp',nv:'assets/ai/icon-nova.webp',eb:'assets/ai/icon-earthbyt.webp'};
+// [country, lat, lon, [[icon|null, name, theses, year, link]]] — icon null = monogram until the SVG is added
+const PLACES=[
+['USA',38.9,-77.0,[[I.sn,'Sentinel','AI prototype of a retirement-planning & reporting platform','2026','sentinel.html'],[I.tg,'Together.fun','Provably fair memecoin PvP game on Solana · web app','2025–26','together-fun.html'],['assets/projects/carbcoin.svg','Carbcoin','Carbon-credit web app and admin panel','2025','https://4irelabs.com/cases/carbcoin/'],['assets/projects/timetick.svg','TimeTick','Website & digital layouts for an EV-charger testing platform','2024','']]],
+['Sweden',59.33,18.07,[[I.rwa,'4IRE RWA Platform','White-label RWA tokenization product','2026','4ire.html'],['assets/projects/4ire-website.svg','4IRE Labs Website','Glass-UI redesign, presentations, digital materials','2026','4ire-web.html'],[I.eb,'EarthByt','Carbon-credit marketplace · AI clickable prototype','2026','earthbyt.html'],[I.nv,'NOVA Mini-Games','Two iGaming prototypes built with AI in 8 hours','2026','nova.html'],['assets/projects/cryptobank.svg','CryptoBank','White-label banking: web, app and admin parts','2024',''],[null,'Modernize Widget App','Mini-app modernization','2026','']]],
+['Switzerland',46.95,7.45,[[I.tons,'TONS MONEY Capital','RWA investment platform','2025','tons.html'],[null,'GreenFinance','White-label app, web, admin and landing','2025',''],['assets/projects/drive-sports.svg','Drive Sports','Website redesign','2026','https://www.drivesports.ch/']]],
+['Canada',45.42,-75.7,[[I.nb,'NeoBank','Crypto-fiat mobile banking app · Material 3','2024–26','neobank.html'],['assets/projects/argo.svg','Argo','New features for an existing product','2024','']]],
+['United Kingdom',51.51,-0.13,[[null,'Able Platform','Web app redesign, presentations, reports, one-pagers','2022–','https://ableplatform.io/'],[null,'RNDpoint','Website redesign, WordPress, SEO, presentations, reports','2022–','https://rndpoint.com/']]],
+['Netherlands',52.37,4.9,[['assets/projects/decio.svg','Decio.ai','Marketing website','2025',''],['assets/projects/rtc-x.svg','RTC-X','Discovery layouts for a tokenized gold & silver platform','2025','']]],
+['Germany',52.52,13.4,[['assets/projects/tgcs.svg','TGCS Platform','Discovery layouts for a multi-project investment platform','2026','']]],
+['France',48.86,2.35,[['assets/projects/attentionpad.svg','Attention Pad','Landing and web app','2025','']]],
+['Belarus',53.9,27.57,[['assets/projects/belgazprombank.svg','CDMS · Belgazprombank','Credit document management system: client side and bank part','2021',''],['assets/projects/monday-learn.svg','Monday Learn','Website for a digital-marketing school','2021',''],['assets/projects/a1qa.svg','A1QA','Digital and print materials for HR','2019–22','']]],
+['Georgia',41.72,44.8,[['assets/projects/basisbank.svg','Basisbank','New features for the banking web app','2024','']]],
+['Pakistan',33.68,73.05,[[null,'Carbon Trade Marketplace','Carbon-credit web app','2024','']]],
+['UAE',25.2,55.27,[['assets/projects/answap.svg','answap.io','Token-swap web app redesign for Alfahost','2026','https://answap.io']]],
+['South Africa',-25.75,28.19,[['assets/projects/centra-sul.svg','Centra Sul','On-chain gold settlement · RWA, green finance','2025–26','']]],
+['Australia',-33.87,151.2,[['assets/projects/genius-radar.svg','Genius Radar','Website redesign, promo and print materials','2026','https://geniusradar.com/']]],
+['Anguilla',18.22,-63.05,[['assets/projects/deepsage.svg','DeepSage','Logo, creature, new features','2026',''],['assets/projects/syntra.svg','Syntra','Branding and new features','2025','']]]
+];
+document.getElementById('ctyCount').textContent=PLACES.length;
+const cv=document.getElementById('globe'),wrap=cv.parentElement;
+const R=renderer=>0;
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(35,1,.1,100);cam.position.set(0,.6,6.2);
+const ctr=new OrbitControls(cam,cv);ctr.enableZoom=false;ctr.enablePan=false;ctr.enableDamping=true;ctr.autoRotate=!matchMedia('(prefers-reduced-motion: reduce)').matches;ctr.autoRotateSpeed=.35;
+const globe=new THREE.Group();scene.add(globe);
+const r=1.6;
+globe.add(new THREE.Mesh(new THREE.SphereGeometry(r*.995,64,64),new THREE.MeshBasicMaterial({color:0x131318})));
+// atmosphere
+const atm=new THREE.Mesh(new THREE.SphereGeometry(r*1.12,64,64),new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,depthWrite:false,uniforms:{},vertexShader:'varying vec3 n;void main(){n=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec3 n;void main(){float i=pow(.72-dot(n,vec3(0,0,1.)),3.);gl_FragColor=vec4(.08,.95,.58,1.)*i*.55;}'}));
+scene.add(atm);
+const v3=(lat,lon,rr=r)=>{const p=(90-lat)*Math.PI/180,t=(lon+180)*Math.PI/180;return new THREE.Vector3(-rr*Math.sin(p)*Math.cos(t),rr*Math.cos(p),rr*Math.sin(p)*Math.sin(t));};
+// graticule
+const gm=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.04});
+for(let la=-60;la<=60;la+=30){const pts=[];for(let lo=-180;lo<=180;lo+=4)pts.push(v3(la,lo,r*1.001));globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),gm));}
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(x=>x.json()).then(topo=>{
+ const fc=feature(topo,topo.objects.countries);const pos=[];
+ const ring=c=>{for(let i=0;i<c.length-1;i++){const a=v3(c[i][1],c[i][0],r*1.002),b=v3(c[i+1][1],c[i+1][0],r*1.002);pos.push(a.x,a.y,a.z,b.x,b.y,b.z);}};
+ fc.features.forEach(f=>{const g=f.geometry;if(!g)return;(g.type==='Polygon'?[g.coordinates]:g.coordinates).forEach(poly=>poly.forEach(ring));});
+ const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+ globe.add(new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0xb7b8c0,transparent:true,opacity:.2})));
+}).catch(()=>{});
+// points
+const dotTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.18,'rgba(20,241,149,1)');g.addColorStop(.45,'rgba(20,241,149,.35)');g.addColorStop(1,'rgba(20,241,149,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+const hits=[];
+PLACES.forEach((pl,i)=>{const p=v3(pl[1],pl[2],r*1.01);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:dotTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));s.position.copy(p);s.scale.setScalar(.22);s.userData={i,ph:Math.random()*6};globe.add(s);
+ const h=new THREE.Mesh(new THREE.SphereGeometry(.09,12,12),new THREE.MeshBasicMaterial({visible:false}));h.position.copy(p);h.userData={i,s};globe.add(h);hits.push(h);});
+const size=()=>{const w=wrap.clientWidth;renderer.setSize(w,w,false);cam.aspect=1;cam.updateProjectionMatrix();};size();addEventListener('resize',size);
+const tip=document.getElementById('tip'),ray=new THREE.Raycaster(),m=new THREE.Vector2();let cur=-1;
+const mono=n=>{let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))%360;return '<i class="ph" style="--h:'+h+'">'+n.replace(/[^A-Za-z0-9]/g,' ').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()+'</i>';};
+const card=p=>'<div class="cty">'+p[0]+'</div><div class="stack">'+p[3].map(c=>{const t=c[4]?'a':'div';const ext=/^http/.test(c[4])?' target="_blank" rel="noopener"':'';return '<'+t+' class="mini"'+(c[4]?' href="'+c[4]+'"'+ext:'')+'>'+(c[0]?'<img src="'+c[0]+'" alt="">':mono(c[1]))+'<div><h4>'+c[1]+'</h4><p>'+c[2]+'</p></div><span>'+c[3]+'</span></'+t+'>';}).join('')+'</div>';
+let hideT=0;const hide=()=>{tip.classList.remove('on');cur=-1;ctr.autoRotate=!matchMedia('(prefers-reduced-motion: reduce)').matches;cv.style.cursor='';};
+tip.addEventListener('pointerenter',()=>clearTimeout(hideT));tip.addEventListener('pointerleave',()=>{hideT=setTimeout(hide,250);});
+cv.addEventListener('pointermove',e=>{const b=cv.getBoundingClientRect();m.x=(e.clientX-b.left)/b.width*2-1;m.y=-(e.clientY-b.top)/b.height*2+1;ray.setFromCamera(m,cam);
+ const camDir=cam.position.clone().normalize();const hit=ray.intersectObjects(hits).find(h=>h.object.getWorldPosition(new THREE.Vector3()).normalize().dot(camDir)>.15);
+ if(hit){clearTimeout(hideT);const i=hit.object.userData.i;if(i!==cur){cur=i;tip.innerHTML=card(PLACES[i]);const w=360;let x=e.clientX-w-14;if(x<8)x=e.clientX+22;tip.style.left=x+'px';tip.style.top=Math.max(10,Math.min(e.clientY-30,innerHeight-tip.offsetHeight-12))+'px';}tip.classList.add('on');ctr.autoRotate=false;cv.style.cursor='pointer';}
+ else{clearTimeout(hideT);hideT=setTimeout(hide,250);}});
+cv.addEventListener('pointerleave',()=>{clearTimeout(hideT);hideT=setTimeout(hide,250);});
+globe.rotation.y=-1.2;
+const clock=new THREE.Clock();
+(function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();globe.children.forEach(o=>{if(o.isSprite){const k=1+.25*Math.sin(t*2.2+o.userData.ph);o.scale.setScalar((o.userData.i===cur?.34:.22)*k);}});ctr.update();renderer.render(scene,cam);})();
+</script>
+<script>
+(function(){const h=document.querySelector('h1.name'),g=document.querySelector('.globe-wrap'),sec=g.parentElement;
+const k=(()=>{const d=Math.hypot(0,.6,6.2),a=Math.asin(1.6/d),f=17.5*Math.PI/180;return .5*(1-Math.tan(a)/Math.tan(f));})();
+function fit(){sec.style.marginTop='0px';if(innerWidth<=940)return;const m=document.createElement('span');m.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';h.appendChild(m);const base=m.getBoundingClientRect().bottom-parseFloat(getComputedStyle(h).fontSize)*0.52;m.remove();const c=document.getElementById('globe');const top=sec.getBoundingClientRect().top+(c.getBoundingClientRect().top-g.getBoundingClientRect().top)+c.getBoundingClientRect().height*k;sec.style.marginTop=(base-top)+'px';}
+document.querySelector('.home').style.alignItems='start';
+addEventListener('resize',fit);addEventListener('load',fit);document.fonts&&document.fonts.ready.then(fit);fit();setTimeout(fit,1300);setTimeout(fit,2500);})();
+</script>
+</body>
+</html>

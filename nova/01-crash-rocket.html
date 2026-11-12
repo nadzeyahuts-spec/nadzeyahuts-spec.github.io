@@ -1,0 +1,3132 @@
+<!--
+  ============================================================================
+  NOVA CRASH — provably-fair crash / multiplier game prototype
+  Built by 4IRE Labs. Single file, no build step, no dependencies.
+  ----------------------------------------------------------------------------
+  HOW TO DEMO THIS
+    - Just open the file. An intro plays (~5s, click LAUNCH DEMO to skip),
+      then the prototype runs itself: 5 scripted rounds, always the same,
+      so you can rehearse the narration.
+        A  win  @ 3.41x  (bot cashes 2.10x)   - teaches the loop
+        B  bust @ 1.19x                       - the risk
+        C  bonus round, cash out @ 6.85x      - boosts + confetti
+        D  climbs to 14.20x and busts         - the drama
+        E  shield round, cash out @ 4.02x     - then the CTA slide
+    - Touch anything in the left bet panel (or hit Space) and the demo hands
+      control to you mid-round. The AUTO/MANUAL toggle in the top bar reflects
+      state. Manual rounds use a real random provably-fair crash point.
+  KEYBOARD
+    Space  cash out / place bet      R  restart round      A  auto-demo toggle
+    G      guided tour               T  tech panel         Esc exit overlay
+  NOTES
+    - Hashes are real SHA-256 (SubtleCrypto when available, identical inline
+      implementation as fallback for file://). Crash points are derived
+      deterministically from the hash - the Verify modal recomputes them live.
+    - Sound is OFF by default and only ever starts from a user gesture.
+    - No localStorage / sessionStorage. All state is in memory.
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NOVA CRASH — provably-fair crash game · 4IRE Labs prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-900:#06060D; --bg-800:#0B0B16; --bg-700:#111124; --bg-600:#191933;
+  --stroke:rgba(255,255,255,.07); --stroke-hi:rgba(255,255,255,.14);
+  --violet:#8B5CF6; --violet-hi:#A78BFA; --cyan:#22D3EE; --lime:#A3E635;
+  --green:#22C55E; --red:#FF3B5C; --amber:#FBBF24; --gold:#FFC53D;
+  --text:#F2F2FA; --muted:#8A8AA8;
+  --font-num:'Chakra Petch','Rajdhani','Bahnschrift','DIN Alternate',system-ui,sans-serif;
+  --font-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-pop:cubic-bezier(.68,-.4,.27,1.4);
+  --glass:rgba(255,255,255,.03);
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg-900); color:var(--text); font-family:var(--font-ui);
+  font-size:14px; line-height:1.45; overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(ellipse 90% 75% at 50% 45%,#000 25%,transparent 78%);
+  mask-image:radial-gradient(ellipse 90% 75% at 50% 45%,#000 25%,transparent 78%);
+}
+body::after{
+  content:''; position:fixed; inset:-20%; pointer-events:none; z-index:0; opacity:.75;
+  background:
+    radial-gradient(38% 42% at 22% 18%, rgba(139,92,246,.16), transparent 65%),
+    radial-gradient(34% 38% at 82% 72%, rgba(34,211,238,.11), transparent 65%),
+    radial-gradient(50% 50% at 50% 110%, rgba(139,92,246,.10), transparent 70%);
+  animation:nebulaDrift 34s ease-in-out infinite alternate;
+}
+@keyframes nebulaDrift{ from{transform:translate3d(-1.5%,1%,0) scale(1)} to{transform:translate3d(2%,-1.5%,0) scale(1.06)} }
+.num{font-family:var(--font-num); font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; letter-spacing:.01em}
+button,input,select{font-family:inherit; font-size:inherit; color:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--violet-hi); outline-offset:2px; border-radius:6px}
+::selection{background:rgba(139,92,246,.4)}
+.sc{scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.16) transparent}
+.sc::-webkit-scrollbar{width:8px;height:8px}
+.sc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
+.sc::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.24)}
+.sc::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- shell ---------- */
+#app{position:relative;z-index:1;height:100%}
+.shell{display:flex;flex-direction:column;height:100%;opacity:0;transition:opacity .6s var(--ease-out), transform .8s var(--ease-out); transform:scale(.985);pointer-events:none}
+.shell.on{opacity:1;transform:none;pointer-events:auto}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:0 20px;height:62px;flex:0 0 62px;
+  border-bottom:1px solid var(--stroke);
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008));
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.brand{display:flex;align-items:center;gap:10px;padding-right:6px}
+.brand .mark{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:9px;
+  background:linear-gradient(145deg,rgba(139,92,246,.9),rgba(34,211,238,.55));
+  box-shadow:0 0 18px rgba(139,92,246,.45), inset 0 0 12px rgba(255,255,255,.18)}
+.brand h1{font-family:var(--font-num);font-size:19px;font-weight:700;letter-spacing:.14em;line-height:1}
+.brand h1 em{font-style:normal;color:var(--violet-hi)}
+.brand .sub{font-size:9.5px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:10px;
+  background:var(--glass);border:1px solid var(--stroke);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.pill b{color:var(--text);font-weight:600}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blip 2.2s ease-in-out infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.35}}
+.bal{display:flex;align-items:center;gap:11px;height:42px;padding:0 15px;border-radius:12px;position:relative;
+  background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(34,211,238,.07));border:1px solid var(--stroke-hi)}
+.bal .lab{font-size:9.5px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.bal .val{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:21px;font-weight:700;line-height:1}
+.bal .tok{font-size:11px;color:var(--muted);font-weight:600}
+.bal::after{content:'';position:absolute;inset:-3px;border-radius:15px;border:2px solid var(--gold);opacity:0;pointer-events:none}
+.bal.lock::after{animation:lockRing .9s var(--ease-out)}
+@keyframes lockRing{0%{opacity:1;transform:scale(.94)}70%{opacity:.55}100%{opacity:0;transform:scale(1.14)}}
+.seg{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--stroke);border-radius:10px;padding:3px;gap:2px}
+.seg button{font-size:11px;font-weight:700;letter-spacing:.12em;padding:6px 11px;border-radius:7px;color:var(--muted);transition:.22s var(--ease-out)}
+.seg button.on{background:linear-gradient(135deg,var(--violet),#6D3BEF);color:#fff;box-shadow:0 0 14px rgba(139,92,246,.5)}
+.seg button:not(.on):hover{color:var(--text);background:rgba(255,255,255,.05)}
+.ico{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--glass);
+  border:1px solid var(--stroke);color:var(--muted);transition:.2s var(--ease-out)}
+.ico:hover{color:var(--text);border-color:var(--stroke-hi);background:rgba(255,255,255,.07);transform:translateY(-1px)}
+.ico.on{color:var(--cyan);border-color:rgba(34,211,238,.4);box-shadow:0 0 14px rgba(34,211,238,.25)}
+.btn-ghost{height:34px;padding:0 13px;border-radius:10px;background:var(--glass);border:1px solid var(--stroke);
+  font-size:12.5px;font-weight:600;color:var(--muted);transition:.2s var(--ease-out);display:inline-flex;align-items:center;gap:7px}
+.btn-ghost:hover{color:var(--text);border-color:var(--stroke-hi);background:rgba(255,255,255,.07);transform:translateY(-1px)}
+.btn-ghost:active{transform:scale(.97)}
+
+.main{flex:1;min-height:0;width:100%;max-width:1600px;margin:0 auto;padding:16px 20px;
+  display:grid;grid-template-columns:280px minmax(0,1fr) 300px;gap:16px}
+.panel{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--stroke);border-radius:var(--r);position:relative}
+.rail{display:flex;flex-direction:column;gap:12px;min-height:0}
+.footer{flex:0 0 34px;height:34px;display:flex;align-items:center;gap:14px;padding:0 22px;
+  border-top:1px solid var(--stroke);font-size:11.5px;color:var(--muted)}
+.footer b{color:#B9B9D6;font-weight:600}
+
+/* ---------- left rail : bet panel ---------- */
+.bet{padding:14px;display:flex;flex-direction:column;gap:12px}
+.lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.field{display:flex;align-items:center;gap:8px;height:48px;padding:0 12px;border-radius:12px;
+  background:rgba(6,6,13,.55);border:1px solid var(--stroke);transition:.2s var(--ease-out)}
+.field:focus-within{border-color:rgba(139,92,246,.55);box-shadow:0 0 0 3px rgba(139,92,246,.14)}
+.field input{background:none;border:0;outline:0;width:100%;font-family:var(--font-num);font-variant-numeric:tabular-nums;
+  font-size:22px;font-weight:700;letter-spacing:.01em;min-width:0}
+.field input::-webkit-outer-spin-button,.field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.field input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.field .suf{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.chip{height:32px;border-radius:9px;background:rgba(255,255,255,.045);border:1px solid var(--stroke);
+  font-size:12px;font-weight:700;color:var(--muted);transition:.16s var(--ease-out)}
+.chip:hover{color:var(--text);background:rgba(139,92,246,.18);border-color:rgba(139,92,246,.4)}
+.chip:active{transform:scale(.94)}
+.toks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tok{display:flex;align-items:center;justify-content:center;gap:6px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,.035);border:1px solid var(--stroke);font-size:12px;font-weight:700;color:var(--muted);transition:.18s var(--ease-out)}
+.tok:hover{color:var(--text);border-color:var(--stroke-hi);background:rgba(255,255,255,.06)}
+.tok.on{color:var(--text);border-color:rgba(34,211,238,.45);background:rgba(34,211,238,.1);box-shadow:0 0 14px rgba(34,211,238,.16)}
+.tok svg{width:16px;height:16px;flex:0 0 16px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sw{width:40px;height:22px;border-radius:20px;background:rgba(255,255,255,.09);border:1px solid var(--stroke);position:relative;transition:.24s var(--ease-out);flex:0 0 40px}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#6E6E92;transition:.24s var(--ease-pop)}
+.sw.on{background:rgba(34,211,238,.28);border-color:rgba(34,211,238,.5)}
+.sw.on::after{transform:translateX(18px);background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.hr{height:1px;background:var(--stroke)}
+.stat{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.stat b{color:var(--text);font-weight:600;font-family:var(--font-num);font-variant-numeric:tabular-nums}
+
+/* action button */
+.act{position:relative;width:100%;height:72px;border-radius:14px;overflow:hidden;isolation:isolate;
+  border:1px solid rgba(255,255,255,.18);transition:transform .18s var(--ease-pop), box-shadow .3s var(--ease-out), filter .2s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:linear-gradient(135deg,#7C3AED,#5B21B6);box-shadow:0 8px 26px rgba(124,58,237,.34)}
+.act:hover{transform:translateY(-2px) scale(1.012);filter:brightness(1.08)}
+.act:active{transform:scale(.97)}
+.act[disabled]{filter:grayscale(.65) brightness(.6);cursor:not-allowed;box-shadow:none}
+.act .t1{font-family:var(--font-num);font-size:19px;font-weight:700;letter-spacing:.14em;line-height:1.1;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.act .t2{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;opacity:.94;line-height:1.1}
+.act .shine{position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);
+  transform:translateX(-120%);pointer-events:none}
+.act.live .shine{animation:shine 2.4s var(--ease-out) infinite}
+@keyframes shine{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
+.act.pulse{animation:actPulse var(--pulse,1.4s) ease-in-out infinite}
+@keyframes actPulse{0%,100%{box-shadow:0 8px 26px var(--glowA,rgba(34,197,94,.35))}50%{box-shadow:0 10px 44px var(--glowB,rgba(34,197,94,.7))}}
+.queued{position:absolute;top:8px;right:9px;font-size:9.5px;font-weight:800;letter-spacing:.14em;padding:3px 7px;border-radius:6px;
+  background:rgba(6,6,13,.5);border:1px solid rgba(255,255,255,.3)}
+.note{font-size:11.5px;color:var(--muted);line-height:1.4}
+.note.warn{color:var(--amber)}
+
+/* ---------- center ---------- */
+.center{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+.stage{position:relative;flex:1;min-height:0;border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--stroke);background:radial-gradient(120% 90% at 50% 105%,#0F0F22 0%,#08080F 55%,#06060D 100%)}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vig{position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 140px 30px rgba(0,0,0,.72);transition:box-shadow .4s var(--ease-out)}
+.hud{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hud::before{content:'';position:absolute;left:50%;top:50%;width:min(760px,86%);height:60%;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,rgba(6,6,13,.62),rgba(6,6,13,.28) 55%,transparent 78%);pointer-events:none}
+.hud > *{position:relative}
+.mult{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-weight:700;font-size:clamp(64px,8.4vw,124px);
+  line-height:.95;letter-spacing:-.01em;text-shadow:0 0 60px rgba(139,92,246,.55);transition:color .25s}
+.mult .x{font-size:.52em;opacity:.65;margin-left:.04em}
+.mult.crit{animation:critFlick .16s steps(2,end) infinite}
+@keyframes critFlick{0%{opacity:1}50%{opacity:.82;filter:brightness(1.25)}100%{opacity:1}}
+.mult.crashed{color:var(--red);text-shadow:0 0 60px rgba(255,59,92,.5)}
+.mult.rgb{animation:rgbSplit .9s steps(3,end) 3}
+@keyframes rgbSplit{
+  0%{text-shadow:0 0 60px rgba(255,59,92,.5)}
+  33%{text-shadow:-4px 0 0 rgba(34,211,238,.9), 4px 0 0 rgba(255,59,92,.9), 0 0 60px rgba(255,59,92,.5)}
+  66%{text-shadow:3px 0 0 rgba(34,211,238,.75), -3px 0 0 rgba(255,59,92,.75), 0 0 60px rgba(255,59,92,.5)}
+  100%{text-shadow:0 0 60px rgba(255,59,92,.5)}}
+.status{font-family:var(--font-num);font-size:15px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:10px;min-height:20px;transition:color .3s}
+.substat{font-size:14px;color:var(--muted);margin-top:12px;min-height:20px;font-weight:500}
+.substat b{color:var(--text);font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.boosts{display:flex;gap:8px;margin-top:16px;min-height:40px;align-items:center;justify-content:center;flex-wrap:wrap}
+.boosts .ph{font-size:11.5px;color:rgba(138,138,168,.5);letter-spacing:.1em;text-transform:uppercase}
+.bchip{position:relative;display:flex;align-items:center;gap:7px;padding:7px 12px 9px;border-radius:11px;overflow:hidden;
+  background:rgba(6,6,13,.66);border:1px solid var(--stroke-hi);font-size:12px;font-weight:700;letter-spacing:.06em;
+  animation:chipIn .45s var(--ease-pop) both;backdrop-filter:blur(8px)}
+@keyframes chipIn{from{transform:scale(.4) translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.bchip .bar{position:absolute;left:0;bottom:0;height:3px;width:100%;transform-origin:left}
+.bchip.v{color:var(--violet-hi);border-color:rgba(139,92,246,.45);box-shadow:0 0 20px rgba(139,92,246,.25)}
+.bchip.c{color:var(--cyan);border-color:rgba(34,211,238,.45);box-shadow:0 0 20px rgba(34,211,238,.22)}
+.bchip.g{color:var(--gold);border-color:rgba(255,197,61,.45);box-shadow:0 0 20px rgba(255,197,61,.22)}
+.countring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:230px;height:230px;opacity:0;transition:opacity .3s}
+.countring.on{opacity:1}
+.countring circle{fill:none;stroke-width:3}
+.hist{display:flex;align-items:center;gap:6px;padding:9px 12px;overflow:hidden;flex:0 0 auto}
+#histList{display:flex;gap:6px;overflow:hidden;flex:1;min-width:0;
+  -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent 100%);
+  mask-image:linear-gradient(90deg,#000 88%,transparent 100%)}
+.hist .cap{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:4px;white-space:nowrap}
+.hp{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;
+  border:1px solid;white-space:nowrap;transition:.18s var(--ease-out);animation:hpIn .4s var(--ease-pop) both;cursor:pointer}
+@keyframes hpIn{from{transform:translateX(-10px) scale(.7);opacity:0}to{transform:none;opacity:1}}
+.hp:hover{transform:translateY(-2px) scale(1.06);filter:brightness(1.2)}
+/* CRASH-POINT BANDS — a ladder of magnitude (low → mid → high), NOT a verdict.
+   The low band used to be #7BE39B — the exact green this screen uses for "you
+   won" on the banner, the YOUR BET card, the MY ROUNDS pill and the LIVE BETS
+   row. A bust under 2x is the round almost every player loses, so the pill for
+   it glowed green two centimetres from a red "YOU LOST" and a red MY ROUNDS
+   pill for the same round. Green on this screen means one thing only: the
+   player is up. The low band is neutral steel; the ladder still escalates
+   steel -> violet -> gold. */
+.hp.lo{color:#9AA0B8;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)}
+.hp.v{color:var(--violet-hi);border-color:rgba(139,92,246,.32);background:rgba(139,92,246,.12)}
+.hp.gold{color:var(--gold);border-color:rgba(255,197,61,.36);background:rgba(255,197,61,.12);box-shadow:0 0 14px rgba(255,197,61,.18)}
+
+/* ---------- right rail ---------- */
+.tabs{display:flex;gap:4px;padding:5px;border-bottom:1px solid var(--stroke)}
+.tabs button{flex:1;height:34px;border-radius:9px;font-size:12px;font-weight:700;letter-spacing:.09em;color:var(--muted);transition:.2s var(--ease-out)}
+.tabs button.on{background:rgba(139,92,246,.16);color:var(--text);box-shadow:inset 0 0 0 1px rgba(139,92,246,.3)}
+.tabs button:not(.on):hover{color:var(--text);background:rgba(255,255,255,.05)}
+.tabbody{flex:1;min-height:0;display:flex;flex-direction:column}
+.feedhead{display:flex;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--stroke);font-size:11.5px;color:var(--muted)}
+.feedhead b{color:var(--text);font-family:var(--font-num);font-variant-numeric:tabular-nums;font-weight:600}
+.feed{flex:1;min-height:0;overflow-y:auto;padding:5px 6px}
+.fr{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:6px 7px;border-radius:9px;
+  font-size:12.5px;transition:background .25s}
+.fr+.fr{margin-top:2px}
+.fr.you{background:rgba(139,92,246,.1);box-shadow:inset 0 0 0 1px rgba(139,92,246,.24)}
+.fr.hit{animation:frHit .7s var(--ease-out)}
+@keyframes frHit{0%{background:rgba(34,197,94,.3)}100%{background:transparent}}
+.fr.hit.you{animation:frHitY .7s var(--ease-out)}
+@keyframes frHitY{0%{background:rgba(34,197,94,.34)}100%{background:rgba(139,92,246,.1)}}
+.fr.lost{animation:frLost .5s var(--ease-out);opacity:.55}
+@keyframes frLost{0%{background:rgba(255,59,92,.26)}100%{background:transparent}}
+.av{width:26px;height:26px;border-radius:8px;flex:0 0 26px;position:relative;overflow:hidden}
+.av span{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800;color:rgba(255,255,255,.92);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.who{overflow:hidden;min-width:0}
+.who .h{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .b{font-size:11px;color:var(--muted);font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.res{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:12px;font-weight:700;white-space:nowrap}
+.res .m{display:block;font-size:13px}
+.res .p{display:block;font-size:11px;opacity:.85;font-weight:600}
+.res.w{color:var(--green)} .res.l{color:var(--red)} .res.p0{color:var(--muted);font-weight:500}
+.res.r{color:var(--cyan)}
+
+/* provably fair */
+.pf{flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:11px}
+.pfb{border:1px solid var(--stroke);border-radius:12px;padding:10px;background:rgba(6,6,13,.4)}
+.pfb .k{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mono{font-family:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.5;word-break:break-all;color:#C9C9E4}
+.mono.g{color:#7BE39B}
+.copy{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);padding:3px 7px;border-radius:6px;border:1px solid var(--stroke);transition:.18s}
+.copy:hover{color:var(--cyan);border-color:rgba(34,211,238,.4)}
+.copy.ok{color:var(--green);border-color:rgba(34,197,94,.5)}
+.pfin{width:100%;background:rgba(6,6,13,.6);border:1px solid var(--stroke);border-radius:8px;padding:7px 9px;outline:0;
+  font-family:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;transition:.2s}
+.pfin:focus{border-color:rgba(139,92,246,.55);box-shadow:0 0 0 3px rgba(139,92,246,.13)}
+.vrfstep{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin-top:6px}
+.vrfstep .d{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--stroke-hi);flex:0 0 16px;display:grid;place-items:center;font-size:9px;transition:.3s}
+.vrfstep.ok .d{border-color:var(--green);background:rgba(34,197,94,.2);color:var(--green)}
+.vrfstep.ok{color:#A9E9C0}
+.okline{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--green);font-weight:600}
+
+/* ---------- overlays ---------- */
+.ov{position:fixed;inset:0;z-index:60;display:none}
+.ov.on{display:block}
+.scrim{position:absolute;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* intro */
+#intro{position:fixed;inset:0;z-index:90;background:#04040A;display:flex;align-items:center;justify-content:center;
+  transition:opacity .7s var(--ease-out), transform .9s var(--ease-out)}
+#intro.out{opacity:0;transform:scale(1.14);pointer-events:none}
+.introw{text-align:center;position:relative}
+.fade{opacity:0;animation:fadeUp .9s var(--ease-out) forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.i4ire{font-size:12px;letter-spacing:.46em;color:var(--muted);text-transform:uppercase;margin-bottom:34px;font-weight:600}
+.ilogo{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:20px}
+.ilogo h2{font-family:var(--font-num);font-size:clamp(46px,6.4vw,86px);font-weight:700;letter-spacing:.16em;line-height:1}
+.ilogo h2 span{display:inline-block;opacity:0;animation:letterIn .55s var(--ease-pop) forwards}
+.ilogo h2 em{font-style:normal;color:var(--violet-hi);text-shadow:0 0 34px rgba(167,139,250,.6)}
+@keyframes letterIn{from{opacity:0;transform:translateY(-26px) rotate(-9deg) scale(.6);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.irk{width:66px;height:66px;opacity:0;animation:rkIn .8s var(--ease-pop) .55s forwards}
+@keyframes rkIn{from{opacity:0;transform:translateY(50px) scale(.4)}to{opacity:1;transform:none}}
+.itag{font-size:15px;color:var(--muted);letter-spacing:.05em;margin-bottom:38px;animation-delay:1.35s}
+.ibtn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 30px;border-radius:13px;
+  background:linear-gradient(135deg,var(--violet),#5B21B6);border:1px solid rgba(255,255,255,.2);
+  font-family:var(--font-num);font-size:16px;font-weight:700;letter-spacing:.16em;
+  box-shadow:0 10px 34px rgba(139,92,246,.42);transition:.22s var(--ease-pop);animation-delay:1.6s}
+.ibtn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 46px rgba(139,92,246,.6)}
+.ibtn:active{transform:scale(.97)}
+.inote{font-size:11.5px;color:#55556F;margin-top:20px;letter-spacing:.08em;animation-delay:1.9s}
+.iglow{position:absolute;left:50%;top:50%;width:900px;height:900px;transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(closest-side,rgba(139,92,246,.2),transparent 70%);opacity:0;animation:fadeUp 1.6s var(--ease-out) .5s forwards}
+
+/* modal */
+.modal{position:relative;margin:4vh auto 0;width:min(760px,92vw);max-height:92vh;overflow-y:auto;
+  background:linear-gradient(160deg,rgba(25,25,51,.96),rgba(11,11,22,.98));
+  border:1px solid var(--stroke-hi);border-radius:20px;padding:26px 28px;
+  box-shadow:0 40px 100px rgba(0,0,0,.7),0 0 70px rgba(139,92,246,.16);
+  animation:modalIn .45s var(--ease-out)}
+@keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.mh{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.mh h3{font-family:var(--font-num);font-size:23px;font-weight:700;letter-spacing:.04em}
+.mh p{font-size:12.5px;color:var(--muted);margin-top:4px}
+.x{width:32px;height:32px;border-radius:9px;border:1px solid var(--stroke);color:var(--muted);display:grid;place-items:center;transition:.2s}
+.x:hover{color:var(--red);border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.1)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv{background:rgba(6,6,13,.55);border:1px solid var(--stroke);border-radius:11px;padding:10px 12px}
+.kv .k{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px}
+.kv .v{font-family:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;word-break:break-all;color:#D3D3EC}
+.kv .v.big{font-family:var(--font-num);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.math{background:rgba(6,6,13,.6);border:1px solid var(--stroke);border-radius:12px;padding:14px 16px;margin-top:12px}
+.math .ln{display:flex;gap:10px;align-items:baseline;font-family:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+  font-size:12px;padding:5px 0;color:#B6B6D4;border-bottom:1px dashed rgba(255,255,255,.05)}
+.math .ln:last-child{border-bottom:0}
+.math .ln i{font-style:normal;color:#5B5B79;width:16px;flex:0 0 16px}
+.math .ln b{color:var(--cyan);font-weight:600}
+.chk{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(34,197,94,.07);
+  border:1px solid rgba(34,197,94,.18);margin-top:8px;opacity:0;transform:translateX(-8px);transition:.4s var(--ease-out);font-size:13px}
+.chk.on{opacity:1;transform:none}
+.chk .c{width:20px;height:20px;border-radius:50%;background:rgba(34,197,94,.2);color:var(--green);display:grid;place-items:center;font-size:11px;font-weight:800;flex:0 0 20px}
+.verdict{margin-top:14px;padding:14px 16px;border-radius:13px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(34,197,94,.05));border:1px solid rgba(34,197,94,.34);
+  opacity:0;transform:scale(.96);transition:.5s var(--ease-pop)}
+.verdict.on{opacity:1;transform:none}
+.verdict .big{font-family:var(--font-num);font-size:16px;font-weight:700;letter-spacing:.1em;color:#8FEEB0}
+.verdict .sm{font-size:12px;color:var(--muted)}
+.lnk{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--cyan);text-decoration:none;font-weight:600;
+  padding:7px 11px;border-radius:9px;border:1px solid rgba(34,211,238,.26);background:rgba(34,211,238,.07);transition:.2s}
+.lnk:hover{background:rgba(34,211,238,.16);transform:translateY(-1px)}
+
+/* tour */
+#tour{z-index:80}
+#tour .cut{position:absolute;border-radius:16px;box-shadow:0 0 0 9999px rgba(3,3,8,.8),0 0 0 2px rgba(167,139,250,.7),0 0 44px rgba(139,92,246,.5) inset;
+  transition:all .6s var(--ease-out);pointer-events:none}
+#tour .card{position:absolute;width:340px;background:linear-gradient(160deg,rgba(30,30,60,.98),rgba(11,11,22,.99));
+  border:1px solid var(--stroke-hi);border-radius:16px;padding:18px 20px;box-shadow:0 26px 70px rgba(0,0,0,.66);
+  transition:all .6s var(--ease-out)}
+#tour .card .step{font-size:10.5px;letter-spacing:.2em;color:var(--violet-hi);font-weight:700;text-transform:uppercase}
+#tour .card h4{font-family:var(--font-num);font-size:20px;font-weight:700;margin:7px 0 8px;line-height:1.2}
+#tour .card p{font-size:13.5px;color:#B5B5D0;line-height:1.5}
+#tour .card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+#tour .dots{display:flex;gap:5px}
+#tour .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18);transition:.3s}
+#tour .dots i.on{background:var(--violet-hi);width:18px;border-radius:4px}
+.btn-p{height:36px;padding:0 18px;border-radius:10px;background:linear-gradient(135deg,var(--violet),#5B21B6);
+  font-size:13px;font-weight:700;letter-spacing:.08em;box-shadow:0 6px 20px rgba(139,92,246,.36);transition:.2s var(--ease-pop)}
+.btn-p:hover{transform:translateY(-1px) scale(1.03);filter:brightness(1.1)}
+.btn-p:active{transform:scale(.96)}
+
+/* cta */
+#cta{position:fixed;inset:0;z-index:70;background:radial-gradient(90% 80% at 50% 0%,#141430,#06060D 65%);
+  display:none;overflow-y:auto;padding:5vh 4vw}
+#cta.on{display:block}
+.ctaw{max-width:1180px;margin:0 auto;text-align:center}
+.up{opacity:0;animation:fadeUp .8s var(--ease-out) forwards}
+#cta .eyebrow{font-size:11.5px;letter-spacing:.4em;color:var(--violet-hi);text-transform:uppercase;font-weight:700;margin-bottom:16px}
+#cta h2{font-family:var(--font-num);font-size:clamp(40px,5.6vw,68px);font-weight:700;letter-spacing:.01em;line-height:1.05;margin-bottom:14px}
+#cta h2 em{font-style:normal;background:linear-gradient(100deg,var(--violet-hi),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#cta .lede{font-size:16px;color:var(--muted);max-width:620px;margin:0 auto 40px}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:left;margin-bottom:34px}
+.col{background:var(--glass);border:1px solid var(--stroke);border-radius:var(--r);padding:22px;backdrop-filter:blur(20px)}
+.col .n{font-family:var(--font-num);font-size:12px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px}
+.col h3{font-family:var(--font-num);font-size:21px;font-weight:700;margin-bottom:14px}
+.col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.col li{font-size:13.5px;color:#B2B2CC;display:flex;gap:9px;line-height:1.4}
+.col li::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:7px;flex:0 0 5px;background:var(--violet-hi)}
+.col.c2 li::before{background:var(--cyan)} .col.c3 li::before{background:var(--lime)}
+.stack{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:34px}
+.tp{font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:9px;background:rgba(255,255,255,.045);
+  border:1px solid var(--stroke);color:#B2B2CC}
+.ctaf{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.by{font-size:12.5px;color:var(--muted)}
+.by b{color:var(--text)}
+
+/* toasts / fx */
+.toasts{position:fixed;right:22px;bottom:56px;z-index:75;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:12px;font-size:13px;font-weight:600;
+  background:rgba(11,11,22,.94);border:1px solid var(--stroke-hi);box-shadow:0 14px 40px rgba(0,0,0,.5);
+  animation:toastIn .45s var(--ease-pop), toastOut .4s var(--ease-out) 2.9s forwards;backdrop-filter:blur(14px)}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(30px) scale(.95)}}
+.fx{position:fixed;inset:0;pointer-events:none;z-index:65;overflow:hidden}
+.ticket{position:fixed;z-index:78;pointer-events:none;padding:11px 16px;border-radius:12px;font-family:var(--font-num);
+  font-size:16px;font-weight:700;letter-spacing:.04em;color:#1A1200;white-space:nowrap;
+  background:linear-gradient(135deg,#FFD469,var(--gold));box-shadow:0 10px 36px rgba(255,197,61,.5)}
+.coin{position:fixed;z-index:77;width:12px;height:12px;border-radius:50%;pointer-events:none;
+  background:linear-gradient(135deg,#FFE9A8,var(--gold));box-shadow:0 0 10px rgba(255,197,61,.7)}
+.flash{position:fixed;inset:0;background:#fff;z-index:79;pointer-events:none;opacity:0}
+.flash.go{animation:flashGo .34s ease-out}
+@keyframes flashGo{0%{opacity:.92}22%{opacity:.55}100%{opacity:0}}
+.shake{animation:shakeK .36s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shakeK{10%,90%{transform:translate3d(-2px,1px,0)}20%,80%{transform:translate3d(5px,-2px,0)}
+  30%,50%,70%{transform:translate3d(-8px,3px,0)}40%,60%{transform:translate3d(8px,-3px,0)}}
+
+/* tech drawer */
+#tech{position:fixed;top:0;right:0;bottom:0;width:390px;max-width:92vw;z-index:72;transform:translateX(102%);
+  transition:transform .5s var(--ease-out);background:linear-gradient(200deg,rgba(20,20,42,.98),rgba(8,8,16,.99));
+  border-left:1px solid var(--stroke-hi);box-shadow:-30px 0 80px rgba(0,0,0,.6);overflow-y:auto;padding:22px}
+#tech.on{transform:none}
+#tech h3{font-family:var(--font-num);font-size:19px;font-weight:700;margin-bottom:4px}
+#tech .sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.tsec{margin-bottom:16px}
+.tsec .th{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--violet-hi);font-weight:700;margin-bottom:8px}
+.tsec p{font-size:12.5px;color:#A9A9C6;line-height:1.55}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 6px;border-radius:6px;
+  background:rgba(255,255,255,.08);border:1px solid var(--stroke-hi);font-family:var(--font-num);font-size:11px;font-weight:700}
+.krow{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#A9A9C6;padding:4px 0}
+
+/* ==========================================================================
+   OUTCOME LEGIBILITY LAYER
+   Five surfaces that answer "did I win?" without reading anything:
+   result banner, screen edge glow, YOUR BET card, balance delta, MY ROUNDS.
+   ========================================================================== */
+
+/* ---------- 1. result banner (over the canvas, upper third, never blocks) --- */
+.rbanner{
+  position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:6;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+  padding:13px 38px 15px;border-radius:20px;text-align:center;white-space:nowrap;
+  min-width:min(440px,86%);max-width:94%;
+  opacity:0;visibility:hidden;
+  background:radial-gradient(closest-side,rgba(4,4,10,.92),rgba(4,4,10,.74) 58%,rgba(4,4,10,0) 100%);
+}
+.rbanner.on{visibility:visible}
+.rbanner.in{animation:rbIn .44s var(--ease-pop) forwards}
+.rbanner.out{animation:rbOut .44s var(--ease-out) forwards}
+@keyframes rbIn{
+  from{opacity:0;transform:translateX(-50%) translateY(0) scale(.92)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+@keyframes rbOut{
+  from{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  to{opacity:0;transform:translateX(-50%) translateY(-8px) scale(1)}}
+.rbanner .l1{font-family:var(--font-num);font-size:28px;font-weight:700;letter-spacing:.26em;
+  text-indent:.26em;line-height:1.05}
+.rbanner .l2{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+  font-size:64px;font-weight:700;line-height:1.02;letter-spacing:-.012em;margin-top:2px}
+.rbanner .l3{font-size:13px;color:var(--muted);margin-top:5px;font-weight:500;
+  white-space:normal;line-height:1.35}
+.rbanner.win .l1{color:#7BE39B}
+.rbanner.win .l2{color:var(--green);text-shadow:0 0 46px rgba(34,197,94,.65)}
+.rbanner.win .ring{color:var(--green)}
+.rbanner.loss .l1{color:#FF8098}
+.rbanner.loss .l2{color:var(--red);text-shadow:0 0 46px rgba(255,59,92,.6)}
+.rbanner.loss .ring{color:var(--red)}
+.rbanner.push .l1{color:#9AE9F7}
+.rbanner.push .l2{color:var(--cyan);text-shadow:0 0 46px rgba(34,211,238,.55)}
+.rbanner.push .ring{color:var(--cyan)}
+.rbanner .ring{position:absolute;left:50%;top:50%;width:130px;height:130px;margin:-65px 0 0 -65px;
+  border-radius:50%;border:2.5px solid currentColor;opacity:0;pointer-events:none}
+.rbanner.in .ring{animation:rbRing .82s var(--ease-out)}
+@keyframes rbRing{0%{opacity:.9;transform:scale(.3)}70%{opacity:.22}100%{opacity:0;transform:scale(3.6)}}
+@keyframes rbFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes rbFadeOut{from{opacity:1}to{opacity:0}}
+
+/* ---------- 2. screen edge glow ---------- */
+#edgeGlow{position:fixed;inset:0;z-index:58;pointer-events:none;opacity:0;
+  box-shadow:inset 0 0 90px 8px var(--eg,rgba(34,197,94,.9)), inset 0 0 0 2px var(--eg2,rgba(34,197,94,.5))}
+#edgeGlow.go{animation:egGo 1.2s var(--ease-out)}
+@keyframes egGo{0%{opacity:0}10%{opacity:1}42%{opacity:.34}60%{opacity:.92}100%{opacity:0}}
+
+/* ---------- 3. persistent YOUR BET card ---------- */
+.betcard{border:1px solid var(--stroke);border-left:4px solid #3A3A55;border-radius:12px;
+  padding:9px 12px 10px;background:rgba(255,255,255,.03);
+  transition:background .3s var(--ease-out),border-color .3s var(--ease-out)}
+.betcard .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.betcard .v{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:16px;font-weight:700;
+  line-height:1.25;margin-top:3px;letter-spacing:.02em}
+.betcard .s{font-size:11.5px;color:var(--muted);margin-top:1px;min-height:16px;
+  font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.betcard.none .v{color:var(--muted)}
+.betcard.live{border-left-color:var(--amber);background:rgba(251,191,36,.1);animation:bcPulse 1.5s ease-in-out infinite}
+.betcard.live .v{color:var(--amber)}
+@keyframes bcPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 20px 0 rgba(251,191,36,.3)}}
+.betcard.won{border-left-color:var(--green);background:rgba(34,197,94,.13)}
+.betcard.won .v{color:#7BE39B}
+.betcard.lost{border-left-color:var(--red);background:rgba(255,59,92,.13)}
+.betcard.lost .v{color:#FF8098}
+.betcard.push{border-left-color:var(--cyan);background:rgba(34,211,238,.12)}
+.betcard.push .v{color:#9AE9F7}
+
+/* ---------- 4. floating balance delta ----------
+   This is a LEDGER movement, not a result claim: it is always suffixed with the
+   word that says which number it is (staked / returned / refunded / crate), so
+   the bare "+" glyph is never spent on anything but net profit. */
+.baldelta{position:absolute;left:calc(100% + 8px);top:9px;z-index:5;pointer-events:none;white-space:nowrap;
+  font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:20px;font-weight:700;
+  text-shadow:0 2px 10px rgba(4,4,10,.8);animation:bdFloat 1.1s var(--ease-out) forwards}
+.baldelta i{font-style:normal;font-family:var(--font-ui);font-size:11px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;opacity:.72;margin-left:5px}
+@keyframes bdFloat{
+  0%{opacity:0;transform:translateY(5px)}
+  16%{opacity:1;transform:translateY(0)}
+  100%{opacity:0;transform:translateY(-26px)}}
+
+/* ---------- 5. MY ROUNDS strip ---------- */
+.mine{padding:11px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.minerow{display:flex;flex-wrap:wrap;gap:5px;min-height:25px;align-items:flex-start}
+.minerow .ph{font-size:11.5px;color:rgba(138,138,168,.5);letter-spacing:.08em;text-transform:uppercase}
+.mp{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:700;
+  padding:4px 8px;border-radius:7px;border:1px solid;white-space:nowrap;cursor:default;
+  animation:hpIn .4s var(--ease-pop) both}
+.mp.w{color:#7BE39B;border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.13)}
+.mp.l{color:#FF8098;border-color:rgba(255,59,92,.3);background:rgba(255,59,92,.11)}
+.mp.p{color:#9AE9F7;border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.1)}
+.mine .sum{font-size:11px;color:var(--muted);font-family:var(--font-num);font-variant-numeric:tabular-nums;
+  letter-spacing:.02em}
+.mine .sum b{font-weight:700}
+
+@media (max-width:1400px){
+  .main{grid-template-columns:262px minmax(0,1fr) 286px;gap:13px;padding:13px 15px}
+  .mult{font-size:clamp(56px,7.6vw,104px)}
+  #pillRtp{display:none}
+  .rbanner .l2{font-size:54px}
+  .rbanner .l1{font-size:24px}
+}
+@media (max-width:1180px){ .main{grid-template-columns:246px minmax(0,1fr) 272px} }
+/* the banner lives in the upper third of the stage — on a short viewport the
+   centred HUD column climbs towards it, so shrink rather than collide */
+@media (max-height:840px){
+  .rbanner{top:9px;padding:10px 30px 12px}
+  .rbanner .l1{font-size:23px}
+  .rbanner .l2{font-size:52px}
+}
+@media (max-height:700px){
+  .rbanner{top:6px;padding:8px 24px 10px}
+  .rbanner .l1{font-size:19px;letter-spacing:.2em;text-indent:.2em}
+  .rbanner .l2{font-size:40px}
+  .rbanner .l3{font-size:11.5px;margin-top:3px}
+}
+@media (prefers-reduced-motion:reduce){
+  .shake{animation:none}
+  body::after{animation:none}
+  .act.pulse{animation:none}
+  .mult.crit{animation:none}
+  .betcard.live{animation:none}
+  .rbanner.in{animation:rbFadeIn .3s linear forwards}
+  .rbanner.out{animation:rbFadeOut .3s linear forwards}
+  .rbanner.in .ring{animation:none;opacity:0}
+  .baldelta{animation:bdFloat 1.1s linear forwards}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ======================= INTRO ======================= -->
+<div id="intro">
+  <div class="iglow"></div>
+  <div class="introw">
+    <div class="i4ire fade" style="animation-delay:.15s">4IRE LABS</div>
+    <div class="ilogo">
+      <svg class="irk" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ig1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F2F2FA"/><stop offset="1" stop-color="#A78BFA"/>
+          </linearGradient>
+          <linearGradient id="ig2" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#FF3B5C"/><stop offset=".5" stop-color="#FBBF24"/><stop offset="1" stop-color="#22D3EE"/>
+          </linearGradient>
+        </defs>
+        <path d="M32 4c7.2 6.4 11.4 15.6 11.4 25.6v10.2H20.6V29.6C20.6 19.6 24.8 10.4 32 4Z" fill="url(#ig1)"/>
+        <path d="M20.6 30 10 41.4v7.2l10.6-5.4V30Zm22.8 0L54 41.4v7.2l-10.6-5.4V30Z" fill="#8B5CF6"/>
+        <circle cx="32" cy="24" r="5.2" fill="#0B0B16"/><circle cx="32" cy="24" r="3.4" fill="#22D3EE"/>
+        <path d="M26 40h12l-6 20-6-20Z" fill="url(#ig2)" opacity=".95"/>
+      </svg>
+      <h2 id="ilogoTxt"></h2>
+    </div>
+    <div class="itag fade">Provably-fair crash. On-chain settlement. Sub-second payouts.</div>
+    <div><button class="ibtn fade" id="btnLaunch">LAUNCH DEMO <span style="font-size:13px">&#9656;</span></button></div>
+    <div class="inote fade">Interactive prototype &middot; not a production build</div>
+  </div>
+</div>
+
+<!-- ======================= APP SHELL ======================= -->
+<div class="shell" id="shell">
+
+  <!-- top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">
+        <svg width="17" height="17" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 6c6.8 6 10.8 14.8 10.8 24.2V40H21.2v-9.8C21.2 20.8 25.2 12 32 6Z" fill="#fff"/>
+          <path d="M21.2 30 11 41v6.6l10.2-5.2V30Zm21.6 0L53 41v6.6l-10.2-5.2V30Z" fill="rgba(255,255,255,.75)"/>
+          <path d="M27 40h10l-5 16-5-16Z" fill="rgba(255,255,255,.9)"/>
+        </svg>
+      </div>
+      <div>
+        <h1>NOVA <em>CRASH</em></h1>
+        <div class="sub">4IRE Labs prototype</div>
+      </div>
+    </div>
+
+    <div class="seg" role="group" aria-label="Demo mode">
+      <button id="segAuto" class="on" aria-pressed="true">AUTO</button>
+      <button id="segManual" aria-pressed="false">MANUAL</button>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="pill" title="Settlement network"><span class="dot"></span>Base <b>&middot;</b> 0.4s finality</div>
+    <div class="pill" id="pillRtp" title="Return to player">RTP <b>99.00%</b></div>
+
+    <div class="bal" id="balBox">
+      <div>
+        <div class="lab">Balance</div>
+        <div><span class="val" id="balVal">10,000.00</span> <span class="tok" id="balTok">USDT</span></div>
+      </div>
+    </div>
+
+    <button class="btn-ghost" id="btnTour" title="Guided tour (G)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.4 9.2a2.7 2.7 0 1 1 3.6 2.5c-.7.3-1 .9-1 1.6v.4"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor" stroke="none"/></svg>
+      Guided tour
+    </button>
+    <button class="ico" id="btnSound" title="Sound (off by default)" aria-pressed="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6.5 8.7H3v6.6h3.5L11 19V5Z"/><path d="m16.5 9.5 5 5m0-5-5 5" id="sndX"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.3 6.6a8 8 0 0 1 0 10.8" id="sndOn" style="display:none"/></svg>
+    </button>
+    <button class="ico" id="btnTech" title="Tech notes &amp; keyboard shortcuts (T or ?)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6"/></svg>
+    </button>
+    <button class="btn-ghost" id="btnWrap" title="Jump to the closing slide">Wrap up &#8594;</button>
+  </header>
+
+  <!-- main -->
+  <div class="main">
+
+    <!-- ============ LEFT RAIL ============ -->
+    <aside class="rail sc" id="railLeft" style="overflow-y:auto;overflow-x:hidden">
+      <div class="panel bet" id="betPanel">
+        <div>
+          <div class="lbl"><span>Bet amount</span><span id="betFiat" class="num">~$100.00</span></div>
+          <div class="field" style="margin-top:7px">
+            <input id="betInput" type="number" min="1" step="1" value="100" inputmode="decimal" aria-label="Bet amount" />
+            <span class="suf" id="betSuf">USDT</span>
+          </div>
+        </div>
+        <div class="chips">
+          <button class="chip" data-bet="half">&frac12;</button>
+          <button class="chip" data-bet="double">2&times;</button>
+          <button class="chip" data-bet="100">100</button>
+          <button class="chip" data-bet="max">MAX</button>
+        </div>
+
+        <div>
+          <div class="lbl" style="margin-bottom:7px">Token</div>
+          <div class="toks" id="toks">
+            <button class="tok on" data-tok="USDT">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#26A17B"/><path d="M13.4 10.9V9.4h3.9V7.1H6.7v2.3h3.9v1.5c-3.2.15-5.6.8-5.6 1.6s2.4 1.45 5.6 1.6v4.8h2.8v-4.8c3.2-.15 5.6-.8 5.6-1.6s-2.4-1.45-5.6-1.6Zm0 2.8v0c-.08 0-.5.03-1.4.03-.72 0-1.23-.02-1.4-.03v0c-2.7-.12-4.7-.6-4.7-1.16s2-1.04 4.7-1.16v1.9c.18.01.7.04 1.42.04.86 0 1.31-.04 1.38-.04v-1.9c2.7.12 4.7.6 4.7 1.16s-2 1.04-4.7 1.16Z" fill="#fff"/></svg>USDT</button>
+            <button class="tok" data-tok="ETH">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#627EEA"/><path d="M12 4.2v5.8l4.9 2.2L12 4.2Z" fill="#fff" fill-opacity=".62"/><path d="M12 4.2 7.1 12.2 12 10V4.2Z" fill="#fff"/><path d="M12 16v3.8l4.9-6.8L12 16Z" fill="#fff" fill-opacity=".62"/><path d="M12 19.8V16l-4.9-3 4.9 6.8Z" fill="#fff"/><path d="m12 15.1 4.9-2.9L12 10v5.1Z" fill="#fff" fill-opacity=".2"/><path d="m7.1 12.2 4.9 2.9V10l-4.9 2.2Z" fill="#fff" fill-opacity=".62"/></svg>ETH</button>
+            <button class="tok" data-tok="SOL">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#12121F"/><defs><linearGradient id="sg" x1="4" y1="17" x2="20" y2="7"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient></defs><path d="M7.4 15.5h11.1c.3 0 .45.36.24.57l-2 2a.6.6 0 0 1-.42.18H5.2c-.3 0-.45-.36-.24-.57l2-2a.6.6 0 0 1 .44-.18Zm0-9.7h11.1c.3 0 .45.36.24.57l-2 2a.6.6 0 0 1-.42.18H5.2c-.3 0-.45-.36-.24-.57l2-2a.6.6 0 0 1 .44-.18Zm9.2 4.85H5.5c-.3 0-.45.36-.24.57l2 2a.6.6 0 0 0 .42.18h11.12c.3 0 .45-.36.24-.57l-2-2a.6.6 0 0 0-.44-.18Z" fill="url(#sg)"/></svg>SOL</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div>
+          <div class="row">
+            <span class="lbl" style="margin:0">Auto cash out</span>
+            <button class="sw" id="acSw" role="switch" aria-checked="false" aria-label="Auto cash out"></button>
+          </div>
+          <div class="field" style="margin-top:8px;height:44px;opacity:.5" id="acField">
+            <input id="acInput" type="number" min="1.01" step="0.01" value="2.00" aria-label="Auto cash out target" disabled />
+            <span class="suf">&times; TARGET</span>
+          </div>
+        </div>
+
+        <button class="act" id="actBtn">
+          <span class="shine"></span>
+          <span class="t1" id="actT1">PLACE BET</span>
+          <span class="t2" id="actT2">100.00 USDT</span>
+          <span class="queued" id="actQ" style="display:none">QUEUED</span>
+        </button>
+
+        <!-- persistent state of the player's own stake -->
+        <div class="betcard none" id="betCard" aria-live="polite">
+          <div class="k">Your bet</div>
+          <div class="v" id="bcV">NO BET THIS ROUND</div>
+          <div class="s" id="bcS"></div>
+        </div>
+
+        <div class="note" id="betNote">Auto-demo is driving. Click anything here to take over.</div>
+
+        <div class="hr"></div>
+        <div class="stat"><span>Potential return</span><b id="stPay">—</b></div>
+        <div class="stat"><span>House edge</span><b>1.00%</b></div>
+        <div class="stat"><span>Max win</span><b>1,000.00&times;</b></div>
+      </div>
+
+      <!-- the player's own last results, kept separate from the crash-point strip -->
+      <div class="panel mine" id="myRounds">
+        <div class="lbl">My rounds</div>
+        <div class="minerow" id="mineRow"><span class="ph">no rounds played yet</span></div>
+        <div class="sum" id="mineSum">0 rounds &middot; 0 won &middot; net 0.00</div>
+      </div>
+    </aside>
+
+    <!-- ============ CENTER ============ -->
+    <section class="center">
+      <div class="stage" id="stage">
+        <canvas id="gameCanvas"></canvas>
+        <div class="vig" id="vig"></div>
+        <div class="hud">
+          <svg class="countring" id="ring" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="46" stroke="rgba(255,255,255,.07)"></circle>
+            <circle cx="50" cy="50" r="46" stroke="var(--violet-hi)" id="ringArc"
+              stroke-linecap="round" stroke-dasharray="289.03" stroke-dashoffset="0"
+              transform="rotate(-90 50 50)" style="filter:drop-shadow(0 0 6px rgba(167,139,250,.8))"></circle>
+          </svg>
+          <div class="status" id="status">PLACE YOUR BETS</div>
+          <div class="mult num" id="mult">1.00<span class="x">&times;</span></div>
+          <div class="substat" id="substat">Next round starting&hellip;</div>
+          <div class="boosts" id="boostStrip"><span class="ph">no active boosts</span></div>
+        </div>
+        <!-- result banner: sits in the upper third, clear of the multiplier readout -->
+        <div class="rbanner" id="rbanner" role="status" aria-live="polite" aria-hidden="true">
+          <span class="ring" id="rbRing" aria-hidden="true"></span>
+          <div class="l1" id="rbL1">YOU WON</div>
+          <div class="l2" id="rbL2">+0.00 USDT</div>
+          <div class="l3" id="rbL3"></div>
+        </div>
+      </div>
+      <div class="panel hist" id="histBar">
+        <span class="cap">Last rounds</span>
+        <div id="histList"></div>
+      </div>
+    </section>
+
+    <!-- ============ RIGHT RAIL ============ -->
+    <aside class="rail">
+      <div class="panel" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+        <div class="tabs">
+          <button id="tabBets" class="on">Live Bets</button>
+          <button id="tabFair">Provably Fair</button>
+        </div>
+
+        <div class="tabbody" id="paneBets">
+          <div class="feedhead">
+            <span>Players <b id="pCount">1,247</b></span>
+            <span>Total bet <b id="pTotal">84,320</b> USDT</span>
+          </div>
+          <div class="feed sc" id="feed"></div>
+        </div>
+
+        <div class="tabbody pf sc" id="paneFair" style="display:none">
+          <div class="pfb">
+            <div class="k"><span>Server seed (hashed)</span><button class="copy" data-copy="hash">COPY</button></div>
+            <div class="mono" id="pfHash">&hellip;</div>
+            <div class="note" style="margin-top:7px;font-size:11px">Published <b style="color:#B9B9D6">before</b> the round. You can verify it after the reveal.</div>
+          </div>
+          <div class="pfb">
+            <div class="k"><span>Client seed</span><span style="color:#5B5B79;font-weight:600">editable</span></div>
+            <input class="pfin" id="pfClient" value="nova-demo-2026" spellcheck="false" aria-label="Client seed" />
+            <div class="note" style="margin-top:7px;font-size:11px">Next outcome preview: <span class="mono" id="pfPreview" style="font-size:10.5px">&hellip;</span></div>
+          </div>
+          <div class="pfb">
+            <div class="k"><span>Nonce</span></div>
+            <div class="mono" id="pfNonce" style="font-size:15px;color:var(--text)">0</div>
+          </div>
+          <div class="pfb">
+            <div class="k"><span>Chainlink VRF</span><button class="sw" id="vrfSw" role="switch" aria-checked="false" aria-label="Chainlink VRF" style="width:36px;height:20px"></button></div>
+            <div id="vrfBody" style="display:none">
+              <div class="mono" id="vrfId" style="font-size:10.5px">req 0x&hellip;</div>
+              <div class="vrfstep" id="vrfS1"><span class="d">1</span><span>VRF request submitted</span></div>
+              <div class="vrfstep" id="vrfS2"><span class="d">2</span><span>Randomness fulfilled on-chain</span></div>
+            </div>
+            <div class="note" id="vrfOff" style="font-size:11px">Off &mdash; using HMAC seed chain. Toggle to route randomness through Chainlink VRF.</div>
+          </div>
+          <div class="pfb" id="pfRevealBox" style="display:none">
+            <div class="k"><span>Server seed (revealed)</span><button class="copy" data-copy="seed">COPY</button></div>
+            <div class="mono g" id="pfSeed">&hellip;</div>
+            <div class="okline" style="margin-top:8px"><span>&#10003;</span><span>Hash verified &mdash; SHA-256 matches</span></div>
+            <div class="note" style="margin-top:6px;font-size:11px">Crash point <b style="color:#B9B9D6" id="pfCrash">—</b> derived from this seed.</div>
+          </div>
+          <div class="note" style="font-size:11px;color:#5B5B79">Hashing runs in-browser via SubtleCrypto (SHA-256). <span id="pfEngine"></span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <span>Prototype by <b>4IRE Labs</b></span>
+    <span style="opacity:.4">|</span>
+    <span class="num">build 2026.07.30 &middot; r14 &middot; provably-fair engine v3</span>
+    <div class="spacer"></div>
+    <span id="fpsOut" class="num" style="opacity:.55">—</span>
+    <span style="opacity:.4">|</span>
+    <span>Not a production build &middot; no real funds</span>
+  </footer>
+</div>
+
+<!-- ======================= VERIFY MODAL ======================= -->
+<div class="ov" id="verify" role="dialog" aria-modal="true" aria-labelledby="vTitle">
+  <div class="scrim" data-close></div>
+  <div class="modal">
+    <div class="mh">
+      <div>
+        <h3 id="vTitle">Verify round <span class="num" id="vRound">#0</span></h3>
+        <p>Every outcome is committed before the round and provable after it. Nothing here is server-side magic.</p>
+      </div>
+      <button class="x" data-close aria-label="Close">&#10005;</button>
+    </div>
+
+    <div class="grid2">
+      <div class="kv"><div class="k">Crash point</div><div class="v big" id="vCrash">—</div></div>
+      <div class="kv"><div class="k">Nonce</div><div class="v big" id="vNonce">—</div></div>
+    </div>
+    <div class="kv" style="margin-top:10px"><div class="k">Server seed (revealed)</div><div class="v" id="vSeed">—</div></div>
+    <div class="grid2" style="margin-top:10px">
+      <div class="kv"><div class="k">Client seed</div><div class="v" id="vClient">—</div></div>
+      <div class="kv"><div class="k">Published hash (pre-round)</div><div class="v" id="vHash">—</div></div>
+    </div>
+
+    <div class="math">
+      <div class="ln"><i>1</i><span>message = <b>serverSeed : clientSeed : nonce</b></span></div>
+      <div class="ln"><i>2</i><span>h = SHA&#8209;256(message) = <b id="vDigest">—</b></span></div>
+      <div class="ln"><i>3</i><span>x = int(h[0..13]) / 2<sup>52</sup> = <b id="vX">—</b></span></div>
+      <div class="ln"><i>4</i><span>crash = floor(100 &middot; 0.99 / (1 &minus; x)) / 100 = <b id="vC">—</b></span></div>
+      <div class="ln"><i>5</i><span>house edge <b>1.00%</b> &middot; 1 in 101 rounds busts instantly at 1.00&times;</span></div>
+    </div>
+
+    <div class="chk" id="vk1"><span class="c">&#10003;</span><span>Published hash matches SHA-256 of the revealed server seed</span></div>
+    <div class="chk" id="vk2"><span class="c">&#10003;</span><span>Digest recomputed in your browser from seed + client seed + nonce</span></div>
+    <div class="chk" id="vk3"><span class="c">&#10003;</span><span>Derived crash point equals the played result</span></div>
+
+    <div class="verdict" id="vVerdict">
+      <div style="width:38px;height:38px;border-radius:50%;background:rgba(34,197,94,.2);color:var(--green);display:grid;place-items:center;font-size:19px;flex:0 0 38px">&#10003;</div>
+      <div style="flex:1">
+        <div class="big">VERIFIED &mdash; OUTCOME MATCHES PUBLISHED HASH</div>
+        <div class="sm">Settled on Base &middot; <span class="num" id="vTx">0x&hellip;</span></div>
+      </div>
+      <a class="lnk" id="vScan" href="https://basescan.org/" target="_blank" rel="noopener noreferrer">View on BaseScan
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4 10 14M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= GUIDED TOUR ======================= -->
+<div class="ov" id="tour" role="dialog" aria-modal="true">
+  <div class="cut" id="tourCut"></div>
+  <div class="card" id="tourCard">
+    <div class="step" id="tourStep">STOP 1 / 6</div>
+    <h4 id="tourTitle"></h4>
+    <p id="tourText"></p>
+    <div class="foot">
+      <div class="dots" id="tourDots"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" id="tourSkip" style="height:36px">Skip</button>
+        <button class="btn-p" id="tourNext">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= TECH DRAWER ======================= -->
+<aside id="tech" aria-label="Technical notes">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><h3>Under the hood</h3><div class="sub">What a production build of this looks like</div></div>
+    <button class="x" id="techClose" aria-label="Close">&#10005;</button>
+  </div>
+  <div class="tsec"><div class="th">Randomness</div><p>Commit&ndash;reveal seed chain: <code>SHA-256(serverSeed : clientSeed : nonce)</code>. The hash of every server seed is published before the round; the seed is revealed after. Optional Chainlink VRF for an on-chain entropy source auditors accept.</p></div>
+  <div class="tsec"><div class="th">Round authority</div><p>Rounds are server-authoritative. Clients receive a signed round header over WebSocket and interpolate the curve locally &mdash; the multiplier you see is a pure function of round start time, so no client can lie about when it cashed out.</p></div>
+  <div class="tsec"><div class="th">Settlement</div><p>Batched settlement contract on Base. Stakes escrow on bet, payouts stream on cash-out, ~0.4s finality. Multi-token router auto-swaps USDT / ETH / SOL bridged balances into the house unit.</p></div>
+  <div class="tsec"><div class="th">This prototype</div><p>~2.6k lines, single HTML file, zero dependencies. Canvas 2D at 60fps, real SHA-256, deterministic scripted demo track. The production client would run PixiJS + WebGL for particle density.</p></div>
+  <div class="tsec"><div class="th">Shortcuts</div>
+    <div class="krow"><span class="kbd">Space</span> cash out / place bet</div>
+    <div class="krow"><span class="kbd">R</span> restart the round</div>
+    <div class="krow"><span class="kbd">A</span> toggle auto-demo</div>
+    <div class="krow"><span class="kbd">G</span> guided tour</div>
+    <div class="krow"><span class="kbd">T</span> this panel</div>
+    <div class="krow"><span class="kbd">Esc</span> exit any overlay</div>
+  </div>
+</aside>
+
+<!-- ======================= CTA ======================= -->
+<div id="cta">
+  <div class="ctaw">
+    <div class="eyebrow up" style="animation-delay:.05s">4IRE Labs &middot; crash game vertical</div>
+    <h2 class="up" style="animation-delay:.15s">This is a <em>6-week build.</em></h2>
+    <p class="lede up" style="animation-delay:.25s">Everything you just watched &mdash; the engine, the chain layer, the retention hooks &mdash; is scope we have shipped before. Here is how it splits.</p>
+    <div class="cols">
+      <div class="col up" style="animation-delay:.35s">
+        <div class="n">01</div><h3>Game engine</h3>
+        <ul><li>Deterministic crash RNG with commit&ndash;reveal proofs</li><li>Server-authoritative rounds, no client trust</li><li>WebSocket state sync &amp; reconnect replay</li><li>Load-tested to 10k concurrent players</li></ul>
+      </div>
+      <div class="col c2 up" style="animation-delay:.45s">
+        <div class="n">02</div><h3>On-chain</h3>
+        <ul><li>Solidity settlement contract, audited patterns</li><li>Chainlink VRF entropy source</li><li>Multi-token auto-swap router</li><li>Sub-second finality on Base</li></ul>
+      </div>
+      <div class="col c3 up" style="animation-delay:.55s">
+        <div class="n">03</div><h3>Product</h3>
+        <ul><li>Auto-cashout &amp; bet queueing</li><li>Boost economy tuned to session length</li><li>Live social feed &amp; tournaments</li><li>Admin, RTP &amp; risk dashboards</li></ul>
+      </div>
+    </div>
+    <div class="stack up" style="animation-delay:.65s">
+      <span class="tp">TypeScript</span><span class="tp">Node</span><span class="tp">WebSocket</span><span class="tp">Redis</span>
+      <span class="tp">PixiJS</span><span class="tp">Solidity</span><span class="tp">Chainlink VRF</span><span class="tp">Base</span><span class="tp">Postgres</span>
+    </div>
+    <div class="ctaf up" style="animation-delay:.75s">
+      <button class="btn-p" id="btnReplay" style="height:46px;padding:0 24px;font-family:var(--font-num);letter-spacing:.12em">&#8635; REPLAY DEMO</button>
+      <button class="btn-ghost" id="btnBack" style="height:46px">&#8592; Back to the game</button>
+      <span class="by">Built by <b>4IRE Labs</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<div class="fx" id="fx"></div>
+<div id="edgeGlow"></div>
+<div class="flash" id="flash"></div>
+</div>
+<script>
+"use strict";
+/* ==========================================================================
+   0. HELPERS
+   ========================================================================== */
+const $ = (id) => document.getElementById(id);
+const q = (sel, root) => (root || document).querySelector(sel);
+const qa = (sel, root) => Array.prototype.slice.call((root || document).querySelectorAll(sel));
+const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const nf2 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const nf0 = new Intl.NumberFormat('en-US');
+const money = (n) => nf2.format(n);
+const mx = (n) => nf2.format(n) + '×';
+const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ==========================================================================
+   1. REAL SHA-256  (inline, byte-identical to crypto.subtle; used because the
+      demo mines seeds and needs thousands of synchronous digests)
+   ========================================================================== */
+const K256 = new Uint32Array([
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+]);
+const TE = new TextEncoder();
+const HEXC = '0123456789abcdef';
+const W64 = new Uint32Array(64);
+
+function sha256Bytes(data) {
+  const l = data.length;
+  const total = ((((l + 8) >> 6) + 1) << 6);
+  const m = new Uint8Array(total);
+  m.set(data);
+  m[l] = 0x80;
+  const dv = new DataView(m.buffer);
+  const bits = l * 8;
+  dv.setUint32(total - 8, Math.floor(bits / 4294967296));
+  dv.setUint32(total - 4, bits >>> 0);
+  let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,
+      h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+  const w = W64;
+  for (let i = 0; i < total; i += 64) {
+    for (let j = 0; j < 16; j++) w[j] = dv.getUint32(i + (j << 2));
+    for (let j = 16; j < 64; j++) {
+      const a = w[j-15], b = w[j-2];
+      const s0 = ((a>>>7)|(a<<25)) ^ ((a>>>18)|(a<<14)) ^ (a>>>3);
+      const s1 = ((b>>>17)|(b<<15)) ^ ((b>>>19)|(b<<13)) ^ (b>>>10);
+      w[j] = (w[j-16] + s0 + w[j-7] + s1) | 0;
+    }
+    let a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+    for (let j = 0; j < 64; j++) {
+      const S1 = ((e>>>6)|(e<<26)) ^ ((e>>>11)|(e<<21)) ^ ((e>>>25)|(e<<7));
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K256[j] + w[j]) | 0;
+      const S0 = ((a>>>2)|(a<<30)) ^ ((a>>>13)|(a<<19)) ^ ((a>>>22)|(a<<10));
+      const mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) | 0;
+      h=g; g=f; f=e; e=(d + t1)|0; d=c; c=b; b=a; a=(t1 + t2)|0;
+    }
+    h0=(h0+a)|0; h1=(h1+b)|0; h2=(h2+c)|0; h3=(h3+d)|0;
+    h4=(h4+e)|0; h5=(h5+f)|0; h6=(h6+g)|0; h7=(h7+h)|0;
+  }
+  const out = [h0,h1,h2,h3,h4,h5,h6,h7];
+  let s = '';
+  for (let i = 0; i < 8; i++) {
+    const v = out[i] >>> 0;
+    for (let k = 28; k >= 0; k -= 4) s += HEXC[(v >>> k) & 15];
+  }
+  return s;
+}
+function sha256(str) { return sha256Bytes(TE.encode(str)); }
+
+/* Async path via SubtleCrypto when the browser exposes it (https / localhost).
+   Falls back to the inline implementation on file:// — same output either way. */
+let SUBTLE_OK = false;
+async function sha256Async(str) {
+  if (window.crypto && window.crypto.subtle && window.isSecureContext) {
+    try {
+      const buf = await window.crypto.subtle.digest('SHA-256', TE.encode(str));
+      const b = new Uint8Array(buf);
+      let s = '';
+      for (let i = 0; i < b.length; i++) s += HEXC[b[i] >> 4] + HEXC[b[i] & 15];
+      return s;
+    } catch (e) { /* fall through */ }
+  }
+  return sha256(str);
+}
+(async function selfTest() {
+  const probe = 'nova-crash';
+  const inline = sha256(probe);
+  let subtle = null;
+  if (window.crypto && window.crypto.subtle && window.isSecureContext) {
+    try {
+      const buf = await window.crypto.subtle.digest('SHA-256', TE.encode(probe));
+      const b = new Uint8Array(buf);
+      subtle = '';
+      for (let i = 0; i < b.length; i++) subtle += HEXC[b[i] >> 4] + HEXC[b[i] & 15];
+    } catch (e) { subtle = null; }
+  }
+  SUBTLE_OK = subtle !== null && subtle === inline;
+  const el = $('pfEngine');
+  if (el) el.textContent = SUBTLE_OK
+    ? 'SubtleCrypto available and cross-checked against the inline digest.'
+    : 'Running on file:// — inline SHA-256 (identical output, verified against test vectors).';
+})();
+
+/* ==========================================================================
+   2. PROVABLY FAIR
+   ========================================================================== */
+const HOUSE_EDGE = 0.99;             // 1% house edge
+const TWO52 = 4503599627370496;      // 2^52
+
+function randomSeed() {
+  const b = new Uint8Array(32);
+  if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(b);
+  else for (let i = 0; i < 32; i++) b[i] = (Math.random() * 256) | 0;
+  let s = '';
+  for (let i = 0; i < 32; i++) s += HEXC[b[i] >> 4] + HEXC[b[i] & 15];
+  return s;
+}
+function roundMessage(seed, client, nonce) { return seed + ':' + client + ':' + nonce; }
+function crashFromDigest(hex) {
+  if (parseInt(hex.slice(-8), 16) % 101 === 0) return 1.00;          // ~1% instant bust
+  const x = parseInt(hex.slice(0, 13), 16) / TWO52;
+  const c = Math.floor(100 * HOUSE_EDGE / (1 - x)) / 100;
+  return clamp(c, 1.00, 1000.00);
+}
+function crashFor(seed, client, nonce) { return crashFromDigest(sha256(roundMessage(seed, client, nonce))); }
+
+function txHash() {
+  let s = '0x';
+  for (let i = 0; i < 64; i++) s += HEXC[(Math.random() * 16) | 0];
+  return s;
+}
+const shortHash = (h, a, b) => h.slice(0, a || 10) + '…' + h.slice(-(b || 8));
+
+/* ==========================================================================
+   3. STATE
+   ========================================================================== */
+const GROWTH = 0.125;                     // multiplier = e^(GROWTH * t)
+const BET_MS = 5000;                      // betting window
+const END_MS = 3600;                      // post-crash dwell
+/* Every phase is paced off S.clock — a monotonic game clock that advances by the
+   frame delta, floored at 0 (a repeated/out-of-order rAF timestamp buys no game
+   time) and capped at MAX_STEP_MS (a stalled tab or a slow frame can never
+   teleport the rocket past a cash-out, an orb or a tension stage). */
+const MAX_STEP_MS = 100;
+const multAt = (t) => Math.exp(GROWTH * t);
+const timeAt = (m) => Math.log(m) / GROWTH;
+
+const TOKENS = {
+  USDT: { px: 1,     dec: 2 },
+  ETH:  { px: 3120,  dec: 4 },
+  SOL:  { px: 184,   dec: 3 }
+};
+
+const SCRIPT = [
+  { id: 'A', crash: 3.41,  cash: 2.10, bet: 100, orbs: [],
+    line: 'Round A — the loop: bet, watch, take the money.' },
+  { id: 'B', crash: 1.19,  cash: null, bet: 150, orbs: [],
+    line: 'Round B — instant bust. This is the risk that keeps them playing.' },
+  { id: 'C', crash: 8.10,  cash: 6.85, bet: 200,
+    orbs: [{ m: 2.20, type: 'boost' }, { m: 3.60, type: 'crate' }],
+    line: 'Round C — boosts on the flight path. Bigger payout, longer session.' },
+  { id: 'D', crash: 14.20, cash: null, bet: 250, orbs: [{ m: 6.00, type: 'boost' }],
+    line: 'Round D — greed. 14.20× and still holding.' },
+  { id: 'E', crash: 5.30,  cash: 4.02, bet: 200, orbs: [{ m: 2.40, type: 'shield' }],
+    line: 'Round E — shielded, disciplined, cashed at 4.02×.' }
+];
+
+const S = {
+  scene: 'intro',
+  mode: 'auto',
+  phase: 'boot',                // boot | betting | flying | ended
+  clock: 0,                     // monotonic game clock in ms (see MAX_STEP_MS)
+  phaseStart: 0,                // S.clock at the start of the current phase
+  endDone: false,               // post-crash dwell already handed over
+  endScripted: false,
+  scriptIdx: 0,
+  roundNo: 1000 + Math.floor(Math.random() * 900),
+  balance: 10000,
+  displayBalance: 10000,
+  token: 'USDT',
+  bet: 100,
+  autoCash: false,
+  autoCashTarget: 2.00,
+  crash: 2.00,
+  t: 0,
+  m: 1,
+  serverSeed: '',
+  serverHash: '',
+  clientSeed: 'nova-demo-2026',
+  nonce: 0,
+  vrf: false,
+  history: [],
+  mine: [],                     // the player's own last results (MY ROUNDS strip)
+  rounds: {},                   // roundNo -> archived round for the verify modal
+  orbs: [],
+  boosts: [],
+  scripted: null,
+  mining: false,
+  P: null,
+  totalBet: 84320,
+  playersOnline: 1247
+};
+function newPlayerRound() {
+  /* boostMult   — the LIVE running product of every boost orb collected so far.
+                   It keeps growing after a cash-out, because orbs keep dropping.
+     boostApplied — the value of boostMult at the instant of the cash-out, i.e.
+                   the only boost figure that is actually inside this payout.
+                   Every settled surface quotes boostApplied; only the live
+                   projection on the CASH OUT button quotes boostMult. */
+  return { in: false, bet: 0, token: 'USDT', cashed: false, cashMult: 0, payout: 0,
+           queued: false, boostMult: 1, boostApplied: 1, shieldUntil: 0, extra: 0,
+           lost: false, refunded: false, logged: false };
+}
+S.P = newPlayerRound();
+
+/* ==========================================================================
+   4. DOM
+   ========================================================================== */
+const D = {};
+['shell','intro','ilogoTxt','btnLaunch','segAuto','segManual','balVal','balTok','balBox',
+ 'btnTour','btnSound','btnTech','btnWrap','betPanel','betInput','betSuf','betFiat','actBtn',
+ 'actT1','actT2','actQ','betNote','stPay','acSw','acInput','acField','toks','stage','gameCanvas',
+ 'vig','status','mult','substat','boostStrip','ring','ringArc','histList','tabBets','tabFair',
+ 'paneBets','paneFair','feed','pCount','pTotal','pfHash','pfClient','pfPreview','pfNonce',
+ 'vrfSw','vrfBody','vrfOff','vrfId','vrfS1','vrfS2','pfRevealBox','pfSeed','pfCrash','toasts',
+ 'fx','flash','tech','techClose','cta','btnReplay','btnBack','verify','vRound','vCrash','vNonce',
+ 'vSeed','vClient','vHash','vDigest','vX','vC','vk1','vk2','vk3','vVerdict','vTx','vScan',
+ 'tour','tourCut','tourCard','tourStep','tourTitle','tourText','tourDots','tourNext','tourSkip',
+ 'fpsOut','histBar','sndX','sndOn','pillRtp',
+ 'rbanner','rbRing','rbL1','rbL2','rbL3','edgeGlow','betCard','bcV','bcS',
+ 'myRounds','mineRow','mineSum'].forEach(id => { D[id] = $(id); });
+
+function toast(msg, color) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:' +
+    (color || 'var(--violet-hi)') + ';box-shadow:0 0 10px ' + (color || 'var(--violet-hi)') + '"></span>' +
+    '<span>' + msg + '</span>';
+  D.toasts.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 3400);
+  while (D.toasts.children.length > 4) D.toasts.removeChild(D.toasts.firstChild);
+}
+function copyText(txt, btn) {
+  const done = () => { if (!btn) return; const o = btn.textContent; btn.textContent = 'COPIED'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = o; btn.classList.remove('ok'); }, 1200); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done, () => fallback());
+  } else fallback();
+  function fallback() {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); done();
+    } catch (e) { toast('Copy blocked by the browser', 'var(--amber)'); }
+  }
+}
+
+/* ==========================================================================
+   5. LIVE BETS FEED
+   ========================================================================== */
+const HANDLES = ['moonpig.eth','whale_hunter','satoshi_jr','degen_dana','0xF3a…9dC','liquid_luke',
+ 'nakamoto.eth','rugproof','ape_tolerance','cryptoKate','0x9Bd…41F','vitalik_fan','jpeg_janitor',
+ 'gwei_guy','sol_sister','pumpkról','block_bandit','yield_yeti','0xA07…5b2','lambo_lena',
+ 'shrimp_king','maxi_mike','defi_dora','hodl_hank','0xC42…8e1','bagholder','frontrun_fred',
+ 'nonce_sense','airdrop_amy','tether_tom','0x5Ee…c93','stakehouse','wagmi_wanda','fomo_felix',
+ 'gas_goblin','alpha_leak','0xB18…2Aa','candle_carl','rekt_rachel','oracle_omar','base_bunny',
+ 'mempool_max','ser_stackalot','0xD9c…70b','paperhands','diamondhandz'];
+
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function avatarStyle(name) {
+  const h = hashStr(name);
+  const a = h % 360, b = (a + 60 + (h >> 9) % 120) % 360;
+  return 'background:linear-gradient(135deg,hsl(' + a + ' 72% 58%),hsl(' + b + ' 76% 46%))';
+}
+let PLAYERS = [];
+function makePlayers() {
+  const pool = HANDLES.slice();
+  PLAYERS = [];
+  for (let i = 0; i < 40; i++) {
+    const name = pool.splice((Math.random() * pool.length) | 0, 1)[0] || ('0x' + Math.random().toString(16).slice(2, 5) + '…' + Math.random().toString(16).slice(2, 5));
+    const tk = Math.random() < .72 ? 'USDT' : (Math.random() < .6 ? 'ETH' : 'SOL');
+    PLAYERS.push({
+      name: name,
+      tok: tk,
+      amt: tk === 'USDT' ? Math.round(rnd(10, 2400) / 5) * 5 : +rnd(.05, 2.4).toFixed(2),
+      target: 0, state: 0, row: null, resEl: null, bustAt: 0
+    });
+  }
+}
+function rollTargets() {
+  PLAYERS.forEach(p => {
+    // realistic cash-out behaviour: most bail early, a few chase
+    const r = Math.random();
+    p.target = r < .40 ? +rnd(1.15, 1.9).toFixed(2)
+             : r < .74 ? +rnd(1.9, 3.2).toFixed(2)
+             : r < .92 ? +rnd(3.2, 7).toFixed(2)
+             : +rnd(7, 26).toFixed(2);
+    p.state = 0;
+    p.bustAt = 0;
+    if (p.resEl) { p.resEl.className = 'res p0'; p.resEl.innerHTML = '<span class="m">—</span><span class="p">in flight</span>'; }
+    if (p.row) p.row.className = 'fr';
+  });
+  const cnt = PLAYERS.length;
+  S.totalBet = 0;
+  PLAYERS.forEach(p => { S.totalBet += p.amt * TOKENS[p.tok].px; });
+  S.totalBet = Math.round(S.totalBet * (1 + Math.random() * .2) + 60000);
+  S.playersOnline = 1180 + ((Math.random() * 260) | 0) + cnt;
+}
+function buildFeed() {
+  D.feed.innerHTML = '';
+  // pinned demo player row
+  const you = document.createElement('div');
+  you.className = 'fr you'; you.id = 'youRow';
+  you.innerHTML = '<div class="av" style="background:linear-gradient(135deg,#A78BFA,#22D3EE)"><span>YOU</span></div>' +
+    '<div class="who"><div class="h">you.eth</div><div class="b" id="youBet">—</div></div>' +
+    '<div class="res p0" id="youRes"><span class="m">—</span><span class="p">no bet</span></div>';
+  D.feed.appendChild(you);
+  PLAYERS.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'fr';
+    const init = p.name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '0X';
+    row.innerHTML = '<div class="av" style="' + avatarStyle(p.name) + '"><span>' + init + '</span></div>' +
+      '<div class="who"><div class="h">' + p.name + '</div><div class="b">' +
+      (p.tok === 'USDT' ? nf0.format(p.amt) : p.amt) + ' ' + p.tok + '</div></div>' +
+      '<div class="res p0"><span class="m">—</span><span class="p">in flight</span></div>';
+    p.row = row; p.resEl = row.querySelector('.res');
+    D.feed.appendChild(row);
+  });
+}
+function feedResolve(p, m) {
+  p.state = 1;
+  // net profit, same convention as the player's own row — a "+" in this UI
+  // always means "up by", never "paid out including the stake"
+  const win = p.amt * (m - 1);
+  p.resEl.className = 'res w';
+  p.resEl.innerHTML = '<span class="m">' + mx(m) + '</span><span class="p">+' +
+    (p.tok === 'USDT' ? money(win) : win.toFixed(3)) + ' ' + p.tok + '</span>';
+  p.row.classList.remove('hit'); void p.row.offsetWidth; p.row.classList.add('hit');
+}
+/* Staggered "LOST" reveal. Scheduled on the game clock and drained in the main
+   loop instead of firing 40 independent setTimeouts per crash. */
+function feedBust() {
+  const rest = PLAYERS.filter(p => p.state === 0);
+  rest.forEach((p, i) => { p.bustAt = S.clock + 26 * i; });
+}
+function feedReveal() {
+  for (let i = 0; i < PLAYERS.length; i++) {
+    const p = PLAYERS[i];
+    if (!p.bustAt || p.state !== 0 || S.clock < p.bustAt) continue;
+    p.bustAt = 0;
+    p.state = 2;
+    p.resEl.className = 'res l';
+    p.resEl.innerHTML = '<span class="m">LOST</span><span class="p">−' +
+      (p.tok === 'USDT' ? nf0.format(p.amt) : p.amt) + ' ' + p.tok + '</span>';
+    p.row.classList.add('lost');
+  }
+}
+function feedTick() {
+  if (S.phase !== 'flying') return;
+  PLAYERS.forEach(p => { if (p.state === 0 && S.m >= p.target) feedResolve(p, p.target); });
+}
+
+/* ==========================================================================
+   6. CANVAS ENGINE
+   ========================================================================== */
+const cv = D.gameCanvas;
+const ctx = cv.getContext('2d', { alpha: true });
+let CW = 900, CH = 520, DPR = 1;
+const PAD = { l: 54, r: 78, t: 74, b: 54 };
+let stars = [];
+let parts = [];          // exhaust / smoke / sparks / debris
+let waves = [];          // shockwave rings
+let tickFlash = {};      // gridline flash timers
+let shakeAmp = 0, shakeX = 0, shakeY = 0;
+let smokeAcc = 0, exhAcc = 0;
+
+function resizeCanvas() {
+  const r = D.stage.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  CW = r.width; CH = r.height;
+  cv.width = Math.round(CW * DPR);
+  cv.height = Math.round(CH * DPR);
+  seedStars();
+}
+function seedStars() {
+  stars = [];
+  const n = REDUCED ? 70 : 150;
+  for (let i = 0; i < n; i++) {
+    const z = rnd(.25, 1);
+    stars.push({ x: rnd(0, CW), y: rnd(0, CH), z: z, r: z * rnd(.5, 1.5), tw: rnd(0, 6.28) });
+  }
+}
+function vp() {
+  const xMax = Math.max(4.2, S.t / 0.70);
+  const yMax = Math.max(1.9, 1 + (S.m - 1) / 0.66);
+  return { xMax: xMax, yMax: yMax };
+}
+const pX = (t, v) => PAD.l + (t / v.xMax) * (CW - PAD.l - PAD.r);
+const pY = (m, v) => CH - PAD.b - ((m - 1) / (v.yMax - 1)) * (CH - PAD.t - PAD.b);
+
+function stageOf(m) { return m < 1.5 ? 0 : m < 3 ? 1 : m < 8 ? 2 : 3; }
+
+function addPart(p) { if (parts.length < 700) parts.push(p); }
+
+/* ---------- backdrop: nebula + starfield ---------- */
+function drawBackdrop(dt, heat, crit) {
+  const g = ctx.createRadialGradient(CW * .18, CH * .16, 10, CW * .18, CH * .16, CW * .7);
+  g.addColorStop(0, 'rgba(139,92,246,' + (0.10 + heat * .05) + ')');
+  g.addColorStop(1, 'rgba(139,92,246,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+  const g2 = ctx.createRadialGradient(CW * .86, CH * .82, 10, CW * .86, CH * .82, CW * .6);
+  g2.addColorStop(0, crit > 0 ? 'rgba(255,59,92,' + (0.05 + crit * .16) + ')' : 'rgba(34,211,238,.07)');
+  g2.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g2; ctx.fillRect(0, 0, CW, CH);
+  if (crit > 0) {
+    const g3 = ctx.createRadialGradient(CW * .5, CH * .5, CH * .18, CW * .5, CH * .5, CH * .95);
+    g3.addColorStop(0, 'rgba(255,59,92,0)');
+    g3.addColorStop(1, 'rgba(255,59,92,' + (crit * .20 * (0.7 + 0.3 * Math.sin(performance.now() / 120))) + ')');
+    ctx.fillStyle = g3; ctx.fillRect(0, 0, CW, CH);
+  }
+}
+function drawStars(dt, speed) {
+  ctx.save();
+  for (let i = 0; i < stars.length; i++) {
+    const s = stars[i];
+    s.y += speed * s.z * dt;
+    if (s.y > CH + 4) { s.y = -4; s.x = rnd(0, CW); }
+    s.tw += dt * 2.2;
+    const a = (0.22 + 0.5 * s.z) * (0.72 + 0.28 * Math.sin(s.tw));
+    ctx.fillStyle = 'rgba(210,215,255,' + a.toFixed(3) + ')';
+    if (speed > 90 && s.z > .6) {
+      ctx.fillRect(s.x, s.y, s.r, s.r + speed * s.z * 0.012);
+    } else {
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- axes + gridlines ---------- */
+const TICKS = [1.2, 1.5, 2, 3, 5, 10, 20, 50, 100, 250, 500];
+function drawGrid(v, now) {
+  ctx.save();
+  ctx.lineWidth = 1;
+  ctx.font = '600 11px ' + "'Chakra Petch', system-ui, sans-serif";
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < TICKS.length; i++) {
+    const m = TICKS[i];
+    if (m > v.yMax) break;
+    const y = pY(m, v);
+    if (y < PAD.t - 20 || y > CH - PAD.b + 2) continue;
+    const fl = tickFlash[m] ? clamp((tickFlash[m] - now) / 620, 0, 1) : 0;
+    ctx.strokeStyle = fl > 0 ? 'rgba(167,139,250,' + (0.1 + fl * .6) + ')' : 'rgba(255,255,255,.055)';
+    ctx.setLineDash(fl > 0 ? [] : [3, 7]);
+    ctx.beginPath(); ctx.moveTo(PAD.l - 8, y); ctx.lineTo(CW - 62, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = fl > 0 ? 'rgba(226,220,255,' + (0.5 + fl * .5) + ')' : 'rgba(138,138,168,.55)';
+    ctx.fillText((m < 10 ? nf2.format(m) : String(m)) + '×', CW - 50, y);
+    if (fl > 0) {
+      ctx.beginPath(); ctx.arc(CW - 58, y, 2 + fl * 3, 0, 6.283);
+      ctx.fillStyle = 'rgba(167,139,250,' + fl + ')'; ctx.fill();
+    }
+  }
+  const step = v.xMax <= 6 ? 1 : v.xMax <= 14 ? 2 : v.xMax <= 30 ? 5 : 10;
+  ctx.strokeStyle = 'rgba(255,255,255,.035)';
+  ctx.setLineDash([3, 7]);
+  for (let s = step; s <= v.xMax; s += step) {
+    const x = pX(s, v);
+    if (x > CW - 70) break;
+    ctx.beginPath(); ctx.moveTo(x, PAD.t - 24); ctx.lineTo(x, CH - PAD.b + 8); ctx.stroke();
+    ctx.fillStyle = 'rgba(138,138,168,.42)';
+    ctx.fillText(s + 's', x - 6, CH - PAD.b + 20);
+  }
+  ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(255,255,255,.13)';
+  ctx.beginPath();
+  ctx.moveTo(PAD.l - 8, PAD.t - 26); ctx.lineTo(PAD.l - 8, CH - PAD.b + 8);
+  ctx.lineTo(CW - 62, CH - PAD.b + 8); ctx.stroke();
+  ctx.restore();
+}
+
+/* ---------- trajectory ---------- */
+function drawCurve(v, hx, hy, crashed) {
+  const N = 58;
+  const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const t = S.t * (i / N);
+    pts.push([pX(t, v), pY(multAt(t), v)]);
+  }
+  pts[pts.length - 1] = [hx, hy];
+  const base = CH - PAD.b + 8;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], base);
+  for (let i = 0; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.lineTo(pts[pts.length - 1][0], base);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(0, PAD.t, 0, base);
+  if (crashed) {
+    g.addColorStop(0, 'rgba(255,59,92,.34)'); g.addColorStop(1, 'rgba(255,59,92,0)');
+  } else {
+    g.addColorStop(0, 'rgba(139,92,246,.36)');
+    g.addColorStop(.55, 'rgba(139,92,246,.13)');
+    g.addColorStop(1, 'rgba(139,92,246,0)');
+  }
+  ctx.fillStyle = g; ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  const sg = ctx.createLinearGradient(pts[0][0], pts[0][1], hx, hy);
+  if (crashed) { sg.addColorStop(0, 'rgba(255,59,92,.5)'); sg.addColorStop(1, '#FF3B5C'); }
+  else { sg.addColorStop(0, 'rgba(167,139,250,.55)'); sg.addColorStop(.6, '#A78BFA'); sg.addColorStop(1, '#E9E4FF'); }
+  ctx.strokeStyle = sg; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.shadowColor = crashed ? 'rgba(255,59,92,.85)' : 'rgba(139,92,246,.85)';
+  ctx.shadowBlur = 16;
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ---------- rocket ---------- */
+function drawRocket(x, y, ang, sc, heat, crit, alive) {
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang); ctx.scale(sc, sc);
+
+  // engine glow behind
+  const eg = ctx.createRadialGradient(-34, 0, 2, -34, 0, 46);
+  eg.addColorStop(0, 'rgba(180,240,255,.55)'); eg.addColorStop(1, 'rgba(34,211,238,0)');
+  ctx.fillStyle = eg; ctx.beginPath(); ctx.arc(-34, 0, 46, 0, 6.283); ctx.fill();
+
+  // fins
+  ctx.fillStyle = '#6D3BEF';
+  ctx.beginPath(); ctx.moveTo(-12, -9); ctx.lineTo(-25, -24); ctx.quadraticCurveTo(-30, -20, -28, -8); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-12, 9); ctx.lineTo(-25, 24); ctx.quadraticCurveTo(-30, 20, -28, 8); ctx.closePath(); ctx.fill();
+
+  // body
+  ctx.beginPath();
+  ctx.moveTo(-27, -11.5);
+  ctx.lineTo(4, -11.5);
+  ctx.quadraticCurveTo(24, -10, 35, 0);
+  ctx.quadraticCurveTo(24, 10, 4, 11.5);
+  ctx.lineTo(-27, 11.5);
+  ctx.quadraticCurveTo(-33, 0, -27, -11.5);
+  ctx.closePath();
+  const bg = ctx.createLinearGradient(0, -13, 0, 13);
+  bg.addColorStop(0, '#FFFFFF'); bg.addColorStop(.45, '#EDEAFB'); bg.addColorStop(1, '#B9B2D8');
+  ctx.fillStyle = bg; ctx.fill();
+  ctx.save(); ctx.clip();
+  // nose cone
+  ctx.beginPath(); ctx.moveTo(17, -13); ctx.lineTo(40, -13); ctx.lineTo(40, 13); ctx.lineTo(17, 13); ctx.closePath();
+  const ng = ctx.createLinearGradient(17, -13, 40, 13);
+  ng.addColorStop(0, '#A78BFA'); ng.addColorStop(1, '#6D28D9');
+  ctx.fillStyle = ng; ctx.fill();
+  // tail band
+  ctx.fillStyle = '#FF3B5C'; ctx.fillRect(-24, -13, 7, 26);
+  ctx.fillStyle = 'rgba(139,92,246,.5)'; ctx.fillRect(-14, -13, 3.5, 26);
+  // heat glow on hull
+  if (heat > 0) {
+    const hg = ctx.createLinearGradient(-30, 0, 20, 0);
+    hg.addColorStop(0, 'rgba(255,90,40,' + (heat * .75) + ')');
+    hg.addColorStop(1, 'rgba(255,90,40,0)');
+    ctx.fillStyle = hg; ctx.fillRect(-34, -14, 60, 28);
+  }
+  ctx.restore();
+  ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(20,16,40,.5)'; ctx.stroke();
+
+  // window
+  ctx.beginPath(); ctx.arc(9, 0, 7.2, 0, 6.283);
+  ctx.fillStyle = '#191933'; ctx.fill();
+  ctx.beginPath(); ctx.arc(9, 0, 5.2, 0, 6.283);
+  const wg = ctx.createLinearGradient(4, -5, 14, 5);
+  wg.addColorStop(0, '#8DF3FF'); wg.addColorStop(1, '#0E93B5');
+  ctx.fillStyle = wg; ctx.fill();
+  ctx.beginPath(); ctx.arc(7, -2, 2, 0, 6.283); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fill();
+
+  ctx.restore();
+}
+function drawExhaust(x, y, ang, sc, stage, crit, now) {
+  const gap = stage === 3 ? (Math.sin(now / 42) > .45 ? 0 : 1) : 1;
+  if (!gap) return;
+  const flick = 0.82 + 0.18 * Math.sin(now / (stage >= 2 ? 30 : 70));
+  const len = (34 + stage * 12) * flick * (stage === 3 ? rnd(.6, 1.25) : 1);
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang); ctx.scale(sc, sc);
+  ctx.globalCompositeOperation = 'lighter';
+  const g = ctx.createLinearGradient(-28, 0, -28 - len, 0);
+  if (stage >= 2) { g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(.28, 'rgba(255,190,80,.75)'); g.addColorStop(1, 'rgba(255,59,92,0)'); }
+  else { g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(.3, 'rgba(140,235,255,.8)'); g.addColorStop(1, 'rgba(34,211,238,0)'); }
+  ctx.beginPath();
+  ctx.moveTo(-28, -9.5);
+  ctx.quadraticCurveTo(-28 - len * .5, -5.5, -28 - len, 0);
+  ctx.quadraticCurveTo(-28 - len * .5, 5.5, -28, 9.5);
+  ctx.closePath();
+  ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-28, -4.5);
+  ctx.quadraticCurveTo(-28 - len * .35, -2.5, -28 - len * .62, 0);
+  ctx.quadraticCurveTo(-28 - len * .35, 2.5, -28, 4.5);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fill();
+  ctx.restore();
+}
+
+/* ---------- particles ---------- */
+function stepParts(dt, now) {
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt;
+    if (p.life <= 0) { parts.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.g) p.vy += p.g * dt;
+    if (p.drag) { p.vx *= (1 - p.drag * dt); p.vy *= (1 - p.drag * dt); }
+    if (p.rot !== undefined) p.rot += p.vr * dt;
+  }
+}
+function drawParts() {
+  ctx.save();
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    const k = p.life / p.max;
+    if (p.type === 'smoke') {
+      ctx.globalAlpha = k * p.a;
+      const r = p.r * (2 - k);
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+      g.addColorStop(0, 'rgba(190,190,220,.5)'); g.addColorStop(1, 'rgba(140,140,180,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.283); ctx.fill();
+    } else if (p.type === 'debris') {
+      ctx.globalAlpha = clamp(k * 1.4, 0, 1);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.r, -p.r * .6, p.r * 2, p.r * 1.2);
+      ctx.restore();
+    } else {
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = clamp(k, 0, 1);
+      ctx.fillStyle = p.c;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (p.type === 'exh' ? k : 1), 0, 6.283); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
+function emitExhaust(x, y, ang, stage, dt) {
+  const rate = REDUCED ? 26 : (stage === 3 ? 90 : 60);
+  exhAcc += dt * rate;
+  const dirx = -Math.cos(ang), diry = -Math.sin(ang);
+  while (exhAcc >= 1) {
+    exhAcc -= 1;
+    const sp = rnd(60, 190) * (1 + stage * .16);
+    const spread = rnd(-.42, .42);
+    const vx = dirx * sp + Math.cos(ang + 1.57) * spread * sp * .5;
+    const vy = diry * sp + Math.sin(ang + 1.57) * spread * sp * .5;
+    const hot = stage >= 2 && Math.random() < .3;
+    addPart({ type: 'exh', x: x + dirx * 24 + rnd(-3, 3), y: y + diry * 24 + rnd(-3, 3),
+      vx: vx, vy: vy + 22, r: rnd(1.6, 4.2), life: rnd(.24, .55), max: .55, drag: 1.6,
+      c: hot ? 'rgba(255,170,60,.95)' : (stage === 3 ? 'rgba(255,220,180,.95)' : 'rgba(170,240,255,.9)') });
+  }
+  if (!REDUCED) {
+    smokeAcc += dt * (stage === 0 ? 34 : 12);
+    while (smokeAcc >= 1) {
+      smokeAcc -= 1;
+      addPart({ type: 'smoke', x: x + dirx * 34 + rnd(-6, 6), y: y + diry * 34 + rnd(-6, 6),
+        vx: dirx * rnd(20, 60), vy: diry * rnd(10, 40) + rnd(6, 26), r: rnd(7, 16),
+        life: rnd(.7, 1.5), max: 1.5, a: .6, drag: .9 });
+    }
+  }
+  if (stage === 3 && !REDUCED && Math.random() < .55) {
+    addPart({ type: 'spark', x: x + rnd(-14, 14), y: y + rnd(-12, 12),
+      vx: rnd(-160, -40) + dirx * 40, vy: rnd(-90, 90), r: rnd(1, 2.4),
+      life: rnd(.25, .6), max: .6, g: 220, c: 'rgba(255,214,120,1)' });
+  }
+}
+function explode(x, y) {
+  const n = REDUCED ? 16 : 46;
+  for (let i = 0; i < n; i++) {
+    const a = rnd(0, 6.283), sp = rnd(70, 460);
+    addPart({ type: 'debris', x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60,
+      r: rnd(2, 6), rot: rnd(0, 6.28), vr: rnd(-9, 9), g: 620, drag: .5,
+      life: rnd(.8, 1.8), max: 1.8, c: ['#EDEAFB','#A78BFA','#FF3B5C','#FBBF24','#8B5CF6'][(Math.random()*5)|0] });
+  }
+  for (let i = 0; i < (REDUCED ? 10 : 34); i++) {
+    const a = rnd(0, 6.283), sp = rnd(60, 380);
+    addPart({ type: 'spark', x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+      r: rnd(1.2, 3), life: rnd(.3, .8), max: .8, g: 300, drag: 1.1,
+      c: Math.random() < .5 ? 'rgba(255,214,120,1)' : 'rgba(255,90,110,1)' });
+  }
+  for (let i = 0; i < (REDUCED ? 6 : 18); i++) {
+    addPart({ type: 'smoke', x: x + rnd(-16, 16), y: y + rnd(-16, 16),
+      vx: rnd(-70, 70), vy: rnd(-70, 20), r: rnd(14, 30), life: rnd(1.2, 2.6), max: 2.6, a: .75, drag: .7 });
+  }
+  waves.push({ x: x, y: y, r: 8, life: 1, max: 1 });
+  waves.push({ x: x, y: y, r: 4, life: .7, max: .7 });
+}
+function drawWaves(dt) {
+  for (let i = waves.length - 1; i >= 0; i--) {
+    const w = waves[i];
+    w.life -= dt; w.r += dt * 620 * (w.life / w.max + .3);
+    if (w.life <= 0) { waves.splice(i, 1); continue; }
+    const k = w.life / w.max;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(255,' + (120 + 100 * k | 0) + ',150,' + (k * .8) + ')';
+    ctx.lineWidth = 2 + 7 * k;
+    ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, 6.283); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/* ---------- boost orbs ---------- */
+const ORB_DEF = {
+  boost:  { label: '×1.5 BOOST', c: '#8B5CF6', c2: '#A78BFA', cls: 'v' },
+  shield: { label: '+0.5x SHIELD', c: '#22D3EE', c2: '#67E8F9', cls: 'c' },
+  crate:  { label: 'GOLD CRATE', c: '#FFC53D', c2: '#FFE9A8', cls: 'g' }
+};
+function drawOrbs(v, now) {
+  for (let i = 0; i < S.orbs.length; i++) {
+    const o = S.orbs[i];
+    if (o.got) continue;
+    const t = timeAt(o.m);
+    const x = pX(t, v), y = pY(o.m, v);
+    if (x > CW - PAD.r + 30 || y < PAD.t - 40) continue;
+    o.sx = x; o.sy = y;
+    const def = ORB_DEF[o.type];
+    const pulse = 1 + 0.12 * Math.sin(now / 260 + i);
+    const R = 15 * pulse;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(x, y, 1, x, y, R * 2.6);
+    g.addColorStop(0, def.c2); g.addColorStop(.28, def.c); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = .55;
+    ctx.beginPath(); ctx.arc(x, y, R * 2.6, 0, 6.283); ctx.fillStyle = g; ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x, y, R, 0, 6.283);
+    const cg = ctx.createLinearGradient(x - R, y - R, x + R, y + R);
+    cg.addColorStop(0, 'rgba(255,255,255,.92)'); cg.addColorStop(1, def.c);
+    ctx.fillStyle = cg; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, R + 6 + 3 * Math.sin(now / 200 + i), 0, 6.283);
+    ctx.strokeStyle = def.c; ctx.globalAlpha = .5; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.font = '700 10px ' + "'Chakra Petch', system-ui, sans-serif";
+    ctx.textAlign = 'center';
+    ctx.fillStyle = def.c2;
+    ctx.fillText(def.label, x, y - R - 12);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+}
+function implode(o) {
+  const def = ORB_DEF[o.type];
+  for (let i = 0; i < (REDUCED ? 6 : 18); i++) {
+    const a = (i / 18) * 6.283, d = 34;
+    addPart({ type: 'spark', x: o.sx + Math.cos(a) * d, y: o.sy + Math.sin(a) * d,
+      vx: -Math.cos(a) * d * 3.4, vy: -Math.sin(a) * d * 3.4, r: rnd(1.5, 3.2),
+      life: .3, max: .3, c: def.c2 });
+  }
+  waves.push({ x: o.sx, y: o.sy, r: 4, life: .34, max: .34 });
+}
+
+/* ==========================================================================
+   7. ROUND LIFECYCLE
+   ========================================================================== */
+/* Find a server seed whose honest digest lands on a scripted crash point.
+   The outcome is still fully derived from a real SHA-256 of a real seed —
+   we only choose which seed to publish, exactly like picking a lottery ball
+   in advance. Demo-only; production seeds are random.
+
+   Seed mining runs inside the single main rAF loop — never on a second
+   requestAnimationFrame chain of its own. A parallel chain competes with the
+   render loop for frames, so on a throttled tab (or any clock that does not
+   deliver one callback per frame) the betting window stretches or collapses and
+   the whole round schedule drifts with it.
+   Work is bounded twice: by a wall-clock budget (smooth in a real browser) and
+   by a hard chunk cap (so a clock that does not advance during synchronous work
+   still finishes quickly). The seed for round N+1 is mined during round N, so
+   mining is never on the critical path of the betting countdown. */
+const MINER = { active: false, base: '', want: 0, i: 0, client: '', nonce: 0, crash: 0, seed: null };
+const PRE = { nonce: -1, crash: 0, seed: null };
+function minerStart(target, client, nonce) {
+  MINER.active = true;
+  MINER.base = randomSeed().slice(0, 56);
+  MINER.want = Math.round(target * 100);
+  MINER.i = 0; MINER.client = client; MINER.nonce = nonce; MINER.crash = target; MINER.seed = null;
+}
+function minerRun(budgetMs, maxChunks) {
+  if (!MINER.active) return;
+  const t0 = performance.now();
+  let chunks = 0;
+  do {
+    const end = Math.min(MINER.i + 400, 900000);
+    for (; MINER.i < end; MINER.i++) {
+      const seed = MINER.base + MINER.i.toString(16).padStart(8, '0');
+      if (Math.round(crashFor(seed, MINER.client, MINER.nonce) * 100) === MINER.want) {
+        MINER.seed = seed; MINER.active = false; return;
+      }
+    }
+    if (MINER.i >= 900000) { MINER.seed = MINER.base + '00000000'; MINER.active = false; return; }
+    chunks++;
+  } while (chunks < maxChunks && performance.now() - t0 < budgetMs);
+}
+/* Called once per frame from frame(). */
+function minerTick() {
+  if (MINER.active) {
+    // urgent while the current round is still waiting on its commitment
+    const urgent = S.mining && MINER.nonce === S.nonce;
+    minerRun(urgent ? 10 : 4, urgent ? 90 : 40);
+  }
+  if (!MINER.active && MINER.seed) {
+    const seed = MINER.seed, n = MINER.nonce, c = MINER.crash;
+    MINER.seed = null;
+    if (S.mining && n === S.nonce) { S.mining = false; commitRound(seed); }
+    else { PRE.nonce = n; PRE.crash = c; PRE.seed = seed; }
+  }
+}
+/* Queue the commitment for the round after this one. */
+function premineNext() {
+  if (MINER.active || S.mode !== 'auto') return;
+  const next = SCRIPT[S.scriptIdx + 1];
+  if (!next) return;
+  if (PRE.seed && PRE.nonce === S.nonce + 1 && PRE.crash === next.crash) return;
+  minerStart(next.crash, S.clientSeed, S.nonce + 1);
+}
+function commitRound(seed) {
+  S.serverSeed = seed;
+  S.serverHash = sha256(seed);
+  S.crash = crashFor(seed, S.clientSeed, S.nonce);
+  D.pfHash.textContent = S.serverHash;
+  D.pfNonce.textContent = String(S.nonce);
+  updatePreview();
+  if (S.vrf) runVrf();
+}
+function updatePreview() {
+  D.pfPreview.textContent = sha256(S.serverHash + ':' + S.clientSeed).slice(0, 28) + '…';
+}
+function runVrf() {
+  D.vrfId.textContent = 'req ' + shortHash(txHash(), 12, 6);
+  D.vrfS1.classList.remove('ok'); D.vrfS2.classList.remove('ok');
+  setTimeout(() => { if (S.vrf) D.vrfS1.classList.add('ok'); }, 500);
+  setTimeout(() => { if (S.vrf) D.vrfS2.classList.add('ok'); }, 1500);
+}
+
+function startBetting() {
+  S.phase = 'betting';
+  S.phaseStart = S.clock;
+  S.endDone = false;
+  S.t = 0; S.m = 1;
+  parts.length = 0; waves.length = 0; tickFlash = {};
+  shakeAmp = 0;
+  S.orbs = []; S.boosts = [];
+  S.roundNo++;
+  S.nonce++;
+  const carried = S.P.queued ? { bet: S.P.bet, token: S.P.token } : null;
+  S.P = newPlayerRound();
+  hideResultBanner(true);       // the previous result never survives into a new round
+  setYou(-1);                   // ...and neither does the LIVE BETS row: a spectator
+                                // round used to keep last round's WON/LOST/REFUND
+                                // pinned next to a card reading NO BET THIS ROUND
+  rollTargets();
+  D.pfRevealBox.style.display = 'none';
+  D.pfHash.textContent = 'publishing commitment…';
+  D.mult.className = 'mult num';
+  setMult(1);
+  D.ring.classList.add('on');
+  D.status.textContent = 'PLACE YOUR BETS';
+  D.status.style.color = '';
+  S.scripted = (S.mode === 'auto' && S.scriptIdx < SCRIPT.length) ? SCRIPT[S.scriptIdx] : null;
+  if (S.scripted) {
+    if (PRE.seed && PRE.nonce === S.nonce && PRE.crash === S.scripted.crash) {
+      const seed = PRE.seed; PRE.seed = null; PRE.nonce = -1;   // mined during the previous round
+      S.mining = false;
+      commitRound(seed);
+    } else {
+      S.mining = true;
+      if (!(MINER.active && MINER.nonce === S.nonce)) minerStart(S.scripted.crash, S.clientSeed, S.nonce);
+    }
+  } else {
+    S.mining = false;
+    commitRound(randomSeed());
+  }
+
+  if (S.mode === 'auto' && S.scripted) {
+    S.bet = S.scripted.bet;
+    D.betInput.value = String(S.scripted.bet);
+    placeBet(true);
+  } else if (carried) {
+    S.bet = carried.bet; S.token = carried.token;
+    placeBet(true);
+  }
+  renderBoosts();
+  syncBetUi();
+}
+function startFlight() {
+  S.phase = 'flying';
+  S.phaseStart = S.clock;
+  S.t = 0; S.m = 1;
+  prevM = 1;
+  premineNext();                       // commitment for the next round, off the critical path
+  D.ring.classList.remove('on');
+  D.status.textContent = 'IN FLIGHT';
+  D.status.style.color = '';
+  // orbs
+  S.orbs = [];
+  if (S.scripted) {
+    S.scripted.orbs.forEach(o => S.orbs.push({ m: o.m, type: o.type, got: false, sx: 0, sy: 0 }));
+  } else if (S.crash > 1.9 && Math.random() < .55) {
+    const types = ['boost', 'shield', 'crate'];
+    const n = Math.random() < .35 ? 2 : 1;
+    for (let i = 0; i < n; i++) {
+      const m = +rnd(1.4, Math.min(S.crash * .82, 9)).toFixed(2);
+      if (m < S.crash - .05) S.orbs.push({ m: m, type: types[(Math.random() * 3) | 0], got: false, sx: 0, sy: 0 });
+    }
+    S.orbs.sort((a, b) => a.m - b.m);
+  }
+  sfxLaunch();
+}
+function doCrash() {
+  S.phase = 'ended';
+  S.phaseStart = S.clock;
+  S.endDone = false;
+  S.endScripted = !!S.scripted;
+  S.m = S.crash;
+  const v = vp();
+  const rx = pX(S.t, v), ry = pY(S.m, v);
+  explode(rx, ry);
+  shakeAmp = REDUCED ? 3 : 15;
+  if (!REDUCED) {
+    D.flash.classList.remove('go'); void D.flash.offsetWidth; D.flash.classList.add('go');
+    D.stage.classList.remove('shake'); void D.stage.offsetWidth; D.stage.classList.add('shake');
+    setTimeout(() => D.stage.classList.remove('shake'), 400);
+  }
+  sfxCrash();
+  setMult(S.crash);
+  D.mult.className = 'mult num crashed rgb';
+  D.mult.style.color = 'var(--red)';
+  D.status.textContent = 'BUSTED';
+  D.status.style.color = 'var(--red)';
+  feedBust();
+
+  const P = S.P;
+  let lostTxt = '';
+  if (P.in && !P.cashed) {
+    if (P.shieldUntil > S.clock) {
+      S.balance += P.bet;
+      P.refunded = true;
+      balanceDelta(P.bet, 'refunded');
+      lostTxt = ' · SHIELD refunded your ' + money(P.bet) + ' ' + P.token +
+                ' stake · <b style="color:var(--cyan)">±0.00 ' + P.token + '</b> net';
+      toast('Shield triggered · ' + money(P.bet) + ' ' + P.token +
+            ' stake refunded · ±0.00 net', 'var(--cyan)');
+      pulseBalance();
+    } else {
+      P.lost = true;
+      lostTxt = ' · <b style="color:var(--red)">−' + money(P.bet) + ' ' + P.token + '</b> net' + crateNote(P);
+    }
+    setYou(P.refunded ? 3 : 2);
+  } else if (P.in && P.cashed) {
+    // the cash-out already stated the numbers; restate the SAME ones, never new ones
+    lostTxt = ' · you cashed at <b style="color:var(--gold)">' + mx(P.cashMult) +
+              '</b> · <b style="color:var(--green)">+' + money(netOf(P)) + ' ' + P.token + '</b> net';
+  }
+  D.substat.innerHTML = 'CRASHED @ <b style="color:var(--red)">' + mx(S.crash) + '</b>' + lostTxt;
+
+  /* --- the loud part: banner + edge glow + MY ROUNDS. Silent when there was
+         no stake this round — a spectator never gets a result banner.
+         The banner amount is ALWAYS net profit and always identical to the
+         YOUR BET card, the MY ROUNDS pill and the toast for this same event. --- */
+  if (P.in && !P.logged) {
+    P.logged = true;
+    const evt = 'r' + S.roundNo;          // one settlement id → one count-up, one number
+    if (P.cashed) {
+      showResultBanner('win', netOf(P), winSub(P, 'rocket flew to ' + mx(S.crash)), P.token, evt);
+      pushMine(mineRec(P));
+    } else if (P.refunded) {
+      showResultBanner('push', 0,
+        'no cash-out · shield covered the bust at ' + mx(S.crash) + ' · ' +
+        money(P.bet) + ' stake → ' + money(P.bet) + ' returned' + crateNote(P), P.token, evt);
+      pushMine(mineRec(P));
+    } else {
+      showResultBanner('loss', netOf(P),
+        'no cash-out · ' + money(P.bet) + ' stake → 0.00 returned' + crateNote(P) +
+        ' · rocket crashed at ' + mx(S.crash), P.token, evt);
+      pushMine(mineRec(P));
+    }
+  }
+
+  // archive + reveal
+  const digest = sha256(roundMessage(S.serverSeed, S.clientSeed, S.nonce));
+  const rec = { no: S.roundNo, crash: S.crash, seed: S.serverSeed, hash: S.serverHash,
+    client: S.clientSeed, nonce: S.nonce, digest: digest, tx: txHash(), vrf: S.vrf };
+  S.rounds[S.roundNo] = rec;
+  pushHistory(rec);
+  D.pfRevealBox.style.display = '';
+  D.pfSeed.textContent = S.serverSeed;
+  D.pfCrash.textContent = mx(S.crash);
+
+  // hand-over to the next round is driven by S.clock in updateGame(), not by a
+  // setTimeout — a pending timer would race a manual restart / replay / CTA exit.
+}
+function endDwellDone() {
+  S.endDone = true;
+  if (S.scene !== 'game') return;
+  if (S.endScripted && S.mode === 'auto') {
+    S.scriptIdx++;
+    if (S.scriptIdx >= SCRIPT.length) { showCta(); return; }
+  }
+  startBetting();
+}
+
+function placeBet(silent) {
+  const amt = S.bet;
+  if (S.phase !== 'betting') {
+    S.P.queued = true; S.P.bet = amt; S.P.token = S.token;
+    D.actQ.style.display = '';
+    if (!silent) toast('Bet queued for the next round', 'var(--amber)');
+    syncBetUi();
+    return;
+  }
+  if (amt > S.balance) { toast('Bet exceeds balance', 'var(--red)'); return; }
+  if (amt <= 0) { toast('Enter a bet amount', 'var(--amber)'); return; }
+  S.balance -= amt;
+  S.P.in = true; S.P.bet = amt; S.P.token = S.token; S.P.queued = false;
+  D.actQ.style.display = 'none';
+  balanceDelta(-amt, 'staked');
+  setYou(0);
+  if (!silent) toast('Bet placed · ' + money(amt) + ' ' + S.token, 'var(--violet-hi)');
+  syncBetUi();
+}
+function cashOut(auto, atM) {
+  const P = S.P;
+  if (S.phase !== 'flying' || !P.in || P.cashed) return;
+  const m = atM || S.m;
+  P.cashed = true;
+  P.cashMult = m;
+  // freeze the boost that this payout is built from. Orbs carry on dropping
+  // after the cash-out and P.boostMult carries on growing, but none of that
+  // money is in this ticket — quoting the live figure later made the card
+  // disagree with the banner.
+  P.boostApplied = P.boostMult;
+  const payout = P.bet * m * P.boostApplied;
+  P.payout = payout;
+  const net = payout - P.bet;
+  S.balance += payout;
+  setYou(1);
+  sfxCash();
+  pulseBalance();
+  balanceDelta(payout, 'returned');
+  // instant read at the moment of the decision; line 3 is completed with the
+  // real crash point when the rocket finally busts (see doCrash). Same event id
+  // both times => same amount, no second count-up.
+  showResultBanner('win', net, winSub(P, 'rocket still climbing'), P.token, 'r' + S.roundNo);
+  flyTicket(mx(m) + '  —  +' + money(net) + ' ' + P.token);
+  confetti();
+  D.substat.innerHTML = 'CASHED OUT @ <b style="color:var(--gold)">' + mx(m) +
+    '</b> · <b style="color:var(--green)">+' + money(net) + ' ' + P.token + '</b> net · ' +
+    money(P.bet) + ' stake &rarr; ' + money(payout) + ' returned' +
+    (P.boostApplied > 1 ? ' <span style="color:var(--violet-hi)">(boost &times;' +
+      P.boostApplied.toFixed(1) + ' applied)</span>' : '');
+  toast((auto ? 'Auto cash out' : 'Cashed out') + ' · +' + money(net) + ' ' + P.token +
+        ' net · ' + money(payout) + ' returned', 'var(--gold)');
+  syncBetUi();
+}
+function setYou(state) {
+  const el = $('youRes'), bet = $('youBet');
+  if (!el || !bet) return;
+  const P = S.P;
+  bet.textContent = P.in || P.queued ? money(P.bet) + ' ' + P.token : '—';
+  if (state === 0) { el.className = 'res p0'; el.innerHTML = '<span class="m">—</span><span class="p">in flight</span>'; }
+  else if (state === 1) {
+    el.className = 'res w';
+    // net profit — the same number the banner, the card and MY ROUNDS show
+    el.innerHTML = '<span class="m">' + mx(P.cashMult) + '</span><span class="p">+' +
+      money(P.payout - P.bet) + ' ' + P.token + '</span>';
+    const row = $('youRow'); if (row) { row.classList.remove('hit'); void row.offsetWidth; row.classList.add('hit'); }
+  } else if (state === 2) {
+    el.className = 'res l';
+    el.innerHTML = '<span class="m">LOST</span><span class="p">−' + money(P.bet) + ' ' + P.token + '</span>';
+  } else if (state === 3) {
+    // shield: the stake came back, so this is a push — never a loss, never a win
+    el.className = 'res r';
+    el.innerHTML = '<span class="m">REFUND</span><span class="p">±0.00 ' + P.token + '</span>';
+  } else { el.className = 'res p0'; el.innerHTML = '<span class="m">—</span><span class="p">no bet</span>'; }
+}
+function pushHistory(rec) {
+  S.history.unshift(rec);
+  if (S.history.length > 14) S.history.pop();
+  // magnitude band, never an outcome — see .hp.lo in the stylesheet
+  const cls = rec.crash < 2 ? 'lo' : rec.crash < 10 ? 'v' : 'gold';
+  const el = document.createElement('button');
+  el.className = 'hp ' + cls;
+  el.textContent = mx(rec.crash);
+  el.title = 'Verify round #' + rec.no;
+  el.setAttribute('data-round', String(rec.no));
+  D.histList.insertBefore(el, D.histList.firstChild);
+  while (D.histList.children.length > 14) D.histList.removeChild(D.histList.lastChild);
+}
+
+/* ==========================================================================
+   7b. OUTCOME LEGIBILITY
+   Purely presentational: nothing in here touches the balance, the payout or
+   the crash point. It only restates, loudly, what the engine already decided.
+
+   ONE EVENT, ONE NUMBER — the rule every surface below obeys
+   ---------------------------------------------------------------------------
+   A settled round is reported as NET PROFIT, signed, everywhere:
+       win     +260.46      (payout − stake)
+       loss    −100.00      (the stake)
+       shield  ±0.00        (a refund is a push, not a win)
+   The banner, the YOUR BET card, the MY ROUNDS pill, the toast, the substat,
+   the flying ticket and the LIVE BETS row all print that one figure.
+
+   Gross money still appears — it has to, the arithmetic must be checkable —
+   but never behind a bare "+". It is always carried by a word:
+       "100.00 stake → 360.46 returned"      banner line 3 / substat
+       "366.00 USDT return"                  CASH OUT button (a projection)
+       "+360.46 RETURNED"                    floating balance delta (a ledger move)
+   So a "+" on this screen can only ever mean "the player is up this much".
+
+   Boosts: quote P.boostApplied (the multiplier frozen into the payout), never
+   P.boostMult (the live running product, which keeps growing after cash-out).
+   ========================================================================== */
+const RB_HOLD_MS = 2600;      // time on screen before the exit animation starts
+const RB_EXIT_MS = 460;       // exit animation, then the node goes hidden
+const RB_COUNT_S = 0.56;      // count-up duration (wins only — see showResultBanner)
+const RB = { on: false, kind: '', sign: '', token: 'USDT', amount: 0, evt: '',
+             cnt: 1, exiting: false, hideAt: 0, killAt: 0, shownAt: -1e9 };
+
+/* ---------- the single source of every settled number ---------- */
+/* Net profit on the STAKE. Gold-crate drops are a separate credit with their
+   own toast and their own balance delta, so they are named separately rather
+   than folded in (folding them in could flip the sign of a losing round). */
+function netOf(P) {
+  const back = P.cashed ? P.payout : P.refunded ? P.bet : 0;
+  return back - P.bet;
+}
+function boostNote(P) {
+  return P.boostApplied > 1 ? ' · boost ×' + P.boostApplied.toFixed(1) + ' applied' : '';
+}
+function crateNote(P) {
+  return P.extra > 0 ? ' · gold crate +' + money(P.extra) + ' paid separately' : '';
+}
+/* Banner line 3 / tooltip copy for a cashed-out round: the whole sum, in order,
+   so nothing behind the headline is hidden. */
+function winSub(P, tail) {
+  return 'cashed at ' + mx(P.cashMult) + boostNote(P) +
+         ' · ' + money(P.bet) + ' stake → ' + money(P.payout) + ' returned' +
+         crateNote(P) + ' · ' + tail;
+}
+/* One MY ROUNDS record, built from the same figures as the banner. */
+function mineRec(P) {
+  return { no: S.roundNo, cash: P.cashed ? P.cashMult : 0, crash: S.crash,
+           net: netOf(P), bet: P.bet, boost: P.boostApplied, extra: P.extra,
+           back: P.cashed ? P.payout : P.refunded ? P.bet : 0, refunded: P.refunded };
+}
+
+/* Spring ease: overshoots slightly, lands exactly on 1 at p >= 1. */
+function rbEase(p) { return p >= 1 ? 1 : 1 - Math.pow(2, -9 * p) * Math.cos(p * 10.5); }
+function paintRbAmount() {
+  const e = REDUCED ? clamp(RB.cnt, 0, 1) : rbEase(RB.cnt);
+  D.rbL2.textContent = RB.sign + money(Math.abs(RB.amount) * e) + ' ' + RB.token;
+}
+/* kind: 'win' | 'loss' | 'push'.  Never called when the player had no stake.
+   `amount` is ALWAYS the net figure from netOf(). `evt` identifies the
+   settlement, so the two beats of one win (cash-out, then the bust) are
+   recognised as the same event: same amount, and the count-up runs once. */
+function showResultBanner(kind, amount, sub, token, evt) {
+  const b = D.rbanner;
+  if (!b) return;
+  const wasOn = RB.on, wasExiting = RB.exiting;
+  const gap = S.clock - RB.shownAt;
+  const same = !!evt && evt === RB.evt && kind === RB.kind;   // second beat of one settlement
+  RB.evt = evt || '';
+  RB.kind = kind;
+  RB.on = true;
+  RB.exiting = false;
+  RB.amount = amount;
+  RB.token = token || S.P.token || S.token;
+  RB.sign = kind === 'win' ? '+' : kind === 'loss' ? '−' : '±';
+  RB.hideAt = S.clock + RB_HOLD_MS;
+  RB.killAt = 0;
+  D.rbL1.textContent = kind === 'win' ? 'YOU WON' : kind === 'loss' ? 'YOU LOST' : 'STAKE REFUNDED';
+  D.rbL3.textContent = sub || '';
+  b.setAttribute('aria-hidden', 'false');
+  /* Count-up only on the FIRST beat of a win. The second beat re-pops the
+     banner (good on a call) but lands on the number already showing — a
+     restart from 0 would read as a second, separate win. Losses and refunds
+     snap straight to the final value: a negative number ticking upwards in
+     magnitude reads as the loss still growing, which it is not. */
+  RB.cnt = (same || kind !== 'win') ? 1 : 0;
+  paintRbAmount();
+  if (same && wasOn && !wasExiting && gap < 1200) {
+    // cash-out immediately followed by the bust: refresh the copy in place,
+    // two pops inside a second reads as a glitch
+    return;
+  }
+  RB.shownAt = S.clock;
+  b.className = 'rbanner on ' + kind;
+  void b.offsetWidth;                       // restart the entrance + shockwave ring
+  b.className = 'rbanner on ' + kind + ' in';
+  edgeGlow(kind);
+}
+function hideResultBanner(force) {
+  const b = D.rbanner;
+  if (!b) return;
+  if (force) {
+    b.className = 'rbanner';
+    b.setAttribute('aria-hidden', 'true');
+    // blank the copy: this is an aria-live region, a screen reader should not be
+    // able to pick a dead result out of it, and nothing stale can flash on reuse
+    D.rbL1.textContent = ''; D.rbL2.textContent = ''; D.rbL3.textContent = '';
+    RB.on = false; RB.exiting = false; RB.cnt = 1;
+    /* RB.evt is deliberately NOT cleared. The banner for a cash-out can expire
+       long before the rocket busts; the bust is still the second beat of that
+       same settlement and must land on the number already announced, not count
+       up again from zero. Event ids are round-scoped, so a stale id can never
+       collide with the next round. */
+    return;
+  }
+  if (!RB.on || RB.exiting) return;
+  RB.exiting = true;
+  RB.killAt = S.clock + RB_EXIT_MS;
+  b.classList.remove('in');
+  b.classList.add('out');
+}
+/* Driven off the game clock in the main loop — no setTimeout to race a manual
+   restart, a replay or the CTA. */
+function tickBanner(dt) {
+  if (!RB.on) return;
+  if (RB.cnt < 1) {
+    RB.cnt = Math.min(1, RB.cnt + dt / RB_COUNT_S);
+    paintRbAmount();
+  }
+  if (!RB.exiting) { if (S.clock >= RB.hideAt) hideResultBanner(false); }
+  else if (S.clock >= RB.killAt) hideResultBanner(true);
+}
+
+/* ---------- screen edge glow ---------- */
+let egTimer = 0;
+function edgeGlow(kind) {
+  const el = D.edgeGlow;
+  if (!el) return;
+  const c = kind === 'win' ? '34,197,94' : kind === 'loss' ? '255,59,92' : '34,211,238';
+  el.style.setProperty('--eg', 'rgba(' + c + ',.9)');
+  el.style.setProperty('--eg2', 'rgba(' + c + ',.55)');
+  el.classList.remove('go');
+  void el.offsetWidth;
+  el.classList.add('go');
+  clearTimeout(egTimer);
+  egTimer = setTimeout(() => el.classList.remove('go'), 1300);
+}
+
+/* ---------- floating balance delta ----------
+   A ledger movement, not a result. `label` names which number it is so it can
+   never be mistaken for the net figure on the banner. */
+function balanceDelta(n, label) {
+  if (!n || !isFinite(n) || Math.abs(n) < 0.005 || !D.balBox) return;
+  const el = document.createElement('div');
+  el.className = 'baldelta';
+  el.style.color = n > 0 ? 'var(--green)' : 'var(--red)';
+  el.innerHTML = (n > 0 ? '+' : '−') + money(Math.abs(n)) + (label ? '<i>' + label + '</i>' : '');
+  D.balBox.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1250);
+}
+
+/* ---------- persistent YOUR BET card ---------- */
+let bcKey = '';
+function renderBetCard() {
+  const P = S.P;
+  let cls, v, s;
+  if (P.cashed) {
+    cls = 'won';
+    // net profit — byte-identical to the banner headline for this same event
+    v = 'WON +' + money(netOf(P)) + ' ' + P.token;
+    s = 'cashed at ' + mx(P.cashMult) + boostNote(P);
+  } else if (P.lost) {
+    cls = 'lost';
+    v = 'LOST −' + money(P.bet) + ' ' + P.token;
+    s = 'no cash-out · crashed at ' + mx(S.crash);
+  } else if (P.refunded) {
+    cls = 'push';
+    // a refund is a push: net zero. The 100.00 that came back is named, not signed.
+    v = 'REFUNDED ±0.00 ' + P.token;
+    s = 'shield returned your ' + money(P.bet) + ' stake at ' + mx(S.crash);
+  } else if (P.in) {
+    cls = 'live';
+    v = 'IN PLAY — ' + money(P.bet) + ' ' + P.token;
+    s = S.phase === 'flying'
+      ? 'worth ' + money(P.bet * S.m * P.boostMult) + ' ' + P.token + ' if you cash now'
+      : 'waiting for launch';
+  } else if (P.queued) {
+    cls = 'none';
+    v = 'NO BET THIS ROUND';
+    s = 'queued ' + money(P.bet) + ' ' + P.token + ' for the next round';
+  } else {
+    cls = 'none';
+    v = 'NO BET THIS ROUND';
+    s = '';
+  }
+  const key = cls + '|' + v + '|' + s;
+  if (key === bcKey) return;
+  bcKey = key;
+  if (D.betCard.className !== 'betcard ' + cls) D.betCard.className = 'betcard ' + cls;
+  D.bcV.textContent = v;
+  D.bcS.textContent = s;
+}
+
+/* ---------- MY ROUNDS ---------- */
+function pushMine(rec) {
+  S.mine.unshift(rec);
+  if (S.mine.length > 10) S.mine.pop();
+  renderMine();
+}
+function renderMine() {
+  if (!D.mineRow) return;
+  if (!S.mine.length) {
+    D.mineRow.innerHTML = '<span class="ph">no rounds played yet</span>';
+    D.mineSum.textContent = '0 rounds · 0 won · net ±0.00';
+    return;
+  }
+  D.mineRow.innerHTML = '';
+  let won = 0, net = 0;
+  S.mine.forEach(r => {
+    const cls = r.net > 0 ? 'w' : r.net < 0 ? 'l' : 'p';
+    const el = document.createElement('span');
+    // same signed net figure the banner showed for this round
+    el.className = 'mp ' + cls;
+    el.textContent = (r.net > 0 ? '✓ +' : r.net < 0 ? '✗ −' : '◦ ±') + money(Math.abs(r.net));
+    el.title = 'Round #' + r.no + ' · ' +
+      (r.cash ? 'cashed at ' + mx(r.cash) +
+                (r.boost > 1 ? ' · boost ×' + r.boost.toFixed(1) + ' applied' : '') + ' · '
+              : r.refunded ? 'no cash-out · shield refund · ' : 'no cash-out · ') +
+      money(r.bet) + ' stake → ' + money(r.back) + ' returned' +
+      (r.extra > 0 ? ' · gold crate +' + money(r.extra) + ' paid separately' : '') +
+      ' · crashed at ' + mx(r.crash) +
+      ' · net ' + (r.net > 0 ? '+' : r.net < 0 ? '−' : '±') + money(Math.abs(r.net));
+    D.mineRow.appendChild(el);
+    if (r.net > 0) won++;
+    net += r.net;
+  });
+  // "on bets" because gold-crate credits are deliberately not folded in here
+  D.mineSum.innerHTML = S.mine.length + ' rounds · ' + won + ' won · net on bets <b style="color:' +
+    (net > 0 ? 'var(--green)' : net < 0 ? 'var(--red)' : 'var(--muted)') + '">' +
+    (net > 0 ? '+' : net < 0 ? '−' : '±') + money(Math.abs(net)) + '</b>';
+}
+
+/* ==========================================================================
+   8. BOOSTS
+   ========================================================================== */
+function collectOrb(o) {
+  o.got = true;
+  if (!o.sx) { const v = vp(); o.sx = pX(timeAt(o.m), v); o.sy = pY(o.m, v); }
+  implode(o);
+  const def = ORB_DEF[o.type];
+  const P = S.P;
+  if (o.type === 'boost') {
+    P.boostMult *= 1.5;
+    S.boosts.push({ type: 'boost', label: '×1.5 BOOST', cls: 'v', perm: true });
+    // name both figures: what this orb was worth, and what the stack is now
+    toast('×1.5 BOOST collected · payout multiplier now ×' + P.boostMult.toFixed(1), 'var(--violet-hi)');
+  } else if (o.type === 'shield') {
+    P.shieldUntil = S.clock + 2000;
+    S.boosts.push({ type: 'shield', label: 'SHIELD', cls: 'c', until: P.shieldUntil, dur: 2000 });
+    toast('SHIELD active — stake insured for 2.0s', 'var(--cyan)');
+  } else {
+    const amt = 25;
+    P.extra += amt;
+    S.balance += amt;
+    S.boosts.push({ type: 'crate', label: '+' + amt + ' ' + S.token, cls: 'g', perm: true });
+    // a crate is credited on pickup, outside this bet's settlement — say so, so
+    // it is never confused with the round's net figure
+    toast('GOLD CRATE — +' + money(amt) + ' ' + S.token + ' credited, separate from the bet', 'var(--gold)');
+    balanceDelta(amt, 'crate');
+    pulseBalance();
+  }
+  sfxOrb();
+  renderBoosts();
+}
+function renderBoosts() {
+  const el = D.boostStrip;
+  el.innerHTML = '';
+  if (!S.boosts.length) {
+    el.innerHTML = '<span class="ph">no active boosts</span>';
+    return;
+  }
+  S.boosts.forEach(b => {
+    const c = document.createElement('span');
+    c.className = 'bchip ' + b.cls;
+    c.innerHTML = b.label + (b.until ? ' <span class="num" data-cd>2.0s</span>' : '') +
+      '<span class="bar" style="background:currentColor"></span>';
+    b.el = c;
+    b.bar = c.querySelector('.bar');
+    b.cd = c.querySelector('[data-cd]');
+    el.appendChild(c);
+  });
+}
+function tickBoosts(now) {
+  for (let i = 0; i < S.boosts.length; i++) {
+    const b = S.boosts[i];
+    if (!b.until || !b.bar) continue;
+    const left = Math.max(0, b.until - now);
+    b.bar.style.transform = 'scaleX(' + (left / b.dur).toFixed(3) + ')';
+    if (b.cd) b.cd.textContent = (left / 1000).toFixed(1) + 's';
+    if (left <= 0 && !b.done) {
+      b.done = true;
+      b.el.style.opacity = '.35';
+      b.el.style.filter = 'grayscale(1)';
+    }
+  }
+}
+
+/* ==========================================================================
+   9. HUD
+   ========================================================================== */
+function setMult(m) {
+  const n = D.mult.childNodes[0];
+  const txt = nf2.format(m);
+  if (n.nodeValue !== txt) n.nodeValue = txt;
+}
+function pulseBalance() {
+  D.balBox.classList.remove('lock'); void D.balBox.offsetWidth; D.balBox.classList.add('lock');
+  setTimeout(() => D.balBox.classList.remove('lock'), 1000);
+}
+function flyTicket(text) {
+  const b = D.actBtn.getBoundingClientRect(), t = D.balBox.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'ticket'; el.textContent = text;
+  document.body.appendChild(el);
+  const w = el.offsetWidth, h = el.offsetHeight;
+  el.style.left = (b.left + b.width / 2 - w / 2) + 'px';
+  el.style.top = (b.top + b.height / 2 - h / 2) + 'px';
+  const dx = (t.left + t.width / 2) - (b.left + b.width / 2);
+  const dy = (t.top + t.height / 2) - (b.top + b.height / 2);
+  const kill = () => { if (el.parentNode) el.parentNode.removeChild(el); };
+  if (el.animate) {
+    const a = el.animate([
+      { transform: 'translate(0,0) scale(.6)', opacity: 0 },
+      { transform: 'translate(' + dx * .18 + 'px,' + dy * .3 + 'px) scale(1.08)', opacity: 1, offset: .22 },
+      { transform: 'translate(' + dx * .5 + 'px,' + dy * .62 + 'px) scale(1)', opacity: 1, offset: .55 },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.34)', opacity: 0 }
+    ], { duration: 1150, easing: 'cubic-bezier(.22,1,.36,1)' });
+    a.onfinish = kill; setTimeout(kill, 1400);
+  } else setTimeout(kill, 900);
+}
+function confetti() {
+  if (REDUCED) return;
+  const t = D.balBox.getBoundingClientRect();
+  const cx = t.left + t.width / 2, cy = t.top + t.height / 2;
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'coin';
+    el.style.left = cx + 'px'; el.style.top = cy + 'px';
+    document.body.appendChild(el);
+    const a = rnd(-2.9, -0.3), sp = rnd(80, 230);
+    const dx = Math.cos(a) * sp, dy = Math.sin(a) * sp;
+    const kill = () => { if (el.parentNode) el.parentNode.removeChild(el); };
+    if (el.animate) {
+      const an = el.animate([
+        { transform: 'translate(0,0) scale(1)', opacity: 1 },
+        { transform: 'translate(' + dx + 'px,' + (dy + 40) + 'px) scale(.9)', opacity: 1, offset: .45 },
+        { transform: 'translate(' + dx * 1.5 + 'px,' + (dy + 320) + 'px) scale(.5)', opacity: 0 }
+      ], { duration: rnd(900, 1500), easing: 'cubic-bezier(.3,.7,.4,1)' });
+      an.onfinish = kill; setTimeout(kill, 1700);
+    } else kill();
+  }
+}
+const RAMP = [[34,197,94],[163,230,53],[251,191,36],[255,59,92]];
+function ramp(h) {
+  const x = clamp(h, 0, 1) * (RAMP.length - 1);
+  const i = Math.min(RAMP.length - 2, Math.floor(x)), f = x - i;
+  const a = RAMP[i], b = RAMP[i + 1];
+  return [Math.round(lerp(a[0], b[0], f)), Math.round(lerp(a[1], b[1], f)), Math.round(lerp(a[2], b[2], f))];
+}
+let lastActKey = '';
+function syncBetUi() {
+  const P = S.P;
+  D.betSuf.textContent = S.token;
+  const px = TOKENS[S.token].px;
+  D.betFiat.textContent = '~$' + money(S.bet * px);
+  D.stPay.textContent = S.bet > 0 ? money(S.bet * (S.autoCash ? S.autoCashTarget : 2)) + ' ' + S.token +
+    ' @ ' + mx(S.autoCash ? S.autoCashTarget : 2) : '—';
+  D.actQ.style.display = P.queued ? '' : 'none';
+}
+function updateHud(now, dt) {
+  // balance counter
+  const diff = S.balance - S.displayBalance;
+  if (Math.abs(diff) > 0.004) {
+    S.displayBalance += diff * Math.min(1, dt * 7);
+    if (Math.abs(S.balance - S.displayBalance) < 0.01) S.displayBalance = S.balance;
+    D.balVal.textContent = money(S.displayBalance);
+  }
+  if (D.balTok.textContent !== S.token) D.balTok.textContent = S.token;
+
+  const P = S.P;
+  const flying = S.phase === 'flying';
+
+  if (flying) {
+    setMult(S.m);
+    const st = stageOf(S.m);
+    const col = st === 3 ? 'var(--gold)' : st === 2 ? '#FFE9C2' : 'var(--text)';
+    if (D.mult.style.color !== col) D.mult.style.color = col;
+    const want = 'mult num' + (st === 3 && !REDUCED ? ' crit' : '');
+    if (D.mult.className !== want) D.mult.className = want;
+  } else if (S.phase === 'betting') {
+    const el = S.clock - S.phaseStart;
+    const p = clamp(el / BET_MS, 0, 1);
+    D.ringArc.setAttribute('stroke-dashoffset', (289.03 * p).toFixed(1));
+    const left = Math.max(0, (BET_MS - el) / 1000);
+    D.substat.innerHTML = S.mining
+      ? 'Publishing round commitment…'
+      : 'NEXT ROUND IN <b>' + left.toFixed(1) + 's</b> · hash published';
+    if (D.mult.style.color !== 'rgba(242,242,250,.34)') D.mult.style.color = 'rgba(242,242,250,.34)';
+  }
+
+  tickBoosts(S.clock);
+  tickBanner(dt);
+  renderBetCard();
+
+  // action button
+  let t1, t2, key, bgA, bgB, glow = 'rgba(124,58,237,.34)', pulse = 0;
+  if (flying && P.in && !P.cashed) {
+    const h = clamp((S.m - 1) / 7, 0, 1);
+    const c = ramp(h);
+    bgA = 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+    bgB = 'rgb(' + Math.round(c[0] * .62) + ',' + Math.round(c[1] * .62) + ',' + Math.round(c[2] * .62) + ')';
+    glow = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',';
+    t1 = 'CASH OUT';
+    // a live projection of the gross return, not a result: named, never signed,
+    // so it cannot be read as "you are up this much"
+    t2 = money(P.bet * S.m * P.boostMult) + ' ' + P.token + ' return';
+    pulse = lerp(1.5, 0.34, h);
+    key = 'cash' + Math.round(h * 40);
+  } else if (S.phase === 'betting' && P.in) {
+    t1 = 'BET PLACED'; t2 = money(P.bet) + ' ' + P.token + ' · tap to cancel';
+    bgA = '#2A2A55'; bgB = '#1A1A38'; key = 'placed' + P.bet;
+  } else if (P.queued) {
+    t1 = 'BET QUEUED'; t2 = money(P.bet) + ' ' + P.token + ' · next round';
+    bgA = '#4C3A0E'; bgB = '#2A2008'; key = 'queued' + P.bet;
+  } else if (flying || S.phase === 'ended') {
+    t1 = 'BET NEXT ROUND'; t2 = money(S.bet) + ' ' + S.token;
+    bgA = '#2A2A55'; bgB = '#1A1A38'; key = 'next' + S.bet;
+  } else {
+    t1 = 'PLACE BET'; t2 = money(S.bet) + ' ' + S.token;
+    bgA = '#7C3AED'; bgB = '#5B21B6'; key = 'bet' + S.bet;
+  }
+  if (key !== lastActKey) {
+    lastActKey = key;
+    D.actT1.textContent = t1;
+    D.actT2.textContent = t2;
+    D.actBtn.style.background = 'linear-gradient(135deg,' + bgA + ',' + bgB + ')';
+    if (pulse) {
+      D.actBtn.classList.add('live');
+      if (!REDUCED) D.actBtn.classList.add('pulse');
+      D.actBtn.style.setProperty('--pulse', pulse.toFixed(2) + 's');
+      D.actBtn.style.setProperty('--glowA', glow + '.4)');
+      D.actBtn.style.setProperty('--glowB', glow + '.85)');
+      D.actBtn.style.boxShadow = '0 8px 30px ' + glow + '.5)';
+    } else {
+      D.actBtn.classList.remove('live', 'pulse');
+      D.actBtn.style.boxShadow = '';
+    }
+  } else if (flying && P.in && !P.cashed) {
+    D.actT2.textContent = t2;
+  }
+
+  // feed header drift
+  if (flying) {
+    D.pCount.textContent = nf0.format(S.playersOnline + Math.round(Math.sin(now / 900) * 9));
+    D.pTotal.textContent = nf0.format(S.totalBet + Math.round((S.clock - S.phaseStart) / 26));
+  }
+}
+
+/* ==========================================================================
+   10. MAIN LOOP
+   ========================================================================== */
+let prevM = 1;
+function updateGame(now, dt) {
+  if (S.scene !== 'game') return;
+  feedReveal();
+  const el = S.clock - S.phaseStart;          // ms elapsed in the current phase
+
+  if (S.phase === 'betting') {
+    if (el >= BET_MS && !S.mining) startFlight();
+
+  } else if (S.phase === 'flying') {
+    S.t = el / 1000;
+    let m = multAt(S.t);
+    // Clamp the step to the crash point FIRST, then resolve everything that
+    // happens on the way up. Resolving the crash before the cash-out check meant
+    // a single long frame could carry the multiplier past the scripted cash-out
+    // and straight into the bust, silently swallowing the payout.
+    const busted = m >= S.crash;
+    if (busted) { m = S.crash; S.t = timeAt(S.crash); }
+    S.m = m;
+
+    for (let i = 0; i < TICKS.length; i++) {
+      const tk = TICKS[i];
+      if (prevM < tk && S.m >= tk) { tickFlash[tk] = now + 620; sfxTick(); }
+    }
+    for (let i = 0; i < S.orbs.length; i++) {
+      const o = S.orbs[i];
+      if (!o.got && o.m < S.crash && S.m >= o.m) collectOrb(o);
+    }
+    const P = S.P;
+    if (P.in && !P.cashed) {
+      const target = (S.scripted && S.scripted.cash) ? S.scripted.cash
+                   : (S.autoCash ? S.autoCashTarget : 0);
+      // a target at or above the crash point is a loss, never a payout
+      if (target && target < S.crash && S.m >= target) cashOut(true, target);
+    }
+    feedTick();
+    prevM = S.m;
+
+    if (busted) { doCrash(); return; }
+
+  } else if (S.phase === 'ended') {
+    if (!S.endDone && el >= END_MS) endDwellDone();
+  }
+}
+
+function renderScene(now, dt) {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, CW, CH);
+  const flying = S.phase === 'flying';
+  const ended = S.phase === 'ended';
+  const st = flying ? stageOf(S.m) : 0;
+  const heat = flying ? clamp((S.m - 3) / 5, 0, 1) : 0;
+  const crit = flying ? clamp((S.m - 8) / 8, 0, 1) : 0;
+
+  let target = 0;
+  if (flying && st >= 2) target = (REDUCED ? .4 : 1) * (0.6 + crit * 5);
+  const decay = Math.exp(-dt * 7);
+  shakeAmp = Math.max(shakeAmp * decay, target);
+  if (shakeAmp > .02) { shakeX = rnd(-shakeAmp, shakeAmp); shakeY = rnd(-shakeAmp, shakeAmp); }
+  else { shakeX = shakeY = 0; }
+
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+
+  drawBackdrop(dt, heat, crit);
+  const starSpeed = 10 + (flying ? (st === 0 ? 26 : st === 1 ? 62 : st === 2 ? 118 : 190) : 0);
+  drawStars(dt, starSpeed);
+
+  const v = vp();
+  drawGrid(v, now);
+
+  // rocket transform
+  const sc = clamp(Math.min(CW / 900, CH / 520), .72, 1.22);
+  let rx, ry, ang;
+  if (flying || ended) {
+    rx = pX(S.t, v); ry = pY(S.m, v);
+    const back = Math.max(.06, S.t * .1);
+    const x0 = pX(Math.max(0, S.t - back), v), y0 = pY(multAt(Math.max(0, S.t - back)), v);
+    ang = (S.t < .18) ? -Math.PI / 3.4 : Math.atan2(ry - y0, rx - x0);
+  } else {
+    rx = pX(0, v); ry = pY(1, v); ang = -Math.PI / 3.4;
+  }
+  const bob = Math.sin(now / 430) * (flying ? 2.6 : 4);
+  ry += bob;
+  if (flying && st >= 2 && !REDUCED) { rx += rnd(-1.5, 1.5); ry += rnd(-1.5, 1.5); }
+
+  if (flying || ended) drawCurve(v, rx, ry - bob, ended);
+  drawOrbs(v, now);
+
+  if (flying) {
+    emitExhaust(rx, ry, ang, st, dt);
+  } else if (S.phase === 'betting' && !REDUCED && Math.random() < .35) {
+    addPart({ type: 'smoke', x: rx - 22 + rnd(-5, 5), y: ry + 12 + rnd(-4, 4),
+      vx: rnd(-26, 26), vy: rnd(4, 26), r: rnd(5, 12), life: rnd(.6, 1.2), max: 1.2, a: .38, drag: 1 });
+  }
+  stepParts(dt, now);
+  drawParts();
+
+  if (flying || S.phase === 'betting') {
+    // engine bloom under the rocket, grows with the multiplier
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const R = 70 + (flying ? Math.min(S.m, 16) * 11 : 0);
+    const g = ctx.createRadialGradient(rx, ry, 4, rx, ry, R);
+    if (crit > .01) {
+      g.addColorStop(0, 'rgba(255,160,120,' + (.26 + crit * .3) + ')');
+      g.addColorStop(.45, 'rgba(255,59,92,' + (.12 + crit * .18) + ')');
+    } else {
+      g.addColorStop(0, 'rgba(180,150,255,.28)');
+      g.addColorStop(.45, 'rgba(34,211,238,.10)');
+    }
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(rx, ry, R, 0, 6.283); ctx.fill();
+    ctx.restore();
+    drawExhaust(rx, ry, ang, sc, st, crit, now);
+    drawRocket(rx, ry, ang, sc, heat, crit, true);
+  }
+  drawWaves(dt);
+
+  // strain vignette pulse
+  if (flying && st >= 2) {
+    const p = 0.5 + 0.5 * Math.sin(now / (st === 3 ? 130 : 320));
+    const g = ctx.createRadialGradient(CW / 2, CH / 2, CH * .28, CW / 2, CH / 2, CH * 1.05);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(' + (st === 3 ? '255,40,70,' : '120,60,255,') + (0.12 + p * (st === 3 ? .3 : .12)) + ')');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+  }
+  ctx.restore();
+
+  if (flying) sfxTone(S.m, st);
+}
+
+let lastNow = 0, fpsA = 0, fpsN = 0, fpsT = 0;
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (typeof now !== 'number' || !isFinite(now)) now = performance.now();
+  if (!lastNow) lastNow = now;
+
+  // one authoritative step: never negative (a repeated timestamp buys no game
+  // time), never larger than MAX_STEP_MS (a stall cannot skip a round beat)
+  let step = now - lastNow;
+  lastNow = now;
+  if (!(step > 0)) step = 0;
+  if (step > MAX_STEP_MS) step = MAX_STEP_MS;
+  S.clock += step;
+
+  let dt = step / 1000;
+  if (dt > 0.05) dt = 0.05;
+
+  minerTick();
+  updateGame(now, dt);
+  renderScene(now, dt);
+  updateHud(now, dt);
+
+  if (step > 0) { fpsA += 1000 / step; fpsN++; }
+  if (now - fpsT > 700) {
+    fpsT = now;
+    if (fpsN) D.fpsOut.textContent = Math.round(fpsA / fpsN) + ' fps';
+    fpsA = 0; fpsN = 0;
+  }
+}
+
+/* ==========================================================================
+   11. SOUND  (WebAudio, synthesized, off by default, gesture-gated)
+   ========================================================================== */
+const SND = { on: false, ac: null, osc: null, gain: null, filt: null };
+function audioReady() {
+  if (SND.ac) { if (SND.ac.state === 'suspended') SND.ac.resume(); return true; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return false;
+  try { SND.ac = new AC(); } catch (e) { return false; }
+  return true;
+}
+function sfxLaunch() {
+  if (!SND.on || !audioReady()) return;
+  stopTone();
+  const ac = SND.ac, t = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(90, t);
+  f.type = 'lowpass'; f.frequency.setValueAtTime(700, t);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.5);
+  o.connect(f); f.connect(g); g.connect(ac.destination); o.start();
+  SND.osc = o; SND.gain = g; SND.filt = f;
+}
+function sfxTone(m, st) {
+  if (!SND.on || !SND.osc) return;
+  const nowMs = performance.now();
+  if (SND.lt && nowMs - SND.lt < 70) return;
+  SND.lt = nowMs;
+  const t = SND.ac.currentTime;
+  SND.osc.frequency.setTargetAtTime(Math.min(880, 90 + (m - 1) * 52), t, 0.08);
+  SND.filt.frequency.setTargetAtTime(600 + Math.min(m, 20) * 180, t, 0.1);
+  SND.gain.gain.setTargetAtTime(0.045 + st * 0.012, t, 0.2);
+}
+function stopTone() {
+  if (!SND.osc) return;
+  try {
+    const t = SND.ac.currentTime;
+    SND.gain.gain.setTargetAtTime(0.0001, t, 0.05);
+    SND.osc.stop(t + 0.3);
+  } catch (e) {}
+  SND.osc = null; SND.gain = null; SND.filt = null;
+}
+function sfxCrash() {
+  stopTone();
+  if (!SND.on || !audioReady()) return;
+  const ac = SND.ac, t = ac.currentTime;
+  const len = Math.floor(ac.sampleRate * 0.7);
+  const buf = ac.createBuffer(1, len, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(420, t);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.5, t);
+  src.connect(f); f.connect(g); g.connect(ac.destination); src.start();
+}
+function sfxCash() {
+  if (!SND.on || !audioReady()) return;
+  const ac = SND.ac, t0 = ac.currentTime;
+  [880, 1320, 1760].forEach((fq, i) => {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'triangle'; o.frequency.setValueAtTime(fq, t0 + i * 0.07);
+    g.gain.setValueAtTime(0.0001, t0 + i * 0.07);
+    g.gain.exponentialRampToValueAtTime(0.16, t0 + i * 0.07 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.07 + 0.42);
+    o.connect(g); g.connect(ac.destination); o.start(t0 + i * 0.07); o.stop(t0 + i * 0.07 + 0.45);
+  });
+}
+function sfxOrb() {
+  if (!SND.on || !audioReady()) return;
+  const ac = SND.ac, t = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(1400, t + 0.16);
+  g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(t + 0.24);
+}
+function sfxTick() {
+  if (!SND.on || !audioReady()) return;
+  const ac = SND.ac, t = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'square'; o.frequency.setValueAtTime(1600, t);
+  g.gain.setValueAtTime(0.03, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(t + 0.07);
+}
+
+/* ==========================================================================
+   12. CONTROLS
+   ========================================================================== */
+function setMode(mode, quiet) {
+  if (S.mode === mode) return;
+  S.mode = mode;
+  D.segAuto.classList.toggle('on', mode === 'auto');
+  D.segManual.classList.toggle('on', mode === 'manual');
+  D.segAuto.setAttribute('aria-pressed', String(mode === 'auto'));
+  D.segManual.setAttribute('aria-pressed', String(mode === 'manual'));
+  if (mode === 'manual') {
+    S.scripted = null;
+    D.betNote.textContent = 'Manual mode — you are placing the bets. Space cashes out.';
+    D.betNote.className = 'note';
+    if (!quiet) toast('Manual mode — the demo handed you the controls', 'var(--cyan)');
+  } else {
+    D.betNote.textContent = 'Auto-demo is driving. Click anything here to take over.';
+    if (!quiet) toast('Auto-demo resumed', 'var(--violet-hi)');
+    if (S.scriptIdx >= SCRIPT.length) S.scriptIdx = 0;
+    if (S.phase === 'betting') { S.scripted = SCRIPT[S.scriptIdx]; }
+  }
+}
+function takeOver() { if (S.mode === 'auto') setMode('manual'); }
+function primaryAction() {
+  const P = S.P;
+  if (S.phase === 'flying' && P.in && !P.cashed) { cashOut(false); return; }
+  if (S.phase === 'betting' && P.in) {           // cancel
+    S.balance += P.bet; P.in = false; setYou(-1);
+    balanceDelta(P.bet);
+    toast('Bet cancelled', 'var(--muted)'); syncBetUi(); return;
+  }
+  if (P.queued) { P.queued = false; D.actQ.style.display = 'none'; toast('Queued bet cancelled', 'var(--muted)'); syncBetUi(); return; }
+  placeBet(false);
+}
+D.actBtn.addEventListener('click', () => { takeOver(); primaryAction(); });
+
+D.betPanel.addEventListener('pointerdown', () => takeOver());
+D.betInput.addEventListener('input', () => {
+  takeOver();
+  const v = parseFloat(D.betInput.value);
+  S.bet = isNaN(v) ? 0 : Math.max(0, v);
+  if (S.bet > S.balance) { D.betNote.textContent = 'Bet is larger than your balance.'; D.betNote.className = 'note warn'; }
+  else if (S.mode === 'manual') { D.betNote.textContent = 'Manual mode — you are placing the bets. Space cashes out.'; D.betNote.className = 'note'; }
+  syncBetUi();
+});
+qa('[data-bet]').forEach(b => b.addEventListener('click', () => {
+  takeOver();
+  const k = b.getAttribute('data-bet');
+  if (k === 'half') S.bet = Math.max(1, Math.round(S.bet / 2 * 100) / 100);
+  else if (k === 'double') S.bet = Math.round(Math.min(S.balance, S.bet * 2) * 100) / 100;
+  else if (k === 'max') S.bet = Math.floor(S.balance * 100) / 100;
+  else S.bet = parseFloat(k);
+  D.betInput.value = String(S.bet);
+  syncBetUi();
+}));
+qa('#toks .tok').forEach(b => b.addEventListener('click', () => {
+  takeOver();
+  qa('#toks .tok').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  S.token = b.getAttribute('data-tok');
+  syncBetUi();
+}));
+D.acSw.addEventListener('click', () => {
+  takeOver();
+  S.autoCash = !S.autoCash;
+  D.acSw.classList.toggle('on', S.autoCash);
+  D.acSw.setAttribute('aria-checked', String(S.autoCash));
+  D.acInput.disabled = !S.autoCash;
+  D.acField.style.opacity = S.autoCash ? '1' : '.5';
+  syncBetUi();
+});
+D.acInput.addEventListener('input', () => {
+  const v = parseFloat(D.acInput.value);
+  S.autoCashTarget = isNaN(v) ? 2 : Math.max(1.01, v);
+  syncBetUi();
+});
+D.segAuto.addEventListener('click', () => setMode('auto'));
+D.segManual.addEventListener('click', () => setMode('manual'));
+
+D.tabBets.addEventListener('click', () => showTab('bets'));
+D.tabFair.addEventListener('click', () => showTab('fair'));
+function showTab(which) {
+  const bets = which === 'bets';
+  D.tabBets.classList.toggle('on', bets);
+  D.tabFair.classList.toggle('on', !bets);
+  D.paneBets.style.display = bets ? '' : 'none';
+  D.paneFair.style.display = bets ? 'none' : '';
+}
+D.pfClient.addEventListener('input', () => {
+  S.clientSeed = D.pfClient.value.trim() || 'client';
+  updatePreview();
+});
+D.vrfSw.addEventListener('click', () => {
+  S.vrf = !S.vrf;
+  D.vrfSw.classList.toggle('on', S.vrf);
+  D.vrfSw.setAttribute('aria-checked', String(S.vrf));
+  D.vrfBody.style.display = S.vrf ? '' : 'none';
+  D.vrfOff.style.display = S.vrf ? 'none' : '';
+  if (S.vrf) { runVrf(); toast('Chainlink VRF routing enabled', 'var(--cyan)'); }
+});
+qa('[data-copy]').forEach(b => b.addEventListener('click', () => {
+  copyText(b.getAttribute('data-copy') === 'hash' ? S.serverHash : S.serverSeed, b);
+}));
+D.histList.addEventListener('click', (e) => {
+  const el = e.target.closest ? e.target.closest('[data-round]') : null;
+  if (el) openVerify(+el.getAttribute('data-round'));
+});
+D.btnSound.addEventListener('click', () => {
+  SND.on = !SND.on;
+  D.btnSound.classList.toggle('on', SND.on);
+  D.btnSound.setAttribute('aria-pressed', String(SND.on));
+  D.sndX.style.display = SND.on ? 'none' : '';
+  D.sndOn.style.display = SND.on ? '' : 'none';
+  if (SND.on) { audioReady(); toast('Sound on', 'var(--cyan)'); if (S.phase === 'flying') sfxLaunch(); }
+  else { stopTone(); toast('Sound off', 'var(--muted)'); }
+});
+D.btnTech.addEventListener('click', () => D.tech.classList.toggle('on'));
+D.techClose.addEventListener('click', () => D.tech.classList.remove('on'));
+D.btnWrap.addEventListener('click', () => showCta());
+
+/* ==========================================================================
+   13. VERIFY MODAL
+   ========================================================================== */
+function openVerify(no) {
+  const r = S.rounds[no];
+  if (!r) return;
+  D.verify.classList.add('on');
+  D.vRound.textContent = '#' + r.no;
+  D.vCrash.textContent = mx(r.crash);
+  D.vNonce.textContent = String(r.nonce);
+  D.vSeed.textContent = r.seed;
+  D.vClient.textContent = r.client;
+  D.vHash.textContent = r.hash;
+  const digest = sha256(roundMessage(r.seed, r.client, r.nonce));
+  const x = parseInt(digest.slice(0, 13), 16) / TWO52;
+  const derived = crashFromDigest(digest);
+  D.vDigest.textContent = digest;
+  D.vX.textContent = x.toFixed(12);
+  D.vC.textContent = mx(derived);
+  D.vTx.textContent = shortHash(r.tx, 18, 10);
+  D.vScan.href = 'https://basescan.org/tx/' + r.tx;
+  [D.vk1, D.vk2, D.vk3].forEach(e => e.classList.remove('on'));
+  D.vVerdict.classList.remove('on');
+  const okHash = sha256(r.seed) === r.hash;
+  const okCrash = Math.round(derived * 100) === Math.round(r.crash * 100);
+  setTimeout(() => D.vk1.classList.toggle('on', okHash), 260);
+  setTimeout(() => D.vk2.classList.add('on'), 510);
+  setTimeout(() => D.vk3.classList.toggle('on', okCrash), 760);
+  setTimeout(() => D.vVerdict.classList.toggle('on', okHash && okCrash), 1020);
+}
+qa('[data-close]').forEach(e => e.addEventListener('click', () => D.verify.classList.remove('on')));
+
+/* ==========================================================================
+   14. GUIDED TOUR
+   ========================================================================== */
+const TOUR = [
+  { sel: '#paneFair', before: () => showTab('fair'), title: 'Provably fair before you bet',
+    text: 'Players who can verify the math stake more and churn less. The commitment hash is published before a single chip moves.' },
+  { sel: '#stage', title: 'The tension curve',
+    text: 'Every extra second of altitude is another second of attention. This curve is the retention loop, not decoration.' },
+  { sel: '#actBtn', title: 'Cash out — the only decision that matters',
+    text: 'One decision, taken hundreds of times per session. That single button is your entire monetisation surface.' },
+  { sel: ['#betCard', '#myRounds'], title: 'Win or lose, readable across the room',
+    text: 'The instant a round resolves, a full-size banner drops over the curve and the screen edge flashes green or red. Every surface reports the same one number — net profit — so nothing on screen can contradict anything else; the stake and the amount returned are always spelled out underneath it. This card holds your live position, and below it your own last ten results, never mixed up with the crash-point strip.' },
+  { sel: '#boostStrip', title: 'Boosts drive session length',
+    text: 'Pickups add a second decision layer and measurably extend sessions without ever touching the house edge.' },
+  { sel: '#paneBets', before: () => showTab('bets'), title: 'Live social pressure',
+    text: 'Watching a thousand people win and bust in real time is the cheapest acquisition channel you will ever own.' },
+  { sel: ['#balBox', '.topbar .pill'], title: 'Instant on-chain settlement',
+    text: 'Payouts land in under a second on Base. That is the moment a curious visitor turns into a returning player.' }
+];
+let tourIdx = -1;
+function rectOf(sel) {
+  const list = (Object.prototype.toString.call(sel) === '[object Array]' ? sel : [sel])
+    .map(s => q(s)).filter(Boolean);
+  if (!list.length) return null;
+  let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+  list.forEach(e => {
+    const x = e.getBoundingClientRect();
+    l = Math.min(l, x.left); t = Math.min(t, x.top); r = Math.max(r, x.right); b = Math.max(b, x.bottom);
+  });
+  return { left: l - 8, top: t - 8, width: (r - l) + 16, height: (b - t) + 16 };
+}
+function startTour() {
+  if (D.tour.classList.contains('on')) return;
+  D.tour.classList.add('on');
+  D.tourDots.innerHTML = TOUR.map(() => '<i></i>').join('');
+  tourIdx = -1;
+  nextTour();
+}
+function nextTour() {
+  tourIdx++;
+  if (tourIdx >= TOUR.length) { endTour(); return; }
+  const s = TOUR[tourIdx];
+  if (s.before) s.before();
+  const r = rectOf(s.sel);
+  if (!r) { endTour(); return; }
+  D.tourCut.style.left = r.left + 'px';
+  D.tourCut.style.top = r.top + 'px';
+  D.tourCut.style.width = r.width + 'px';
+  D.tourCut.style.height = r.height + 'px';
+  D.tourStep.textContent = 'STOP ' + (tourIdx + 1) + ' / ' + TOUR.length;
+  D.tourTitle.textContent = s.title;
+  D.tourText.textContent = s.text;
+  D.tourNext.textContent = tourIdx === TOUR.length - 1 ? 'Finish' : 'Next';
+  qa('#tourDots i').forEach((d, i) => d.classList.toggle('on', i === tourIdx));
+  const cw = 340, chh = D.tourCard.offsetHeight || 190;
+  let left = r.left + r.width + 22;
+  if (left + cw > window.innerWidth - 16) left = r.left - cw - 22;
+  if (left < 16) left = clamp(r.left, 16, window.innerWidth - cw - 16);
+  let top = r.top + r.height / 2 - chh / 2;
+  top = clamp(top, 16, window.innerHeight - chh - 16);
+  D.tourCard.style.left = left + 'px';
+  D.tourCard.style.top = top + 'px';
+}
+function endTour() { D.tour.classList.remove('on'); tourIdx = -1; }
+D.btnTour.addEventListener('click', startTour);
+D.tourNext.addEventListener('click', nextTour);
+D.tourSkip.addEventListener('click', endTour);
+
+/* ==========================================================================
+   15. SCENES
+   ========================================================================== */
+function replayAnims(root) {
+  qa('.up', root).forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  });
+}
+function showCta() {
+  if (S.scene === 'cta') return;
+  S.scene = 'cta';
+  stopTone();
+  endTour();
+  D.tech.classList.remove('on');
+  D.verify.classList.remove('on');
+  D.cta.classList.add('on');
+  replayAnims(D.cta);
+}
+function backToGame() {
+  D.cta.classList.remove('on');
+  S.scene = 'game';
+  if (S.scriptIdx >= SCRIPT.length) setMode('manual', true);
+  startBetting();
+}
+D.btnBack.addEventListener('click', backToGame);
+D.btnReplay.addEventListener('click', () => {
+  S.balance = 10000; S.displayBalance = 10000;
+  D.balVal.textContent = money(10000);
+  S.history = []; S.rounds = {}; S.scriptIdx = 0;
+  D.histList.innerHTML = '';
+  S.mine = []; renderMine();
+  S.bet = 100; D.betInput.value = '100';
+  setMode('auto', true);
+  D.cta.classList.remove('on');
+  S.scene = 'game';
+  startBetting();
+  toast('Demo reset — running the scripted track again', 'var(--violet-hi)');
+});
+
+/* ---------- intro ---------- */
+function buildLogo() {
+  const word = 'NOVA CRASH';
+  let html = '', delay = 0.45;
+  for (let i = 0; i < word.length; i++) {
+    const ch = word[i];
+    if (ch === ' ') { html += '<span style="width:.34em">&nbsp;</span>'; continue; }
+    const em = i >= 5;
+    html += (em ? '<em>' : '') + '<span style="animation-delay:' + delay.toFixed(2) + 's">' + ch + '</span>' + (em ? '</em>' : '');
+    delay += 0.062;
+  }
+  D.ilogoTxt.innerHTML = html;
+}
+let entered = false;
+function enterGame() {
+  if (entered) return;
+  entered = true;
+  D.intro.classList.add('out');
+  setTimeout(() => { D.intro.style.display = 'none'; }, 800);
+  D.shell.classList.add('on');
+  S.scene = 'game';
+  resizeCanvas();
+  startBetting();
+}
+D.btnLaunch.addEventListener('click', enterGame);
+
+/* ---------- keyboard ---------- */
+window.addEventListener('keydown', (e) => {
+  const tag = (e.target && e.target.tagName) || '';
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA';
+  if (e.key === 'Escape') {
+    if (D.verify.classList.contains('on')) D.verify.classList.remove('on');
+    else if (D.tour.classList.contains('on')) endTour();
+    else if (D.tech.classList.contains('on')) D.tech.classList.remove('on');
+    else if (S.scene === 'cta') backToGame();
+    if (typing && e.target.blur) e.target.blur();
+    return;
+  }
+  if (D.tour.classList.contains('on')) {
+    if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nextTour(); return; }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); tourIdx = Math.max(-1, tourIdx - 2); nextTour(); return; }
+  }
+  if (typing) return;
+  if (e.key === ' ') {
+    e.preventDefault();
+    if (S.scene !== 'game') return;
+    takeOver(); primaryAction();
+  } else if (e.key === 'r' || e.key === 'R') {
+    if (S.scene !== 'game') return;
+    if (S.P.in && !S.P.cashed && S.phase !== 'ended') { S.balance += S.P.bet; balanceDelta(S.P.bet); }
+    startBetting();
+    toast('Round restarted', 'var(--muted)');
+  } else if (e.key === 'a' || e.key === 'A') {
+    setMode(S.mode === 'auto' ? 'manual' : 'auto');
+  } else if (e.key === 'g' || e.key === 'G') {
+    startTour();
+  } else if (e.key === 't' || e.key === 'T' || e.key === '?') {
+    D.tech.classList.toggle('on');
+  }
+});
+
+/* ==========================================================================
+   16. BOOT
+   ========================================================================== */
+function boot() {
+  buildLogo();
+  makePlayers();
+  buildFeed();
+  rollTargets();
+  setYou(-1);
+  renderMine();
+  renderBetCard();
+  syncBetUi();
+  updatePreview();
+  D.balVal.textContent = money(S.balance);
+  resizeCanvas();
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => resizeCanvas());
+    ro.observe(D.stage);
+  }
+  window.addEventListener('resize', () => { resizeCanvas(); if (D.tour.classList.contains('on')) { tourIdx--; nextTour(); } });
+  // mine the very first commitment while the intro is on screen
+  if (SCRIPT.length) minerStart(SCRIPT[0].crash, S.clientSeed, S.nonce + 1);
+  requestAnimationFrame(frame);
+  setTimeout(() => { if (!entered) enterGame(); }, 6200);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
