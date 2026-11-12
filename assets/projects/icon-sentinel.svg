@@ -4,7 +4,6 @@
 <path d="M3 75C3 92.6731 17.3269 107 35 107H265C282.673 107 297 92.6731 297 75V-8H3V75Z" fill="url(#paint0_linear_2422_19614)" fill-opacity="0.6"/>
 <rect x="-34" y="36" width="367.369" height="227.95" fill="url(#pattern0_2422_19614)"/>
 </g>
-<rect x="1" y="1" width="298" height="298" rx="43" stroke="white" stroke-width="2"/>
 <defs>
 <pattern id="pattern0_2422_19614" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image0_2422_19614" transform="scale(0.00189753 0.0030581)"/>
