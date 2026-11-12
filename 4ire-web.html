@@ -19,14 +19,22 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="case.css">
 <script src="image-slot.js"></script>
-<style>.case-hero{--tint:rgba(120,170,255,.2)}a{color:inherit}a:hover{color:var(--ink)}</style>
+<style>
+.case-hero{--tint:rgba(120,170,255,.2)}a{color:inherit}a:hover{color:var(--ink)}
+.hero-video-wrap{width:100%;max-width:960px;margin:0 auto 32px;border-radius:16px;overflow:hidden;aspect-ratio:1440/1122;background:#0a0a0c}
+.hero-video-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+</style>
 </head>
 <body>
 <nav class="nav" id="nav"><div class="wrap"><a href="ai-lab.html" class="back"><span>←</span> AI Lab</a><span class="proj">AI case study · 4IRE website</span></div></nav>
 <main>
 <section class="case-hero" data-screen-label="01 Hero"><div class="glow"></div><div class="wrap">
 <span class="ai-badge reveal">✦ AI-built · Figma AI</span>
-<image-slot id="fw-hero" class="reveal" shape="rounded" radius="16" placeholder="4irelabs.com — new glass light homepage (drop a Figma export here)" style="width:100%;max-width:960px;aspect-ratio:16/9"></image-slot>
+<div class="hero-video-wrap reveal">
+  <video autoplay muted loop playsinline preload="metadata" poster="assets/ai/4ire-desktop.png">
+    <source src="assets/ai/4ire-hero.mp4" type="video/mp4">
+  </video>
+</div>
 <p class="nb-eyebrow reveal">Corporate website ⋆ Glass UI ⋆ Light theme ⋆ Responsive ⋆ SEO structure ⋆ Figma AI</p>
 <h1 class="nb-title reveal">4IRE Labs Website</h1>
 <p class="nb-sub reveal" style="max-width:40ch">A light, glass-inspired redesign of 4irelabs.com — delivered 4× faster with Figma AI.</p>
@@ -47,13 +55,14 @@
 <div class="reveal"><span class="kicker">Process</span><h2 class="sec">Taste by hand. Repetition by AI.</h2></div>
 <div class="steps reveal"><div class="step"><span class="k">01 · Direction</span><h4>Glass language</h4><p>Light glass surfaces, depth and colour defined by hand.</p></div><div class="step"><span class="k">02 · Key pages</span><h4>Hero &amp; structure</h4><p>Homepage, expertise, white-label solutions and cases designed manually.</p></div><div class="step"><span class="k">03 · AI scale-up</span><h4>Icons, motion, variants</h4><p>Figma AI generates icons, animations, responsive layouts and repeated blocks.</p></div><div class="step"><span class="k">04 · Handoff</span><h4>Tokens &amp; components</h4><p>Variables and components ready for developers.</p></div></div>
 </div></section><section class="s" data-screen-label="05 Product Features"><div class="wrap">
-<h2 class="sec reveal" style="margin-bottom:18px">Product Features</h2><p class="lead-p reveal" style="margin-bottom:48px">Drop your Figma exports into the frames below — glass icons, animation previews and responsive layouts.</p>
-<div class="feat reveal"><div class="lab">Visual language</div><h3>Glass <strong>UI kit</strong></h3>
-<div class="ftabs" role="tablist"><button class="ftab" role="tab" aria-selected="true" data-fpanel="fw-0">Glass icons</button><button class="ftab" role="tab" aria-selected="false" data-fpanel="fw-1">Animations</button></div>
-<div class="fpanels"><div class="fpanel active" data-panel="fw-0"><div class="fshot-wrap"><image-slot id="fw-slot-0" shape="rounded" radius="12" placeholder="Glass icon set — export from 4IRE Design 2026"></image-slot></div><div class="finfo"><p class="fk">Glass icon set</p><p>A consistent set of <span class="hi">glass icons</span> for expertise, products and services — generated with Figma AI and refined by hand.</p></div></div><div class="fpanel" data-panel="fw-1"><div class="fshot-wrap"><image-slot id="fw-slot-1" shape="rounded" radius="12" placeholder="Animation preview (GIF / frame) from Figma"></image-slot></div><div class="finfo"><p class="fk">Micro-animations</p><p>Subtle motion for the hero sphere, cards and hovers keeps the light theme alive without distracting.</p></div></div></div></div>
-<div class="feat reveal"><div class="lab">Responsive</div><h3>Desktop, tablet <strong>&amp; mobile</strong></h3>
-<div class="ftabs" role="tablist"><button class="ftab" role="tab" aria-selected="true" data-fpanel="fw-2">Desktop</button><button class="ftab" role="tab" aria-selected="false" data-fpanel="fw-3">Mobile</button></div>
-<div class="fpanels"><div class="fpanel active" data-panel="fw-2"><div class="fshot-wrap"><image-slot id="fw-slot-2" shape="rounded" radius="12" placeholder="Desktop homepage"></image-slot></div><div class="finfo"><p class="fk">Desktop</p><p>Hero, trusted-by strip, expertise, white-label solutions, cases and contact.</p></div></div><div class="fpanel" data-panel="fw-3"><div class="fshot-wrap"><image-slot id="fw-slot-3" shape="rounded" radius="12" placeholder="Mobile homepage"></image-slot></div><div class="finfo"><p class="fk">Mobile</p><p>Responsive variants and repeated blocks generated with AI, then checked and tuned by hand.</p></div></div></div></div>
+<h2 class="sec reveal" style="margin-bottom:18px">Product Features</h2><p class="lead-p reveal" style="margin-bottom:48px">Light glass surfaces, AI-generated icons and structured content sections — all designed to convert institutional visitors.</p>
+<div class="feat reveal"><div class="lab">Target audiences</div><h3>Built for <strong>everyone who moves money</strong></h3>
+<div class="ftabs" role="tablist"><button class="ftab" role="tab" aria-selected="true" data-fpanel="fw-0">Glass icons</button><button class="ftab" role="tab" aria-selected="false" data-fpanel="fw-1">Process steps</button><button class="ftab" role="tab" aria-selected="false" data-fpanel="fw-ia">Infographic</button></div>
+<div class="fpanels">
+<div class="fpanel active" data-panel="fw-0"><div class="fshot-wrap"><img class="fshot" src="assets/ai/4ire-icons.webp" alt="Built for Everyone Who Moves Money — glass icon cards" loading="lazy"></div><div class="finfo"><p class="fk">Glass icon set</p><p>8 audience segments — Fintechs, Banks, Retail, Remittances, iGaming, Investment, DAO Treasury, Government Reserves — each with a <span class="hi">3D glass icon</span> generated with Figma AI and refined by hand.</p></div></div>
+<div class="fpanel" data-panel="fw-1"><div class="fshot-wrap"><img class="fshot" src="assets/ai/4ire-process.webp" alt="From Idea to Market in One Team — 5-step process" loading="lazy"></div><div class="finfo"><p class="fk">From Idea to Market</p><p>5-step product journey — Validate, Develop, Go-to-Market, Launch, Gain Customers — displayed as <span class="hi">glass step cards</span> on a perspective track background.</p></div></div>
+<div class="fpanel" data-panel="fw-ia"><div class="fshot-wrap"><img class="fshot" src="assets/ai/4ire-gantt.webp" alt="3–4 Months from Kickoff to Launch — glass Gantt infographic" loading="lazy"></div><div class="finfo"><p class="fk">Glass infographic</p><p>A delivery timeline — Discovery → Architecture → Smart contracts → Platform → Audit → Launch — presented as a <span class="hi">glass Gantt chart</span> with a glass card overlay.</p></div></div>
+</div></div>
 </div></section><section class="s end" data-screen-label="Want to learn more"><div class="wrap reveal"><div class="ty">Thanks for reading</div><h2>Want a working prototype like this?</h2><div class="end-btns"><a class="btn solid" href="mailto:nadzeyahuts@gmail.com">Let's talk</a><a class="btn" href="sentinel.html">Sentinel</a><a class="btn" href="earthbyt.html">EarthByt</a></div></div></section>
 </main>
 <nav id="rail" aria-label="Section navigation"></nav>
