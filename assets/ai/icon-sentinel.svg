@@ -1,0 +1,8 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="200" height="200" rx="40" fill="#0C1220"/>
+<!-- shield shape -->
+<path d="M100 28L160 55V100C160 134 134 162 100 172C66 162 40 134 40 100V55L100 28Z" fill="#1E3A5F"/>
+<path d="M100 28L160 55V100C160 134 134 162 100 172C66 162 40 134 40 100V55L100 28Z" stroke="#3B82F6" stroke-width="5" fill="none"/>
+<!-- S letter path -->
+<path d="M76 90C76 82 83 76 95 76H112C120 76 126 82 126 90C126 98 120 100 112 100H88C80 100 74 106 74 114C74 122 80 128 88 128H112C120 128 126 122 126 114" stroke="#60A5FA" stroke-width="9" stroke-linecap="round" fill="none"/>
+</svg>
