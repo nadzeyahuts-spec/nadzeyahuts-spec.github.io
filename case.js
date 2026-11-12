@@ -44,6 +44,39 @@
     addEventListener('load',inview); inview();
   }
 
+  // counter animation for .nb-statcard .n and .kpi .n
+  if (!reduced && 'IntersectionObserver' in window){
+    function animCount(el){
+      const raw = el.textContent.trim();
+      const m = raw.match(/^(\d+(?:\.\d+)?)(.*?)(\d*)(.*)$/);
+      if(!m || isNaN(parseFloat(m[1]))) return;
+      const target = parseFloat(m[1]); const dec = m[1].includes('.') ? m[1].split('.')[1].length : 0;
+      const prefix = ''; const suffix = m[2] + (m[3] ? m[3]+m[4] : '');
+      const dur = 1400; const start = performance.now();
+      (function step(now){
+        const p = Math.min((now - start)/dur, 1);
+        const ease = 1 - Math.pow(1-p, 3);
+        el.textContent = (ease * target).toFixed(dec) + suffix;
+        if(p < 1) requestAnimationFrame(step);
+      })(start);
+    }
+    const cntEls = [...document.querySelectorAll('.nb-statcard .n, .kpi .n')];
+    const cio = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ animCount(e.target); cio.unobserve(e.target); } });
+    },{threshold:0.5});
+    cntEls.forEach(el=>cio.observe(el));
+
+    // bar animation
+    document.querySelectorAll('.bar i, .tr i').forEach(bar=>{
+      const targetW = bar.style.width || '0%';
+      bar.style.width = '0';
+      const bio = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.transition='width 1.2s cubic-bezier(.22,1,.36,1)'; e.target.style.width=targetW; bio.unobserve(e.target); } });
+      },{threshold:0.3});
+      bio.observe(bar);
+    });
+  }
+
   // image lightbox
   const lb=document.createElement('div'); lb.id='lightbox';
   const lbimg=document.createElement('img'); lbimg.alt=''; lb.appendChild(lbimg);

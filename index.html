@@ -49,11 +49,11 @@
 
   /* right work list */
   .work-head { color: var(--faint); font-size: 14px; margin-bottom: 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-  .ai-pill { display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:500; color:var(--ink); border:1px solid rgba(20,241,149,.4); background:rgba(20,241,149,.07); border-radius:30px; padding:8px 14px 8px 12px; transition:background .2s, border-color .2s, transform .2s; }
+  .ai-pill { display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:500; color:var(--ink); border:1px solid rgba(20,241,149,.4); background:rgba(20,241,149,.07); border-radius:30px; padding:8px 14px; transition:background .2s, border-color .2s, transform .2s; }
   .ai-pill:hover { background:rgba(20,241,149,.14); border-color:var(--green); transform:translateY(-2px); }
-  .ai-pill .sp { color:var(--green); }
-  .ai-pill .ct { color:var(--muted); font-weight:400; font-size:12.5px; }
-  .ai-pill .ar { color:var(--green); }
+  .ai-pill .sp { color:var(--green); font-size:15px; }
+  .ai-pill .ct { color:#fff; font-weight:500; font-size:13px; }
+  .ai-pill .ar { color:var(--muted); font-size:14px; }
   @media (max-width:480px){ .ai-pill .ct { display:none; } }
   .work-list { display: flex; flex-direction: column; gap: 10px; }
   .work {
@@ -74,9 +74,32 @@
     .work .yr { grid-column: 2; grid-row: 2; }
   }
 
+  /* left section flex so meta-row aligns bottom */
+  .home > section:first-child { display: flex; flex-direction: column; }
+  .home > section:first-child .meta-row { margin-top: auto; padding-top: 20px; }
+
   /* meta labels under stats */
-  .meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; max-width: 560px; }
+  .meta-row { display: flex; justify-content: space-between; align-items: center; max-width: 560px; }
   .meta-row .label { font-size: 13px; color: var(--muted); }
+
+  /* pulsing dot for Remote */
+  .pulse-wrap { display: inline-flex; align-items: center; gap: 8px; }
+  .pulse-dot { position: relative; width: 8px; height: 8px; flex-shrink: 0; }
+  .pulse-dot span { position: absolute; inset: 0; border-radius: 50%; background: var(--green); }
+  .pulse-dot::before, .pulse-dot::after {
+    content: ''; position: absolute; border-radius: 50%; border: 1px solid var(--green);
+    inset: -4px; opacity: 0; animation: ripple 2.4s ease-out infinite;
+  }
+  .pulse-dot::after { inset: -8px; border-width: 1.5px; border-color: rgba(20,241,149,.5); animation-delay: 0.8s; }
+  @keyframes ripple {
+    0% { opacity: .6; transform: scale(.6); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+
+  /* counter animation */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+  .reveal-up { opacity: 0; }
+  .reveal-up.in-view { animation: fadeUp .6s cubic-bezier(.22,1,.36,1) forwards; }
 
   /* footer social */
   .social { display: flex; justify-content: center; gap: 28px; padding: 10px 0 24px; }
@@ -120,13 +143,13 @@
       </div>
       <div class="meta-row">
         <span class="label">UX/UI Portfolio: 2026</span>
-        <span class="label">Remote</span>
+        <span class="label pulse-wrap"><span class="pulse-dot"><span></span></span>Remote</span>
       </div>
     </section>
 
     <!-- RIGHT -->
     <section>
-      <div class="work-head"><span>Recent work</span><a class="ai-pill" href="ai-lab.html"><span class="sp">✦</span> AI Lab <span class="ct">4 AI-built projects</span> <span class="ar">→</span></a></div>
+      <div class="work-head"><span>Recent work</span><a class="ai-pill" href="ai-lab.html"><span class="sp">AI Lab</span> <span class="ct">4 AI-built projects</span> <span class="ar">→</span></a></div>
       <div class="work-list">
         <a class="work reveal" href="together-fun.html">
           <div class="ic"><img src="assets/icon-together.webp" alt="Together.fun" /></div>
@@ -201,6 +224,31 @@
     const inview=()=>els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');});
     addEventListener('load',inview); inview();
     setTimeout(()=>els.forEach(el=>{const m=new DOMMatrixReadOnly(getComputedStyle(el).transform);if(Math.abs(m.m42)>.5){el.style.transition='none';el.style.transform='none';}}),1100);
+  }
+
+  // number counter animation for stat .big elements
+  function animateCounter(el){
+    const text = el.textContent.trim();
+    const match = text.match(/^(\d+)(.*)$/);
+    if(!match) return;
+    const target = parseInt(match[1], 10);
+    const suffix = match[2];
+    const duration = 1200;
+    const start = performance.now();
+    function step(now){
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target) + suffix;
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  if(!reduced && 'IntersectionObserver' in window){
+    const statEls = Array.from(document.querySelectorAll('.stat .big'));
+    const cio = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting){ animateCounter(e.target); cio.unobserve(e.target); } });
+    }, {threshold: 0.5});
+    statEls.forEach(el => cio.observe(el));
   }
 })();
 </script>

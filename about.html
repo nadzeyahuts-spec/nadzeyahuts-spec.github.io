@@ -207,7 +207,7 @@ cv.addEventListener('pointermove',e=>{const b=cv.getBoundingClientRect();m.x=(e.
  if(hit){clearTimeout(hideT);const i=hit.object.userData.i;if(i!==cur){cur=i;tip.innerHTML=card(PLACES[i]);const w=360;let x=e.clientX-w-14;if(x<8)x=e.clientX+22;tip.style.left=x+'px';tip.style.top=Math.max(10,Math.min(e.clientY-30,innerHeight-tip.offsetHeight-12))+'px';}tip.classList.add('on');ctr.autoRotate=false;cv.style.cursor='pointer';}
  else{clearTimeout(hideT);hideT=setTimeout(hide,250);}});
 cv.addEventListener('pointerleave',()=>{clearTimeout(hideT);hideT=setTimeout(hide,250);});
-globe.rotation.y=-1.2;
+globe.rotation.y=0.3;
 const clock=new THREE.Clock();
 (function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();globe.children.forEach(o=>{if(o.isSprite){const k=1+.25*Math.sin(t*2.2+o.userData.ph);o.scale.setScalar((o.userData.i===cur?.34:.22)*k);}});ctr.update();renderer.render(scene,cam);})();
 </script>
