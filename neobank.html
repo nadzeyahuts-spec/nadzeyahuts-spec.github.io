@@ -19,10 +19,11 @@
 <meta name="twitter:title" content="NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts" />
 <meta name="twitter:description" content="NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts." />
 <meta name="twitter:image" content="https://nadzeyahuts-spec.github.io/assets/og.png" />
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"CreativeWork","name":"NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts","description":"NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts.","url":"https://nadzeyahuts-spec.github.io/neobank.html","image":"https://nadzeyahuts-spec.github.io/assets/neobank-cards.png","author":{"@type":"Person","name":"Nadzeya Huts","url":"https://nadzeyahuts-spec.github.io/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CreativeWork","name":"NeoBankX — Crypto-Fiat Banking · Case Study by Nadzeya Huts","description":"NeoBankX case study — an enterprise-grade crypto-fiat bridge. End-to-end product design across mobile app, web portal and admin portal, built on Material Design 3 with a customizable module system, by Nadzeya Huts.","url":"https://nadzeyahuts-spec.github.io/neobank.html","image":"https://nadzeyahuts-spec.github.io/assets/neobank-cards.webp","author":{"@type":"Person","name":"Nadzeya Huts","url":"https://nadzeyahuts-spec.github.io/"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="portfolio.css" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script src="image-slot.js"></script>
 <style>
   body { background: #121115; }
 
@@ -106,8 +107,6 @@
   @media (max-width:860px){ .fpanel.active { grid-template-columns:1fr; } }
   .fpanel .fshot { display:block; width:100%; height:auto; border-radius:12px; border:1px solid var(--line); cursor:zoom-in; }
   .fpanel .fshot-wrap { min-width:0; }
-  .fpanel image-slot { display:block; width:100%; aspect-ratio:16/10; border-radius:12px; }
-  .fpanel image-slot.tall { aspect-ratio:4/5; }
   .finfo { background:rgba(255,255,255,.015); border:1px solid var(--line); border-radius:20px; padding:clamp(24px,2.6vw,34px); align-self:start; }
   .finfo .fk { font-size:14px; color:var(--muted); margin:0 0 18px; }
   .finfo p { margin:0 0 16px; color:var(--muted-2); font-size:clamp(15px,1.6vw,17px); line-height:1.65; }
@@ -167,6 +166,22 @@
   html.anim .reveal.in { opacity:1; transform:none; }
   @media print { #rail, #toTop, #toHome { display:none; } }
   @media (prefers-reduced-motion: reduce){ html.anim .reveal { opacity:1; transform:none; transition:none; } }
+
+  /* ---- desktop + mobile-scroll panel (nb-rwa) ---- */
+  .fpanel.nb-rwa.active { display:block; }
+  .nb-rwa-shots { display:flex; gap:clamp(16px,2.2vw,28px); align-items:flex-start; flex-wrap:wrap; }
+  .nb-rwa-shots .fshot-wrap { flex:0 1 700px; min-width:0; }
+  .fpanel.nb-rwa .finfo { margin-top:clamp(20px,2.6vw,32px); }
+  .nb-rwa-m { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; }
+  .nb-rwa-m .ovr-frame { position:relative; width:170px; }
+  .nb-rwa-m .ovr-scroll { width:170px; height:380px; border-radius:18px; overflow-y:auto; overflow-x:hidden; border:1px solid var(--line); -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .nb-rwa-m .ovr-scroll::-webkit-scrollbar { display:none; }
+  .nb-rwa-m .ovr-scroll img { width:100%; height:auto; display:block; }
+  .nb-ovr-hint { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); font-size:11px; color:#fff; background:rgba(0,0,0,.55); padding:5px 11px; border-radius:20px; pointer-events:none; transition:opacity .3s; backdrop-filter:blur(4px); white-space:nowrap; }
+  .nb-rwa-m .ovr-scroll:hover ~ .nb-ovr-hint { opacity:0; }
+  /* mobile-only contact panel */
+  .fpanel.nb-mob-only.active { display:flex; justify-content:center; gap:clamp(20px,3vw,36px); flex-wrap:wrap; align-items:flex-start; }
+  @media (max-width:780px){ .nb-rwa-shots { flex-direction:column; } .nb-rwa-m .ovr-frame,.nb-rwa-m .ovr-scroll { width:100%; max-width:280px; height:420px; } }
 </style>
 </head>
 <body>
@@ -182,9 +197,9 @@
 
   <!-- 1 · HERO -->
   <section class="nb-hero" data-screen-label="01 Hero">
-    <img class="nb-hero-bg" src="assets/neobank-xbg.png" alt="" aria-hidden="true" />
+    <img class="nb-hero-bg" src="assets/neobank-xbg.webp" alt="" aria-hidden="true" />
     <div class="nb-hero-inner wrap">
-      <figure class="reveal" style="margin:0;width:100%"><img class="nb-device" src="assets/neobank-cards.png" alt="NeoBankX Cards dashboard — multicurrency cards, saved contacts and transaction history" /></figure>
+      <figure class="reveal" style="margin:0;width:100%"><img class="nb-device" src="assets/neobank-cards.webp" alt="NeoBankX Cards dashboard — multicurrency cards, saved contacts and transaction history" /></figure>
       <p class="nb-eyebrow reveal">Neobank ⋆ Crypto-Fiat ⋆ Design System ⋆ Material Design 3 ⋆ Web Portal ⋆ Admin Portal</p>
       <h1 class="nb-title reveal">NeoBankX</h1>
       <p class="nb-sub reveal">The enterprise-grade crypto-fiat bridge.</p>
@@ -257,13 +272,13 @@
       <h2 class="sec reveal" style="margin-bottom:18px">Product Features</h2>
       <p class="lead-p reveal" style="margin-bottom:48px">A dark, focused interface with a violet primary for actions and values. Built as a component system so screens stay consistent from the admin web portal down to the mobile app.</p>
 
-      <!-- Cards & Accounts (real dashboard) -->
+      <!-- 1 · Cards & Accounts — web portal (existing real screenshot) -->
       <div class="feat reveal">
         <div class="lab">Web portal</div>
         <h3>Cards &amp; <strong>Accounts</strong></h3>
         <div class="fpanels">
           <div class="fpanel active" data-panel="nb-cards">
-            <div class="fshot-wrap"><img class="fshot" src="assets/neobank-cards.png" alt="Cards dashboard — multicurrency virtual and standard cards, saved payments and contacts, filterable transaction table" loading="lazy" /></div>
+            <div class="fshot-wrap"><img class="fshot" src="assets/neobank-cards.webp" alt="Cards dashboard — multicurrency virtual and standard cards, saved payments and contacts, filterable transaction table" loading="lazy" /></div>
             <div class="finfo">
               <p class="fk">Cards dashboard</p>
               <p>A single surface for <span class="hi">multicurrency virtual and standard cards</span> — MULTI, EUR and USDT balances shown side by side, each with its own controls.</p>
@@ -273,9 +288,9 @@
         </div>
       </div>
 
-      <!-- Crypto (mobile) -->
+      <!-- 2 · Crypto operations — desktop + mobile scroll -->
       <div class="feat reveal">
-        <div class="lab">Mobile app</div>
+        <div class="lab">Mobile &amp; web app</div>
         <h3>Crypto <strong>operations</strong></h3>
         <div class="ftabs" role="tablist">
           <button class="ftab" role="tab" aria-selected="true" data-fpanel="nb-crypto-dash">Portfolio</button>
@@ -283,82 +298,173 @@
           <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-swap">Swap</button>
         </div>
         <div class="fpanels">
-          <div class="fpanel active" data-panel="nb-crypto-dash">
-            <div class="fshot-wrap"><image-slot id="nb-crypto-dash-img" class="tall" shape="rounded" radius="12" placeholder="Crypto portfolio (mobile) — balance, 24h change, candlestick chart"></image-slot></div>
+
+          <!-- Portfolio: wide view + TX history mobile scroll -->
+          <div class="fpanel nb-rwa active" data-panel="nb-crypto-dash">
+            <div class="nb-rwa-shots">
+              <div class="fshot-wrap">
+                <img class="fshot" src="assets/nb/nb-portfolio.webp" alt="Crypto portfolio — total balance, holdings per token with 24h change" loading="lazy">
+              </div>
+              <div class="nb-rwa-m">
+                <div class="ovr-frame">
+                  <div class="ovr-scroll">
+                    <img src="assets/nb/nb-txhistory-m.webp" alt="Transaction history — mobile" loading="lazy">
+                  </div>
+                  <span class="nb-ovr-hint">↕ scroll</span>
+                </div>
+              </div>
+            </div>
             <div class="finfo">
               <p class="fk">Portfolio &amp; analytics</p>
-              <p>Balance dashboard with <span class="hi">24-hour change</span> and a candlestick chart for the selected token.</p>
-              <p>Buy, sell and track holdings from one screen, with per-token detail a tap away.</p>
+              <p>Total balance with <span class="hi">24-hour change per token</span>, buy/sell controls and a full transaction history a scroll away on mobile.</p>
+              <p>Switch between tokens for per-asset detail without leaving the portfolio view.</p>
             </div>
           </div>
-          <div class="fpanel" data-panel="nb-send">
-            <div class="fshot-wrap"><image-slot id="nb-send-img" class="tall" shape="rounded" radius="12" placeholder="Send / Receive crypto modal"></image-slot></div>
+
+          <!-- Send & Receive: wide view + payment-creation mobile scroll -->
+          <div class="fpanel nb-rwa" data-panel="nb-send">
+            <div class="nb-rwa-shots">
+              <div class="fshot-wrap">
+                <img class="fshot" src="assets/nb/nb-send.webp" alt="Send & Receive crypto — address, network, amount and fee breakdown" loading="lazy">
+              </div>
+              <div class="nb-rwa-m">
+                <div class="ovr-frame">
+                  <div class="ovr-scroll">
+                    <img src="assets/nb/nb-payment-m.webp" alt="Payment creation — mobile" loading="lazy">
+                  </div>
+                  <span class="nb-ovr-hint">↕ scroll</span>
+                </div>
+              </div>
+            </div>
             <div class="finfo">
               <p class="fk">Send &amp; Receive</p>
               <p>Address, network and amount with a clear <span class="hi">fee and commission breakdown before signing</span> — no post-action surprises.</p>
-              <p>Receive via QR or copyable address.</p>
+              <p>Receive via QR or copyable address. Payment creation shown on mobile alongside.</p>
             </div>
           </div>
+
+          <!-- Swap: wide view only -->
           <div class="fpanel" data-panel="nb-swap">
-            <div class="fshot-wrap"><image-slot id="nb-swap-img" class="tall" shape="rounded" radius="12" placeholder="Swap crypto — slippage tolerance & route"></image-slot></div>
+            <div class="fshot-wrap">
+              <img class="fshot" src="assets/nb/nb-swap.webp" alt="Swap crypto — from/to tokens, slippage tolerance and route" loading="lazy">
+            </div>
             <div class="finfo">
               <p class="fk">Swap &amp; cross-currency</p>
               <p>CEX-style swaps with <span class="hi">slippage tolerance</span> and a transparent route across providers.</p>
               <p>Cross-currency conversions handled in the same flow.</p>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Create -->
+      <!-- 3 · Create — card, contact, account -->
       <div class="feat reveal">
         <div class="lab">Create</div>
         <h3>New card, contact <strong>&amp; account</strong></h3>
         <div class="ftabs" role="tablist">
           <button class="ftab" role="tab" aria-selected="true" data-fpanel="nb-card">Add card</button>
+          <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-card-settings">Card settings</button>
           <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-contact">Add contact</button>
           <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-account">Add account</button>
         </div>
         <div class="fpanels">
+
           <div class="fpanel active" data-panel="nb-card">
-            <div class="fshot-wrap"><image-slot id="nb-card-img" shape="rounded" radius="12" placeholder="Add New Card modal"></image-slot></div>
+            <div class="fshot-wrap">
+              <img class="fshot" src="assets/nb/nb-card.webp" alt="Add New Card — card type, currency and spending limits" loading="lazy">
+            </div>
             <div class="finfo">
               <p class="fk">Add a new card</p>
               <p>Choose card type and currency, set <span class="hi">spending limits</span> (per transaction and per period), and confirm — all in one guided modal.</p>
             </div>
           </div>
-          <div class="fpanel" data-panel="nb-contact">
-            <div class="fshot-wrap"><image-slot id="nb-contact-img" shape="rounded" radius="12" placeholder="Add a New Contact modal"></image-slot></div>
+
+          <div class="fpanel" data-panel="nb-card-settings">
+            <div class="fshot-wrap">
+              <img class="fshot" src="assets/nb/nb-card-settings.webp" alt="Card Settings — freeze, rename, spending limits and PIN management" loading="lazy">
+            </div>
+            <div class="finfo">
+              <p class="fk">Card settings</p>
+              <p>Full card management in one surface: <span class="hi">freeze / unfreeze, rename, adjust limits</span> and PIN controls — with the card always in view at the top.</p>
+            </div>
+          </div>
+
+          <!-- Contact: mobile-only scrollable -->
+          <div class="fpanel nb-mob-only" data-panel="nb-contact">
+            <div class="nb-rwa-m">
+              <div class="ovr-frame" style="width:220px">
+                <div class="ovr-scroll" style="width:220px;height:460px">
+                  <img src="assets/nb/nb-contacts-m.webp" alt="Contacts — mobile view, add platform friend or bank recipient" loading="lazy">
+                </div>
+                <span class="nb-ovr-hint">↕ scroll</span>
+              </div>
+            </div>
             <div class="finfo">
               <p class="fk">Add a new contact</p>
               <p>Save recipients by transfer type — <span class="hi">platform friend, bank recipient, card recipient, crypto wallet</span> or international transfer (SWIFT / SEPA).</p>
             </div>
           </div>
+
           <div class="fpanel" data-panel="nb-account">
-            <div class="fshot-wrap"><image-slot id="nb-account-img" shape="rounded" radius="12" placeholder="Add Account / accounts overview"></image-slot></div>
+            <div class="fshot-wrap">
+              <img class="fshot" src="assets/nb/nb-accounts.webp" alt="Accounts overview — multicurrency accounts list with balances" loading="lazy">
+            </div>
             <div class="finfo">
-              <p class="fk">Add an account</p>
-              <p>Open additional <span class="hi">multicurrency accounts</span> and manage them from a single overview.</p>
+              <p class="fk">Accounts overview</p>
+              <p>All <span class="hi">multicurrency accounts</span> in one list — open new ones, switch between them, and manage each from a single overview.</p>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Compliance / admin -->
+      <!-- 4 · Compliance / KYC — admin portal -->
       <div class="feat reveal">
         <div class="lab">Admin portal</div>
-        <h3>Compliance <strong>&amp; monitoring</strong></h3>
+        <h3>Compliance <strong>&amp; KYC monitoring</strong></h3>
+        <div class="ftabs" role="tablist">
+          <button class="ftab" role="tab" aria-selected="true" data-fpanel="nb-kyc">Verified user</button>
+          <button class="ftab" role="tab" aria-selected="false" data-fpanel="nb-kyc-unverified">Unverified state</button>
+        </div>
         <div class="fpanels">
-          <div class="fpanel active" data-panel="nb-admin">
-            <div class="fshot-wrap"><image-slot id="nb-admin-img" shape="rounded" radius="12" placeholder="Admin — analytics / KYC-AML monitoring views"></image-slot></div>
+
+          <!-- Verified: wide KYC screen + security mobile scroll -->
+          <div class="fpanel nb-rwa active" data-panel="nb-kyc">
+            <div class="nb-rwa-shots">
+              <div class="fshot-wrap">
+                <img class="fshot" src="assets/nb/nb-kyc.webp" alt="User Details Verification — KYC status, documents and PEP/HIO flags in admin portal" loading="lazy">
+              </div>
+              <div class="nb-rwa-m">
+                <div class="ovr-frame">
+                  <div class="ovr-scroll">
+                    <img src="assets/nb/nb-security-m.webp" alt="Security tab — mobile user info" loading="lazy">
+                  </div>
+                  <span class="nb-ovr-hint">↕ scroll</span>
+                </div>
+              </div>
+            </div>
             <div class="finfo">
-              <p class="fk">Transaction monitoring · KYC / AML</p>
-              <p>Analytics dashboards and monitoring tools for the operations team — <span class="hi">flag, review and resolve</span> transactions with a full audit trail.</p>
-              <p>User verification states (including <span class="hi">PEP / HIO</span> status) are surfaced directly in the review flow.</p>
+              <p class="fk">KYC review · verified user</p>
+              <p>Operations team sees the user's verification status, submitted documents and <span class="hi">PEP / HIO flags</span> — all in one review panel with a full audit trail.</p>
+              <p>Mobile security tab (scrollable) shows the same data from the user's side.</p>
             </div>
           </div>
+
+          <!-- Unverified state -->
+          <div class="fpanel" data-panel="nb-kyc-unverified">
+            <div class="fshot-wrap">
+              <img class="fshot" src="assets/nb/nb-kyc-unverified.webp" alt="User Info — not verified state with verification prompt" loading="lazy">
+            </div>
+            <div class="finfo">
+              <p class="fk">Unverified user state</p>
+              <p>When KYC is incomplete the admin view surfaces the <span class="hi">missing documents and next steps</span> — so the operations team can prompt or assist the user without leaving the portal.</p>
+            </div>
+          </div>
+
         </div>
       </div>
+
     </div>
   </section>
 
