@@ -1,0 +1,9 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="300" rx="44" fill="#15161A"/>
+<!-- A letterform - clean geometric -->
+<path d="M90 215L150 85L210 215H188L174 180H126L112 215H90Z" fill="#6366F1"/>
+<path d="M133 162H167L150 118L133 162Z" fill="#15161A"/>
+<!-- arrow up-right accent -->
+<path d="M190 100L215 100L215 125" stroke="#818CF8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M192 123L215 100" stroke="#818CF8" stroke-width="8" stroke-linecap="round"/>
+</svg>

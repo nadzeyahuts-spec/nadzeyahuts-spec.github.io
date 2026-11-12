@@ -1,0 +1,7 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="300" rx="44" fill="#15161A"/>
+<!-- widget frame -->
+<rect x="72" y="92" width="156" height="116" rx="18" fill="none" stroke="#F59E0B" stroke-width="7"/>
+<!-- M shape inside -->
+<path d="M105 185V130L150 162L195 130V185" stroke="#F59E0B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

@@ -32,20 +32,16 @@
 
   .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
 
-  /* top bar */
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 26px 0; }
-  .topbar .label { font-size: 14px; color: var(--muted); }
-
   /* main grid */
-  .home { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(20px,4vw,40px) 0 60px; }
-  @media (max-width: 940px) { .home { grid-template-columns: 1fr; gap: 48px; align-items: start; } }
+  .home { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; padding: clamp(10px,2vw,20px) 0 10px; }
+  @media (max-width: 940px) { .home { grid-template-columns: 1fr; gap: 36px; align-items: start; } }
 
   /* left intro */
   h1.name { font-size: clamp(58px, 11vw, 132px); line-height: 0.92; letter-spacing: -0.03em; font-weight: 500; }
-  .role { margin-top: clamp(28px,4vw,46px); color: var(--muted); font-size: clamp(16px,1.8vw,19px); }
-  .tagline { margin-top: 12px; font-size: clamp(18px,2.1vw,23px); color: var(--ink); font-weight: 400; letter-spacing: -0.005em; }
+  .role { margin-top: clamp(16px,2.5vw,28px); color: var(--muted); font-size: clamp(16px,1.8vw,19px); }
+  .tagline { margin-top: 8px; font-size: clamp(18px,2.1vw,23px); color: var(--ink); font-weight: 400; letter-spacing: -0.005em; }
 
-  .stats { margin-top: clamp(36px,5vw,56px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 560px; }
+  .stats { margin-top: clamp(18px,3vw,32px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 560px; }
   @media (max-width: 480px) { .stats { grid-template-columns: 1fr; gap: 26px; } }
   .stat .big { font-family: var(--body); font-weight: 400; font-size: 20px; line-height: 1.5; letter-spacing: -0.005em; color: #fff; }
   .stat .cap { font-family: var(--body); font-weight: 500; font-size: 12px; line-height: 1.5; letter-spacing: 0.015em; color: rgba(255,255,255,.6); margin-top: 2px; }
@@ -59,10 +55,10 @@
   .ai-pill .ct { color:var(--muted); font-weight:400; font-size:12.5px; }
   .ai-pill .ar { color:var(--green); }
   @media (max-width:480px){ .ai-pill .ct { display:none; } }
-  .work-list { display: flex; flex-direction: column; gap: 16px; }
+  .work-list { display: flex; flex-direction: column; gap: 10px; }
   .work {
-    position: relative; display: grid; grid-template-columns: 84px 1fr auto; gap: 22px; align-items: center;
-    padding: 22px 26px; border-radius: 20px; border: 1px solid var(--line);
+    position: relative; display: grid; grid-template-columns: 84px 1fr auto; gap: 18px; align-items: center;
+    padding: 14px 20px; border-radius: 20px; border: 1px solid var(--line);
     background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.008));
     transition: border-color .25s ease, transform .25s ease, background .25s ease;
   }
@@ -78,8 +74,12 @@
     .work .yr { grid-column: 2; grid-row: 2; }
   }
 
+  /* meta labels under stats */
+  .meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; max-width: 560px; }
+  .meta-row .label { font-size: 13px; color: var(--muted); }
+
   /* footer social */
-  .social { display: flex; justify-content: center; gap: 28px; padding: 14px 0 44px; }
+  .social { display: flex; justify-content: center; gap: 28px; padding: 10px 0 24px; }
   .social a { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); transition: color .2s ease; font-size: 13px; }
   .social a:hover { color: var(--ink); }
   .social .glyph { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); color: #fff; display: flex; align-items: center; justify-content: center; transition: background .2s ease; }
@@ -93,11 +93,6 @@
 <div class="page wrap" itemscope itemtype="https://schema.org/Person">
   <meta itemprop="name" content="Nadzeya Huts" />
   <meta itemprop="jobTitle" content="Senior UX/UI Designer" />
-
-  <header class="topbar">
-    <span class="label">UX/UI Portfolio: 2026</span>
-    <span class="label">Remote</span>
-  </header>
 
   <main class="home">
     <!-- LEFT -->
@@ -122,6 +117,10 @@
           <div class="cap">Shipped</div>
           <div class="desc">Web3 DeFi, Crypto games, Neobank, Banking, Low-Code Platforms</div>
         </div>
+      </div>
+      <div class="meta-row">
+        <span class="label">UX/UI Portfolio: 2026</span>
+        <span class="label">Remote</span>
       </div>
     </section>
 
