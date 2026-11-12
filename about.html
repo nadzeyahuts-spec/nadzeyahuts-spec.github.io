@@ -14,6 +14,7 @@
 <meta property="og:image" content="https://nadzeyahuts-spec.github.io/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="portfolio.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
 body { background: #121115; overflow-x: hidden; }
@@ -150,17 +151,17 @@ import { feature } from 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm
 const I={tg:'assets/icon-together.webp',ire:'assets/icon-4ire.webp',rwa:'assets/icon-4ire-rwa.webp',tons:'assets/icon-tons.webp',nb:'assets/icon-neobank.webp',sn:'assets/ai/icon-sentinel.webp',nv:'assets/ai/icon-nova.webp',eb:'assets/ai/icon-earthbyt.webp'};
 // [country, lat, lon, [[icon|null, name, theses, year, link]]] — icon null = monogram until the SVG is added
 const PLACES=[
-['USA',38.9,-77.0,[[I.sn,'Sentinel','AI prototype of a retirement-planning & reporting platform','2026','sentinel.html'],[I.tg,'Together.fun','Provably fair memecoin PvP game on Solana · web app','2025–26','together-fun.html'],['assets/projects/carbcoin.svg','Carbcoin','Carbon-credit web app and admin panel','2025','https://4irelabs.com/cases/carbcoin/'],['assets/projects/timetick.svg','TimeTick','Website & digital layouts for an EV-charger testing platform','2024','']]],
-['Sweden',59.33,18.07,[[I.rwa,'4IRE RWA Platform','White-label RWA tokenization product','2026','4ire.html'],['assets/projects/4ire-website.svg','4IRE Labs Website','Glass-UI redesign, presentations, digital materials','2026','4ire-web.html'],[I.eb,'EarthByt','Carbon-credit marketplace · AI clickable prototype','2026','earthbyt.html'],[I.nv,'NOVA Mini-Games','Two iGaming prototypes built with AI in 8 hours','2026','nova.html'],['assets/projects/cryptobank.svg','CryptoBank','White-label banking: web, app and admin parts','2024',''],[null,'Modernize Widget App','Mini-app modernization','2026','']]],
-['Switzerland',46.95,7.45,[[I.tons,'TONS MONEY Capital','RWA investment platform','2025','tons.html'],[null,'GreenFinance','White-label app, web, admin and landing','2025',''],['assets/projects/drive-sports.svg','Drive Sports','Website redesign','2026','https://www.drivesports.ch/']]],
+['USA',38.9,-77.0,[[I.sn,'Sentinel','AI prototype of a retirement-planning & reporting platform','2026','sentinel.html'],[I.tg,'Together.fun','Provably fair memecoin PvP game on Solana · web app','2025–26','together-fun.html'],['assets/projects/carbcoin.svg','Carbcoin','Carbon-credit web app and admin panel','2025','https://4irelabs.com/cases/carbcoin/'],['assets/projects/timetick.svg','TimeTick','Website & digital layouts for an EV-charger testing platform','2024',''],['assets/projects/ableplatform.svg','Able Platform','Web app redesign, presentations, reports, one-pagers','2022–','https://ableplatform.io/']]],
+['Sweden',59.33,18.07,[[I.rwa,'4IRE RWA Platform','White-label RWA tokenization product','2026','4ire.html'],['assets/projects/4ire-website.svg','4IRE Labs Website','Glass-UI redesign, presentations, digital materials','2026','4ire-web.html'],[I.eb,'EarthByt','Carbon-credit marketplace · AI clickable prototype','2026','earthbyt.html'],[I.nv,'NOVA Mini-Games','Two iGaming prototypes built with AI in 8 hours','2026','nova.html'],['assets/projects/cryptobank.svg','CryptoBank','White-label banking: web, app and admin parts','2024',''],['assets/projects/modernize.svg','Modernize Widget App','Mini-app modernization','2026','']]],
+['Switzerland',46.95,7.45,[[I.tons,'TONS MONEY Capital','RWA investment platform','2025','tons.html'],['assets/projects/greenfinance.svg','GreenFinance','White-label app, web, admin and landing','2025',''],['assets/projects/drive-sports.svg','Drive Sports','Website redesign','2026','https://www.drivesports.ch/']]],
 ['Canada',45.42,-75.7,[[I.nb,'NeoBank','Crypto-fiat mobile banking app · Material 3','2024–26','neobank.html'],['assets/projects/argo.svg','Argo','New features for an existing product','2024','']]],
-['United Kingdom',51.51,-0.13,[[null,'Able Platform','Web app redesign, presentations, reports, one-pagers','2022–','https://ableplatform.io/'],[null,'RNDpoint','Website redesign, WordPress, SEO, presentations, reports','2022–','https://rndpoint.com/']]],
+['United Kingdom',51.51,-0.13,[['assets/projects/rndpoint.svg','RNDpoint','Website redesign, WordPress, SEO, presentations, reports','2022–','https://rndpoint.com/']]],
 ['Netherlands',52.37,4.9,[['assets/projects/decio.svg','Decio.ai','Marketing website','2025',''],['assets/projects/rtc-x.svg','RTC-X','Discovery layouts for a tokenized gold & silver platform','2025','']]],
 ['Germany',52.52,13.4,[['assets/projects/tgcs.svg','TGCS Platform','Discovery layouts for a multi-project investment platform','2026','']]],
 ['France',48.86,2.35,[['assets/projects/attentionpad.svg','Attention Pad','Landing and web app','2025','']]],
 ['Belarus',53.9,27.57,[['assets/projects/belgazprombank.svg','CDMS · Belgazprombank','Credit document management system: client side and bank part','2021',''],['assets/projects/monday-learn.svg','Monday Learn','Website for a digital-marketing school','2021',''],['assets/projects/a1qa.svg','A1QA','Digital and print materials for HR','2019–22','']]],
 ['Georgia',41.72,44.8,[['assets/projects/basisbank.svg','Basisbank','New features for the banking web app','2024','']]],
-['Pakistan',33.68,73.05,[[null,'Carbon Trade Marketplace','Carbon-credit web app','2024','']]],
+['Pakistan',33.68,73.05,[['assets/projects/carbontrade.svg','Carbon Trade Marketplace','Carbon-credit web app','2024','']]],
 ['UAE',25.2,55.27,[['assets/projects/answap.svg','answap.io','Token-swap web app redesign for Alfahost','2026','https://answap.io']]],
 ['South Africa',-25.75,28.19,[['assets/projects/centra-sul.svg','Centra Sul','On-chain gold settlement · RWA, green finance','2025–26','']]],
 ['Australia',-33.87,151.2,[['assets/projects/genius-radar.svg','Genius Radar','Website redesign, promo and print materials','2026','https://geniusradar.com/']]],
