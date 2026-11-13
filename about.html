@@ -32,7 +32,7 @@ h1.name { font-size: clamp(58px, 11vw, 132px); line-height: 0.92; letter-spacing
 .role { margin-top: clamp(28px,4vw,46px); color: var(--muted); font-size: clamp(16px,1.8vw,19px); }
 .tagline { margin-top: 12px; font-size: clamp(18px,2.1vw,23px); color: var(--ink); font-weight: 400; letter-spacing: -0.005em; }
 .stats { margin-top: clamp(36px,5vw,56px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 560px; }
-@media (max-width: 480px) { .stats { grid-template-columns: 1fr; gap: 26px; } }
+@media (max-width: 480px) { .stats { gap: 10px; } .stat .big { font-size:16px; } .stat .desc { display:none; } }
 .stat .big { font-family: var(--body); font-weight: 400; font-size: 20px; line-height: 1.5; letter-spacing: -0.005em; color: #fff; }
 .stat .cap { font-family: var(--body); font-weight: 500; font-size: 12px; line-height: 1.5; letter-spacing: 0.015em; color: rgba(255,255,255,.6); margin-top: 2px; }
 .stat .desc { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; line-height: 1.5; }
@@ -161,7 +161,7 @@ const I={tg:'assets/icon-together.webp',ire:'assets/icon-4ire.webp',rwa:'assets/
 const PLACES=[
 ['USA',38.9,-77.0,[[I.sn,'Sentinel','AI prototype of a retirement-planning & reporting platform','2026','sentinel.html'],[I.tg,'Together.fun','Provably fair memecoin PvP game on Solana · web app','2025–26','together-fun.html'],['assets/projects/carbcoin.svg','Carbcoin','Carbon-credit web app and admin panel','2025','https://4irelabs.com/cases/carbcoin/'],['assets/projects/timetick.svg','TimeTick','Website & digital layouts for an EV-charger testing platform','2024',''],['assets/projects/ableplatform.svg','Able Platform','Web app redesign, presentations, reports, one-pagers','2022–','https://ableplatform.io/']]],
 ['Sweden',59.33,18.07,[[I.rwa,'4IRE RWA Platform','White-label RWA tokenization product','2026','4ire.html'],['assets/projects/4ire-website.svg','4IRE Labs Website','Glass-UI redesign, presentations, digital materials','2026','4ire-web.html'],[I.eb,'EarthByt','Carbon-credit marketplace · AI clickable prototype','2026','earthbyt.html'],[I.nv,'NOVA Mini-Games','Two iGaming prototypes built with AI in 8 hours','2026','nova.html'],['assets/projects/cryptobank.svg','CryptoBank','White-label banking: web, app and admin parts','2024',''],['assets/projects/modernize.svg','Modernize Widget App','Mini-app modernization','2026','']]],
-['Switzerland',46.95,7.45,[[I.tons,'TONS MONEY Capital','RWA investment platform','2025','tons.html'],['assets/projects/greenfinance.svg','GreenFinance','White-label app, web, admin and landing','2025',''],['assets/projects/drive-sports.svg','Drive Sports','Website redesign','2026','https://www.drivesports.ch/']]],
+['Switzerland',46.95,7.45,[[I.tons,'TONS MONEY Capital','RWA investment platform','2025','tons.html'],['assets/projects/GreenFinance.svg','GreenFinance','White-label app, web, admin and landing','2025',''],['assets/projects/drive-sports.svg','Drive Sports','Website redesign','2026','https://www.drivesports.ch/']]],
 ['Canada',45.42,-75.7,[[I.nb,'NeoBank','Crypto-fiat mobile banking app · Material 3','2024–26','neobank.html'],['assets/projects/argo.svg','Argo','New features for an existing product','2024','']]],
 ['United Kingdom',51.51,-0.13,[['assets/projects/RNDpoint.svg','RNDpoint','Website redesign, WordPress, SEO, presentations, reports','2022–','https://rndpoint.com/']]],
 ['Netherlands',52.37,4.9,[['assets/projects/decio.svg','Decio.ai','Marketing website','2025',''],['assets/projects/rtc-x.svg','RTC-X','Discovery layouts for a tokenized gold & silver platform','2025','']]],
@@ -214,6 +214,7 @@ const showTip=(e,isTouch)=>{const b=cv.getBoundingClientRect();const cx=isTouch?
 cv.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;showTip(e,false);});
 cv.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;e.preventDefault();const found=showTip(e,false);if(!found)hide();});
 cv.addEventListener('touchstart',e=>{const b=cv.getBoundingClientRect();const t=e.touches[0];m.x=(t.clientX-b.left)/b.width*2-1;m.y=-(t.clientY-b.top)/b.height*2+1;ray.setFromCamera(m,cam);const camDir=cam.position.clone().normalize();const hit=ray.intersectObjects(hits).find(h=>h.object.getWorldPosition(new THREE.Vector3()).normalize().dot(camDir)>.15);if(hit){e.preventDefault();clearTimeout(hideT);const i=hit.object.userData.i;cur=i;tip.innerHTML=card(PLACES[i]);const w=Math.min(300,innerWidth-24);tip.style.maxWidth=w+'px';requestAnimationFrame(()=>{const th=tip.offsetHeight||160;let x=t.clientX-w/2;x=Math.max(8,Math.min(x,innerWidth-w-8));tip.style.left=x+'px';tip.style.top=Math.max(8,Math.min(t.clientY-th-16,innerHeight-th-10))+'px';});tip.classList.add('on');ctr.autoRotate=false;}},{passive:false});
+cv.addEventListener('touchend',()=>{clearTimeout(hideT);hideT=setTimeout(hide,3000);});
 cv.addEventListener('pointerleave',()=>{clearTimeout(hideT);hideT=setTimeout(hide,250);});
 globe.rotation.y=0.3;
 const clock=new THREE.Clock();
